@@ -1,0 +1,445 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5AC05A93-B875-4E01-969A-77F5F9B64B9F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SamitCtlNet</RootNamespace>
+    <AssemblyName>SamitCtlNet</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MyType>Windows</MyType>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <AssemblyVersion>2022.6.17</AssemblyVersion>
+    <ShouldCreateLogs>True</ShouldCreateLogs>
+    <AdvancedSettingsExpanded>True</AdvancedSettingsExpanded>
+    <UpdateAssemblyVersion>False</UpdateAssemblyVersion>
+    <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
+    <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
+    <UpdatePackageVersion>False</UpdatePackageVersion>
+    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+    <PrimaryVersionType>AssemblyVersionAttribute</PrimaryVersionType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Pdf.v20.1.Core, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Office.v20.1.Core, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.RichEdit.v20.1.Core, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.RichEdit.v20.1.Export, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Printing.v20.1.Core, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Data.Desktop.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Utils.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraBars.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraEditors.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraLayout.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraGrid.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraPrinting.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Charts.v20.1.Core, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraCharts.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.CodeParser.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraReports.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraVerticalGrid.v20.1, Version=20.1.8.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="DevExpress.XtraExport" />
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+    <Import Include="System.Threading.Tasks" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Clases\ClErrores.vb" />
+    <Compile Include="Clases\ClFunciones.vb" />
+    <Compile Include="Clases\ClregistroSamit.vb" />
+    <Compile Include="Clases\Clseguridad.vb" />
+    <Compile Include="Clases\ClEspera.vb" />
+    <Compile Include="Clases\Grilla.vb" />
+    <Compile Include="Clases\GrillaDevExpress.vb" />
+    <Compile Include="Controles\Loading.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controles\SamitBusq.designer.vb">
+      <DependentUpon>SamitBusq.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Controles\SamitBusq.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controles\SamitTexto.designer.vb">
+      <DependentUpon>SamitTexto.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Controles\SamitTexto.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Formularios\BusquedaSamit.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmBusqRapida.Designer.vb">
+      <DependentUpon>FrmBusqRapida.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmBusqRapida.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmControlConex.Designer.vb">
+      <DependentUpon>FrmControlConex.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmControlConex.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmImpresion.Designer.vb">
+      <DependentUpon>FrmImpresion.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmImpresion.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmOpcInicio.Designer.vb">
+      <DependentUpon>FrmOpcInicio.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmOpcInicio.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmRolEmpresa.Designer.vb">
+      <DependentUpon>FrmRolEmpresa.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmRolEmpresa.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmServidores.Designer.vb">
+      <DependentUpon>FrmServidores.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmServidores.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmVisor.Designer.vb">
+      <DependentUpon>FrmVisor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmVisor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\LoginForm1.designer.vb">
+      <DependentUpon>LoginForm1.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\LoginForm1.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmBuscaComp.Designer.vb">
+      <DependentUpon>FrmBuscaComp.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmBuscaComp.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\WaitForm1.Designer.vb">
+      <DependentUpon>WaitForm1.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\WaitForm1.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Imagenes\Logos\Logos.Designer.vb" />
+    <Compile Include="ModAdoNET.vb" />
+    <Compile Include="ModFormato.vb" />
+    <Compile Include="ModGeneral.vb" />
+    <Compile Include="Clases\SamitCtlNet.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Reportes\RptErrores.Designer.vb">
+      <DependentUpon>RptErrores.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\RptErrores.vb">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controles\Loading.resx">
+      <DependentUpon>Loading.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controles\SamitBusq.resx">
+      <DependentUpon>SamitBusq.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controles\SamitTexto.resx">
+      <DependentUpon>SamitTexto.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\BusquedaSamit.resx">
+      <DependentUpon>BusquedaSamit.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmBusqRapida.resx">
+      <DependentUpon>FrmBusqRapida.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmControlConex.resx">
+      <DependentUpon>FrmControlConex.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmImpresion.resx">
+      <DependentUpon>FrmImpresion.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmOpcInicio.resx">
+      <DependentUpon>FrmOpcInicio.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmRolEmpresa.resx">
+      <DependentUpon>FrmRolEmpresa.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmServidores.resx">
+      <DependentUpon>FrmServidores.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmVisor.resx">
+      <DependentUpon>FrmVisor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\LoginForm1.resx">
+      <DependentUpon>LoginForm1.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmBuscaComp.resx">
+      <DependentUpon>FrmBuscaComp.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\WaitForm1.resx">
+      <DependentUpon>WaitForm1.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Imagenes\Logos\Logos.resx" />
+    <EmbeddedResource Include="My Project\licenses.licx" />
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\RptErrores.resx">
+      <DependentUpon>RptErrores.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Save_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Save_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Search_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Print_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Print_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PrintPreview_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PrintPreview_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PrintQuick_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PrintQuick_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\add_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\add_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\apply_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\apply_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cancel_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cancel_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\export_excel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\imagotipo con brillos transparente calidad media.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\imagotipo con brillos transparente calidad media1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logosamit3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logosamit31.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logosamit32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\printer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono16x16.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono16x161.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono32x32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono32x321.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono48x48.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono48x481.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono64x64.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\samiticono64x641.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\select_by_color.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\solo logop.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\yes01a.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\zoom_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\zoom_32x32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Imagenes\Logos\IMAGEN 1.jpg" />
+    <Content Include="Imagenes\Logos\loader_w.gif" />
+    <None Include="Resources\ExportToXLSX_32x32.png" />
+    <None Include="Resources\ExportToXLSX_16x16.png" />
+    <None Include="Resources\ExportToXLS_32x32.png" />
+    <None Include="Resources\ExportToXLS_16x16.png" />
+    <None Include="Resources\BOCustomer_32x32.png" />
+    <None Include="Resources\BOCustomer_16x16.png" />
+    <None Include="Resources\BOPosition2_32x32.png" />
+    <None Include="Resources\BOPosition2_16x16.png" />
+    <None Include="Resources\BODetails_32x32.png" />
+    <None Include="Resources\BODetails_16x16.png" />
+    <None Include="Resources\Salir_128x.png" />
+    <None Include="Resources\SALIR_48x.png" />
+    <None Include="Resources\disconnect.png" />
+    <None Include="Resources\connect.png" />
+    <None Include="Resources\document_image_ver.png" />
+    <None Include="Resources\document_image_hor.png" />
+    <None Include="Resources\Smt_Salir.jpg" />
+    <None Include="Resources\Importar.jpg" />
+    <None Include="Resources\SamitIcono.ico" />
+    <None Include="Resources\find_16x161.png" />
+    <None Include="Resources\find.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\page_white_magnify.png" />
+    <None Include="Resources\key_escape.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
