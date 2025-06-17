@@ -145,10 +145,9 @@ Public Class SamitTexto
                 Me.Texto.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric
                 Me.Texto.Properties.Mask.EditMask = "n0"
             ElseIf _TipodeDatos = TipodeDato.NumerosSinFormato Then
-
-                'Me.Texto.Properties.Mask.EditMask = ""
-                'Me.Texto.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric
-                'Me.Texto.Properties.Mask.UseMaskAsDisplayFormat = False
+                Me.Texto.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric
+                Me.Texto.Properties.Mask.EditMask = "d"
+                Me.Texto.Properties.Mask.UseMaskAsDisplayFormat = True
             ElseIf _TipodeDatos = TipodeDato.NumerosCon_2_Decimales Then
                 Me.Texto.Properties.Mask.EditMask = "n2"
                 Me.Texto.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric

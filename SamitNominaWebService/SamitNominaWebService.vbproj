@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>
+    </SchemaVersion>
+    <ProjectGuid>{3B63FA6E-5808-4175-BFE3-FD04D2D6A54D}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SamitNominaWebService</RootNamespace>
+    <AssemblyName>SamitNominaWebService</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <MyType>Custom</MyType>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>SamitNominaWebService.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>SamitNominaWebService.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitDatabase.1.0.25\lib\net462\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SamitCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitDatabase.1.0.25\lib\net462\SamitCore.dll</HintPath>
+    </Reference>
+    <Reference Include="SamitCoreApi, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitDatabase.1.0.25\lib\net462\SamitCoreApi.dll</HintPath>
+    </Reference>
+    <Reference Include="SamitDatabase, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitDatabase.1.0.25\lib\net462\SamitDatabase.dll</HintPath>
+    </Reference>
+    <Reference Include="SamitHelpers, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitDatabase.1.0.25\lib\net462\SamitHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Collections.Specialized" />
+    <Import Include="System.Configuration" />
+    <Import Include="System.Text" />
+    <Import Include="System.Text.RegularExpressions" />
+    <Import Include="System.Web" />
+    <Import Include="System.Web.Caching" />
+    <Import Include="System.Web.SessionState" />
+    <Import Include="System.Web.Security" />
+    <Import Include="System.Web.Profile" />
+    <Import Include="System.Web.UI" />
+    <Import Include="System.Web.UI.WebControls" />
+    <Import Include="System.Web.UI.WebControls.WebParts" />
+    <Import Include="System.Web.UI.HtmlControls" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\SqlScriptsNomina.xml" />
+    <Content Include="Api\Nomina.asmx" />
+    <Content Include="Api\Parametros.asmx" />
+    <Content Include="Api\Security.asmx" />
+    <EmbeddedResource Include="Resources\parametrosIniciales.sql" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Api\Nomina.asmx.vb">
+      <DependentUpon>Nomina.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Api\Parametros.asmx.vb">
+      <DependentUpon>Parametros.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Api\Security.asmx.vb">
+      <DependentUpon>Security.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Database\DatabaseObjectsNomina.vb" />
+    <Compile Include="Database\Helpers\FuncionesSql.vb" />
+    <Compile Include="Helpers\ParametrosNomina.vb" />
+    <Compile Include="Helpers\XmlSerializerHelper.vb" />
+    <Compile Include="Model\Asig_ValoresExentos.vb" />
+    <Compile Include="Model\CAT_Bancos.vb" />
+    <Compile Include="Model\BasesConceptos.vb" />
+    <Compile Include="Model\Cargos.vb" />
+    <Compile Include="Model\Cargo_Asignaciones.vb" />
+    <Compile Include="Model\Cargo_Funciones.vb" />
+    <Compile Include="Model\CAT_ClaseLibreta.vb" />
+    <Compile Include="Model\CAT_ClaseLicencia.vb" />
+    <Compile Include="Model\CAT_EstadoCivil.vb" />
+    <Compile Include="Model\CAT_Genero.vb" />
+    <Compile Include="Model\CAT_NivelEducativo.vb" />
+    <Compile Include="Model\CAT_Parentesco.vb" />
+    <Compile Include="Model\CAT_Profesiones.vb" />
+    <Compile Include="Model\CAT_TipoContratos.vb" />
+    <Compile Include="Model\CAT_TiposId.vb" />
+    <Compile Include="Model\ClasConceptosNomina.vb" />
+    <Compile Include="Model\ClasConceptosPersonales.vb" />
+    <Compile Include="Model\CodigosDian.vb" />
+    <Compile Include="Model\ConceptosNomina.vb" />
+    <Compile Include="Model\ConceptosPersonales.vb" />
+    <Compile Include="Model\ConceptosPlantillas.vb" />
+    <Compile Include="Model\ConceptosProvisionesPlantillas.vb" />
+    <Compile Include="Model\ConceptosP_Contratos.vb" />
+    <Compile Include="Model\Conceptos_PerfilCta.vb" />
+    <Compile Include="Model\ConfigConceptos.vb" />
+    <Compile Include="Model\ConfigProvisiones.vb" />
+    <Compile Include="Model\Contratos.vb" />
+    <Compile Include="Model\ContratosLiquidados.vb" />
+    <Compile Include="Model\ContratosLiquidados_Conceptos.vb" />
+    <Compile Include="Model\ContratosLiquidados_Contratos.vb" />
+    <Compile Include="Model\ContratosLiquidados_Variables.vb" />
+    <Compile Include="Model\Contratos_CentroCostos.vb" />
+    <Compile Include="Model\Contrato_Cargos.vb" />
+    <Compile Include="Model\CT_CentroCostos.vb" />
+    <Compile Include="Model\Dependencias.vb" />
+    <Compile Include="Model\DescripVarPer.vb" />
+    <Compile Include="Model\DetallesVariablesGenerales.vb" />
+    <Compile Include="Model\Empleados.vb" />
+    <Compile Include="Model\Empleados_Educacion.vb" />
+    <Compile Include="Model\Empleados_HistoriaLaboral.vb" />
+    <Compile Include="Model\Empleados_RegFot.vb" />
+    <Compile Include="Model\EntesSSAP.vb" />
+    <Compile Include="Model\EntesTercero.vb" />
+    <Compile Include="Model\Familiares.vb" />
+    <Compile Include="Model\Funciones.vb" />
+    <Compile Include="Model\G_Departamento.vb" />
+    <Compile Include="Model\G_Municipio.vb" />
+    <Compile Include="Model\G_Pais.vb" />
+    <Compile Include="Model\NominaLiquida.vb" />
+    <Compile Include="Model\NominaLiquidaConceptos.vb" />
+    <Compile Include="Model\NominaLiquidaContratos.vb" />
+    <Compile Include="Model\NominaLiquidada.vb" />
+    <Compile Include="Model\NominaLiquidadaConceptos.vb" />
+    <Compile Include="Model\NominaLiquidadaContratos.vb" />
+    <Compile Include="Model\NominaLiquidadaVariables.vb" />
+    <Compile Include="Model\NominaLiquidaDescripVarPer.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinaria.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinariaConceptos.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinariaContratos.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinariaVariables.vb" />
+    <Compile Include="Model\NominaLiquidaSemestres.vb" />
+    <Compile Include="Model\NominaLiquidaSemestresConceptos.vb" />
+    <Compile Include="Model\NominaLiquidaSemestresContratos.vb" />
+    <Compile Include="Model\NominaLiquidaSemestresVariables.vb" />
+    <Compile Include="Model\NominaLiquidaVariables.vb" />
+    <Compile Include="Model\Nominas.vb" />
+    <Compile Include="Model\PerfilesCta.vb" />
+    <Compile Include="Model\PeriodosLiquidacion.vb" />
+    <Compile Include="Model\PlantadeCargos.vb" />
+    <Compile Include="Model\Plantillas.vb" />
+    <Compile Include="Model\RelFami.vb" />
+    <Compile Include="Model\SemestresLiquidacion.vb" />
+    <Compile Include="Model\TiposConceptosNomina.vb" />
+    <Compile Include="Model\TiposContratos_ConceptosNomina.vb" />
+    <Compile Include="Model\ValoresExentos.vb" />
+    <Compile Include="Model\VariablesGenerales.vb" />
+    <Compile Include="Model\VariablesPersonales.vb" />
+    <Compile Include="Model\ZenumTipoEntes.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="My Project\MyExtensions\MyWebExtension.vb">
+      <VBMyExtensionTemplateID>Microsoft.VisualBasic.Web.MyExtension</VBMyExtensionTemplateID>
+      <VBMyExtensionTemplateVersion>1.0.0.0</VBMyExtensionTemplateVersion>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="SamitApi\SamitApiHelper.vb" />
+    <Compile Include="Services\Model\BancoSucursal.vb" />
+    <Compile Include="Services\ServiceParametros.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>50265</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:50265/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

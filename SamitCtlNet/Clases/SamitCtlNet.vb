@@ -85,7 +85,7 @@ Public Class SamitCtlNet
     ''' <remarks></remarks>
     Public Property Smt_FechaDelServidor As DateTime
         Get
-            Smt_FechaDelServidor = Traer_FechaDelServidor()
+            Smt_FechaDelServidor = Now
         End Get
         Set(value As DateTime)
             FechaSys = value
@@ -99,19 +99,8 @@ Public Class SamitCtlNet
     ''' <remarks></remarks>
     Public Property Smt_FechaDeVentas As Date
         Get
-            Dim Tbl As DataTable, TxtSql As String
-            Smt_FechaDeVentas = Now
-            TxtSql = "Select FechaVentas from Oficinas Where NumEmpresa=" & VgEmpresa & " AND NumOficina = " & VgOficina
-            Tbl = SMT_AbrirRecordSet(SMTConex, TxtSql)
-            If Tbl.Rows.Count = 1 Then
-                If IsDBNull(Tbl.Rows(0)("FechaVentas")) Then
-                    Smt_FechaDeVentas = FechaSys.Date
-                Else
-                    Smt_FechaDeVentas = Tbl.Rows(0)("FechaVentas")
-                End If
-                Smt_FechaDeVentas = Smt_FechaDeVentas.Date
-            End If
-
+            'Dim Tbl As DataTable, TxtSql As String
+            Smt_FechaDeVentas = Smt_FechaDeVentas.Date
         End Get
         Set(value As Date)
 
@@ -486,7 +475,7 @@ CtlErr:
             MensajedeError()
         End Sub
 
-        Public Sub PasoConexionTabla(Conex As SqlConnection, TablaActualiza As String, Optional Tran As SqlTransaction = Nothing)
+        Public Sub PasoConexionTabla(Conex As Object, TablaActualiza As String, Optional Tran As SqlTransaction = Nothing)
             On Error GoTo CtlErr
             Dim R As Long
             _MiTran = Tran

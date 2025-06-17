@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3622E860-40DB-4E71-863A-8CED0A0DEA9C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SamitNominaLogic</RootNamespace>
+    <AssemblyName>SamitNominaLogic</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MyType>Windows</MyType>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>SamitNominaLogic.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>SamitNominaLogic.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.XtraBars.v21.1, Version=21.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitCore.1.1.6\lib\net462\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SamitCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SamitCore.1.1.6\lib\net462\SamitCore.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+    <Import Include="System.Threading.Tasks" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Api\ApiClient.vb" />
+    <Compile Include="Api\ParametrosApi.vb" />
+    <Compile Include="Api\SecurityApi.vb" />
+    <Compile Include="Controllers\LoginController.vb" />
+    <Compile Include="DTos\CargoAsignacionDto.vb" />
+    <Compile Include="DTos\CargoAsignacionResponseDto.vb" />
+    <Compile Include="DTos\CargoFuncionDto.vb" />
+    <Compile Include="DTos\CargoFuncionResponseDto.vb" />
+    <Compile Include="DTos\CargoResponseDto.vb" />
+    <Compile Include="DTos\CargoResultDto.vb" />
+    <Compile Include="DTos\CentroCostoResultDto.vb" />
+    <Compile Include="DTos\ConceptoConfiguradoDto.vb" />
+    <Compile Include="DTos\ConceptoNominaRelacionadoDto.vb" />
+    <Compile Include="DTos\ConceptoNominaResponseDto.vb" />
+    <Compile Include="DTos\ConceptoPlantillaDto.vb" />
+    <Compile Include="DTos\ConceptoProvisionPlantillaDto.vb" />
+    <Compile Include="DTos\ContratoLiquidacionDto.vb" />
+    <Compile Include="DTos\ContratoResultDto.vb" />
+    <Compile Include="DTos\DynamicUpsertResponseDto.vb" />
+    <Compile Include="DTos\NominaResponseDto.vb" />
+    <Compile Include="DTos\PlantillaResponseDto.vb" />
+    <Compile Include="DTos\ProvisionConfiguradaDto.vb" />
+    <Compile Include="DTos\TipoContratoResponseDto.vb" />
+    <Compile Include="DTos\UpsertCargoRequest.vb" />
+    <Compile Include="DTos\UpsertCargoResponse.vb" />
+    <Compile Include="DTos\UpsertConceptoNominaRequest.vb" />
+    <Compile Include="DTos\UpsertConceptoNominaResponse.vb" />
+    <Compile Include="DTos\UpsertContratoRequest.vb" />
+    <Compile Include="DTos\UpsertContratoResponse.vb" />
+    <Compile Include="DTos\UpsertErrorDto.vb" />
+    <Compile Include="DTos\UpsertLiquidacionNominaRequest.vb" />
+    <Compile Include="DTos\UpsertLiquidacionNominaResponse.vb" />
+    <Compile Include="DTos\UpsertNominaRequest.vb" />
+    <Compile Include="DTos\UpsertNominaResponse.vb" />
+    <Compile Include="DTos\UpsertPeriodoLiquidacionRequest.vb" />
+    <Compile Include="DTos\UpsertPeriodoLiquidacionResponse.vb" />
+    <Compile Include="DTos\UpsertPlantillaRequest.vb" />
+    <Compile Include="DTos\UpsertPlantillaResponse.vb" />
+    <Compile Include="DTos\UpsertResultItemDto.vb" />
+    <Compile Include="DTos\UpsertTipoContratoRequest.vb" />
+    <Compile Include="DTos\UpsertTipoContratoResponse.vb" />
+    <Compile Include="DTos\VariableDefectoDto.vb" />
+    <Compile Include="Model\Asig_ValoresExentos.vb" />
+    <Compile Include="Model\Bancos.vb" />
+    <Compile Include="Model\BasesConceptos.vb" />
+    <Compile Include="Model\Cargos.vb" />
+    <Compile Include="Model\Cargo_Asignaciones.vb" />
+    <Compile Include="Model\Cargo_Funciones.vb" />
+    <Compile Include="Model\CAT_ClaseLibreta.vb" />
+    <Compile Include="Model\CAT_ClaseLicencia.vb" />
+    <Compile Include="Model\CAT_EstadoCivil.vb" />
+    <Compile Include="Model\CAT_Genero.vb" />
+    <Compile Include="Model\CAT_NivelEducativo.vb" />
+    <Compile Include="Model\CAT_Parentesco.vb" />
+    <Compile Include="Model\CAT_Profesiones.vb" />
+    <Compile Include="Model\CAT_TipoContratos.vb" />
+    <Compile Include="Model\CAT_TiposId.vb" />
+    <Compile Include="Model\ClasConceptosNomina.vb" />
+    <Compile Include="Model\ClasConceptosPersonales.vb" />
+    <Compile Include="Model\CodigosDian.vb" />
+    <Compile Include="Model\ConceptosNomina.vb" />
+    <Compile Include="Model\ConceptosPersonales.vb" />
+    <Compile Include="Model\ConceptosPlantillas.vb" />
+    <Compile Include="Model\ConceptosProvisionesPlantillas.vb" />
+    <Compile Include="Model\ConceptosP_Contratos.vb" />
+    <Compile Include="Model\Conceptos_PerfilCta.vb" />
+    <Compile Include="Model\ConfigConceptos.vb" />
+    <Compile Include="Model\ConfigProvisiones.vb" />
+    <Compile Include="Model\Contratos.vb" />
+    <Compile Include="Model\ContratosLiquidados.vb" />
+    <Compile Include="Model\ContratosLiquidados_Conceptos.vb" />
+    <Compile Include="Model\ContratosLiquidados_Contratos.vb" />
+    <Compile Include="Model\ContratosLiquidados_Variables.vb" />
+    <Compile Include="Model\Contratos_CentroCostos.vb" />
+    <Compile Include="Model\Contrato_Cargos.vb" />
+    <Compile Include="Model\CT_CentroCostos.vb" />
+    <Compile Include="Model\Dependencias.vb" />
+    <Compile Include="Model\DescripVarPer.vb" />
+    <Compile Include="Model\DetallesVariablesGenerales.vb" />
+    <Compile Include="Model\Empleados.vb" />
+    <Compile Include="Model\Empleados_Educacion.vb" />
+    <Compile Include="Model\Empleados_HistoriaLaboral.vb" />
+    <Compile Include="Model\Empleados_RegFot.vb" />
+    <Compile Include="Model\EntesSSAP.vb" />
+    <Compile Include="Model\EntesTercero.vb" />
+    <Compile Include="Model\Familiares.vb" />
+    <Compile Include="Model\Funciones.vb" />
+    <Compile Include="Model\G_Departamento.vb" />
+    <Compile Include="Model\G_Municipio.vb" />
+    <Compile Include="Model\G_Pais.vb" />
+    <Compile Include="Model\NominaLiquidaConceptos.vb" />
+    <Compile Include="Model\NominaLiquidaContratos.vb" />
+    <Compile Include="Model\NominaLiquidada.vb" />
+    <Compile Include="Model\NominaLiquidadaConceptos.vb" />
+    <Compile Include="Model\NominaLiquidadaContratos.vb" />
+    <Compile Include="Model\NominaLiquidadaVariables.vb" />
+    <Compile Include="Model\NominaLiquidaDescripVarPer.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinaria.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinariaConceptos.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinariaContratos.vb" />
+    <Compile Include="Model\NominaLiquidaExtraordinariaVariables.vb" />
+    <Compile Include="Model\NominaLiquidaSemestres.vb" />
+    <Compile Include="Model\NominaLiquidaSemestresConceptos.vb" />
+    <Compile Include="Model\NominaLiquidaSemestresContratos.vb" />
+    <Compile Include="Model\NominaLiquidaSemestresVariables.vb" />
+    <Compile Include="Model\NominaLiquidaVariables.vb" />
+    <Compile Include="Model\Nominas.vb" />
+    <Compile Include="Model\PerfilesCta.vb" />
+    <Compile Include="Model\PeriodosLiquidacion.vb" />
+    <Compile Include="Model\PlantadeCargos.vb" />
+    <Compile Include="Model\Plantillas.vb" />
+    <Compile Include="Model\RelFami.vb" />
+    <Compile Include="Model\SemestresLiquidacion.vb" />
+    <Compile Include="Model\TiposConceptosNomina.vb" />
+    <Compile Include="Model\TiposContratos_ConceptosNomina.vb" />
+    <Compile Include="Model\ValoresExentos.vb" />
+    <Compile Include="Model\VariablesGenerales.vb" />
+    <Compile Include="Model\VariablesPersonales.vb" />
+    <Compile Include="Model\ZenumTipoEntes.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Services\ServiceBancos.vb" />
+    <Compile Include="Services\ServiceBases.vb" />
+    <Compile Include="Services\ServiceCargos.vb" />
+    <Compile Include="Services\ServiceCentroCostos.vb" />
+    <Compile Include="Services\ServiceClasConceptosNomina.vb" />
+    <Compile Include="Services\ServiceConceptoContratos.vb" />
+    <Compile Include="Services\ServiceConceptosNominas.vb" />
+    <Compile Include="Services\ServiceConceptosPersonales.vb" />
+    <Compile Include="Services\ServiceConfigConceptos.vb" />
+    <Compile Include="Services\ServiceConfigConceptosPro.vb" />
+    <Compile Include="Services\ServiceContratos.vb" />
+    <Compile Include="Services\ServiceDepartamento.vb" />
+    <Compile Include="Services\ServiceDependencias.vb" />
+    <Compile Include="Services\ServiceDesDetalleVar.vb" />
+    <Compile Include="Services\ServiceEmpleados.vb" />
+    <Compile Include="Services\ServiceEntidades.vb" />
+    <Compile Include="Services\ServiceEstadoCivil.vb" />
+    <Compile Include="Services\ServiceFunciones.vb" />
+    <Compile Include="Services\ServiceLicenciaConduccion.vb" />
+    <Compile Include="Services\ServiceMunicipio.vb" />
+    <Compile Include="Services\ServiceNivelEducativo.vb" />
+    <Compile Include="Services\ServiceNominas.vb" />
+    <Compile Include="Services\ServiceNominasContratos.vb" />
+    <Compile Include="Services\ServiceNovedades.vb" />
+    <Compile Include="Services\ServicePaises.vb" />
+    <Compile Include="Services\ServiceParentezcos.vb" />
+    <Compile Include="Services\ServicePeriodosLiquidacion.vb" />
+    <Compile Include="Services\ServicePlantaCargos.vb" />
+    <Compile Include="Services\ServiceTipoContrato.vb" />
+    <Compile Include="Services\ServiceTipoDocumentos.vb" />
+    <Compile Include="Services\ServiceTituloProfesion.vb" />
+    <Compile Include="Services\ServiceValExentos.vb" />
+    <Compile Include="Services\ServiceVariablesPersonales.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+</Project>

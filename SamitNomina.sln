@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SamitNominaLogic", "SamitNominaLogic\SamitNominaLogic.vbproj", "{3622E860-40DB-4E71-863A-8CED0A0DEA9C}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SamitNomina", "SamitNomina\SamitNomina.vbproj", "{5579C5B3-3894-4C68-B1B0-40F840AD2A19}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SamitNominaWebService", "SamitNominaWebService\SamitNominaWebService.vbproj", "{3B63FA6E-5808-4175-BFE3-FD04D2D6A54D}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SamitContab", "SamitContab\SamitContab.vbproj", "{E0B938AE-AD9D-4C08-923D-FA705169827E}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SamitCtlNet", "SamitCtlNet\SamitCtlNet.vbproj", "{5AC05A93-B875-4E01-969A-77F5F9B64B9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3622E860-40DB-4E71-863A-8CED0A0DEA9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3622E860-40DB-4E71-863A-8CED0A0DEA9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3622E860-40DB-4E71-863A-8CED0A0DEA9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3622E860-40DB-4E71-863A-8CED0A0DEA9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5579C5B3-3894-4C68-B1B0-40F840AD2A19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5579C5B3-3894-4C68-B1B0-40F840AD2A19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5579C5B3-3894-4C68-B1B0-40F840AD2A19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5579C5B3-3894-4C68-B1B0-40F840AD2A19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B63FA6E-5808-4175-BFE3-FD04D2D6A54D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B63FA6E-5808-4175-BFE3-FD04D2D6A54D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B63FA6E-5808-4175-BFE3-FD04D2D6A54D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B63FA6E-5808-4175-BFE3-FD04D2D6A54D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0B938AE-AD9D-4C08-923D-FA705169827E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0B938AE-AD9D-4C08-923D-FA705169827E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0B938AE-AD9D-4C08-923D-FA705169827E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0B938AE-AD9D-4C08-923D-FA705169827E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AC05A93-B875-4E01-969A-77F5F9B64B9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AC05A93-B875-4E01-969A-77F5F9B64B9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AC05A93-B875-4E01-969A-77F5F9B64B9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AC05A93-B875-4E01-969A-77F5F9B64B9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BF2BCED7-DEC4-468A-9CC5-106CFB997C7E}
+	EndGlobalSection
+EndGlobal

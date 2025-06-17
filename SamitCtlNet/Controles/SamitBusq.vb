@@ -491,7 +491,10 @@ Public Class SamitBusq
             datos = Consultar(comando, True)
         End If
 
-        If datos.Rows.Count = 1 And _EsObligatorio Then
+        If IsNothing(datos) Then
+            Descripcion.Text = "No Se Encontraron Registros"
+            _Datos = Nothing
+        ElseIf datos.Rows.Count = 1 And _EsObligatorio Then
             Texto.Text = datos.Rows(0)(0)
             Descripcion.Text = datos.Rows(0)(1)
             _DatosCargados = True
@@ -578,31 +581,45 @@ CtlErr:
 CtlErr:
         MensajedeError("AbrirBusqueda")
     End Sub
-    Public Function Consultar(SQL As String, Optional esSubConsulta As Boolean = False) As DataTable
-        Dim Conec As SqlConnection
-        If _ConexSAMIT = ConexionSAMIT.ConexModulo Then
-            Conec = SMTConexMod
-        Else
-            Conec = SMTConex
-        End If
-        If Not Conec.State = ConnectionState.Open Then Return Nothing
-
-        Dim tabla As New DataTable()
-        Try
-            If esSubConsulta Then
-                Try
-                    tabla = SMT_AbrirTabla(Conec, SQL)
-                Catch ex As Exception
-                End Try
+    Public Function Consultar(SQL As String, Optional esSubConsulta As Boolean = False, Optional ApiConsultas As Boolean = True) As DataTable
+        If ApiConsultas Then
+            Dim paramsDefinition = New With {
+                .sql = SQL
+            }
+            Dim url = $"/Api/Parametros.asmx/SqlGet"
+            Dim resApi = ObjetoApiNomina.ApiPOST(Of DataTable)(url, paramsDefinition)
+            If Not IsNothing(resApi.ObjetoRes) Then
+                If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                    resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                    resApi.ObjetoRes.Rows.Clear()
+                End If
             End If
-            'datos.Fill(tabla)
-            Return tabla
-        Catch e As Exception
-            MensajedeError(e.Message)
-            Return Nothing
-        Finally
-        End Try
+            Return resApi.ObjetoRes
+        Else
+            Dim Conec As SqlConnection
+            If _ConexSAMIT = ConexionSAMIT.ConexModulo Then
+                Conec = SMTConexMod
+            Else
+                Conec = SMTConex
+            End If
+            If Not Conec.State = ConnectionState.Open Then Return Nothing
 
+            Dim tabla As New DataTable()
+            Try
+                If esSubConsulta Then
+                    Try
+                        tabla = SMT_AbrirTabla(Conec, SQL)
+                    Catch ex As Exception
+                    End Try
+                End If
+                'datos.Fill(tabla)
+                Return tabla
+            Catch e As Exception
+                MensajedeError(e.Message)
+                Return Nothing
+            Finally
+            End Try
+        End If
     End Function
 #End Region
 #Region "Eventos Desencadenados"

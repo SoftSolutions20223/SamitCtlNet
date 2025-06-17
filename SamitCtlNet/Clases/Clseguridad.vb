@@ -225,20 +225,28 @@ Public Class Clseguridad
         End Get
 
     End Property
-    Public Property DatosDeLaEmpresa As DatosEmpresa
-        Get
-            DatosDeLaEmpresa = DatosEmp
-        End Get
-        Set(value As DatosEmpresa)
+    Public DatosDeLaEmpresa As DatosEmpresa
 
-        End Set
-    End Property
-
-    Public Shared Function Traer_FechaDelServidor() As Date
+    Public Shared Function Traer_FechaDelServidor(Optional ApiConsultas As Boolean = True) As Date
         On Error GoTo Err_Traer_FechaDelServidor
         Dim Tbl As DataTable, SQL As String
         SQL = "select 'FechaSys' = getdate()"
-        Tbl = SMT_AbrirTabla(SMTConex, SQL)
+        If ApiConsultas Then
+            Dim paramsDefinition = New With {
+                .sql = SQL
+            }
+            Dim url = $"/Api/Parametros.asmx/SqlGet"
+            Dim resApi = ObjetoApiNomina.ApiPOST(Of DataTable)(url, paramsDefinition)
+            If Not IsNothing(resApi.ObjetoRes) Then
+                If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                    resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                    resApi.ObjetoRes.Rows.Clear()
+                End If
+            End If
+            Tbl = resApi.ObjetoRes
+        Else
+            Tbl = SMT_AbrirTabla(SMTConex, SQL)
+        End If
         Traer_FechaDelServidor = Tbl(0)("Fechasys")
         FechaSys = Traer_FechaDelServidor
 Err_Traer_FechaDelServidor:
