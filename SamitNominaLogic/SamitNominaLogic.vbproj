@@ -85,15 +85,11 @@
     <Compile Include="DTos\CargoResponseDto.vb" />
     <Compile Include="DTos\CargoResultDto.vb" />
     <Compile Include="DTos\CentroCostoResultDto.vb" />
-    <Compile Include="DTos\CompletarLiquidacionRequest.vb" />
-    <Compile Include="DTos\CompletarLiquidacionResponse.vb" />
     <Compile Include="DTos\ConceptoConfiguradoDto.vb" />
-    <Compile Include="DTos\ConceptoLiquidacionDto.vb" />
     <Compile Include="DTos\ConceptoNominaRelacionadoDto.vb" />
     <Compile Include="DTos\ConceptoNominaResponseDto.vb" />
     <Compile Include="DTos\ConceptoPlantillaDto.vb" />
     <Compile Include="DTos\ConceptoProvisionPlantillaDto.vb" />
-    <Compile Include="DTos\ContratoCompletarLiquidacionDto.vb" />
     <Compile Include="DTos\ContratoLiquidacionDto.vb" />
     <Compile Include="DTos\ContratoResultDto.vb" />
     <Compile Include="DTos\DynamicUpsertResponseDto.vb" />
