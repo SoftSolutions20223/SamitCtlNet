@@ -215,8 +215,48 @@ Public Class FrmAggNominas
     End Sub
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
-        EliminaNominas()
+        Try
+            ' Validar que se haya seleccionado una nómina
+            If Not Actualizando Or SecNomina = "" Then
+                HDevExpre.MensagedeError("Debe seleccionar el item que desea editar o eliminar, selecciona con doble clic!")
+                Exit Sub
+            End If
+
+            ' Confirmar la eliminación con el usuario
+            If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar el item seleccionado [{0}]", txtNombreNomina.ValordelControl),
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+
+                ' Crear el request para eliminar
+                Dim request As New Newtonsoft.Json.Linq.JObject()
+                request("Datos") = SecNomina
+
+                ' Ejecutar procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "sp_EliminaNominas", request)
+                Dim response = resp.ToObject(Of EliminarNominaResponse)()
+
+
+                ' Procesar respuesta
+                If response IsNot Nothing Then
+                    If response.Resultado = 1 Then
+                        ' Eliminación exitosa
+                        LimpiarCampos()
+                        LlenaGrillaNominas()
+                        HDevExpre.mensajeExitoso(response.Mensaje)
+                    Else
+                        ' Error en la eliminación
+                        HDevExpre.MensagedeError(response.Mensaje)
+                    End If
+                Else
+                    HDevExpre.MensagedeError("Error al procesar la respuesta del servidor")
+                End If
+
+            End If
+
+        Catch ex As Exception
+            HDevExpre.MensagedeError("Error al eliminar la nómina: " & ex.Message)
+        End Try
     End Sub
+
     Private Sub FrmAggNominas_KeyPress(sender As Object, e As KeyPressEventArgs) Handles MyBase.KeyPress
         If e.KeyChar = ChrW(Keys.Escape) Then
             Me.Close()

@@ -90,7 +90,7 @@ Public Class FrmConfigConceptos
                 Periodos = "2,3"
             End If
             Dim sec As Integer = 0
-            If GuardaDatos(sec, Sec_Configuracion, txtNomina.ValordelControl, txtConcepto.ValordelControl, txtFormula.ValordelControl, Periodos) Then
+            If GuardaDatos(Sec_Configuracion, txtNomina.ValordelControl, txtConcepto.ValordelControl, txtFormula.ValordelControl, Periodos) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LimpiarCampos()
             Else
@@ -150,9 +150,9 @@ Public Class FrmConfigConceptos
 
     Private Sub AsignaScriptAcontroles()
         Try
-            txtConcepto.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomConcepto As Descripcion FROM {0}..ConceptosNomina")
+            txtConcepto.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomConcepto As Descripcion FROM ConceptosNomina")
             txtConcepto.RefrescarDatos()
-            txtNomina.ConsultaSQL = String.Format("SELECT SecNomina AS Codigo,NomNomina As Descripcion FROM {0}..Nominas ")
+            txtNomina.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomNomina As Descripcion FROM Nominas ")
             txtNomina.RefrescarDatos()
 
         Catch ex As Exception
@@ -178,8 +178,8 @@ Public Class FrmConfigConceptos
     Public Sub LlenaGrillaConfigConceptos(Parametros As String)
         Try
             Dim Orden As String = "order by N.NomNomina ASC"
-            Dim sql As String = "Select N.NomNomina,N.SecNomina,C.NomConcepto,C.Sec as SecConcepto,CC.Formula,CC.PeriodosLiquida,CC.CuentaContable,CC.Sec as SecConfig " +
-" From ConfigConceptos CC INNER JOIN Nominas N ON CC.Nomina = N.SecNomina " +
+            Dim sql As String = "Select N.NomNomina,N.Sec As SecNomina,C.NomConcepto,C.Sec as SecConcepto,CC.Formula,CC.PeriodosLiquida,CC.CuentaContable,CC.Sec as SecConfig " +
+" From ConfigConceptos CC INNER JOIN Nominas N ON CC.Nomina = N.Sec " +
 " INNER JOIN ConceptosNomina C ON CC.Concepto = C.Sec " + Parametros + " " + Orden
 
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
@@ -208,19 +208,20 @@ Public Class FrmConfigConceptos
         LlenaGrillaConfigConceptos("")
         gcConfigConceptos.Focus()
     End Sub
-    Private Function GuardaDatos(Sec As Integer, SecConfig As String, Nomina As String, Concepto As String, Formula As String, PeriodosLiquida As String) As Boolean
+    Private Function GuardaDatos(SecConfig As String, Nomina As String, Concepto As String, Formula As String, PeriodosLiquida As String) As Boolean
         Try
             ConfigConcepto = New ConfigConceptos
-            ConfigConcepto.Nomina = txtNomina.ValordelControl
-            ConfigConcepto.Sec = Sec
-            ConfigConcepto.Formula = txtFormula.ValordelControl
-            ConfigConcepto.Concepto = txtConcepto.ValordelControl
+            ConfigConcepto.Nomina = Nomina
+            ConfigConcepto.Sec = CInt(SecConfig)
+            ConfigConcepto.Formula = Formula
+            ConfigConcepto.Concepto = Concepto
+            ConfigConcepto.PeriodosLiquida = PeriodosLiquida
             Dim RegConfigConcepto As New ServiceConfigConceptos
-            Dim registro As JArray
+            Dim registro As DynamicUpsertResponseDto
             If RegConfigConcepto.ValidarCampos(ConfigConcepto) Then
                 registro = RegConfigConcepto.UpsertConfigConcepto(ConfigConcepto)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception

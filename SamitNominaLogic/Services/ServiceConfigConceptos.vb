@@ -23,7 +23,7 @@ Public Class ServiceConfigConceptos
         End If
     End Function
 
-    Public Function UpsertConfigConcepto(ConfigConcepto As ConfigConceptos) As JArray
+    Public Function UpsertConfigConcepto(ConfigConcepto As ConfigConceptos) As DynamicUpsertResponseDto
         Dim Peticion As New ParametrosApi()
 
         Dim fila As New JObject
@@ -37,9 +37,9 @@ Public Class ServiceConfigConceptos
         datos.Add(fila)
 
         ' Hacer la petición con el JArray como segundo parámetro
-        Peticion.PostParametros("ConfigConcepto", datos)
+        Dim res = Peticion.PostParametros("ConfigConceptos", datos)
 
-        Return datos
+        Return res
     End Function
 
     Public Function EliminarConfigConcepto(ConfigConcepto As ConfigConceptos) As JArray

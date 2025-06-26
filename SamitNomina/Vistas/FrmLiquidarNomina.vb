@@ -983,6 +983,7 @@ Public Class FrmLiquidarNomina
                 Dim PromedioMensualAnual As DataTable = dsResultados.Tables(5)
 
                 Dim consulta As DataTable = Nothing
+                Creagrillahorizontal()
 
                 If gcLiquidaNomina.DataSource IsNot Nothing Then
                     If TypeOf gcLiquidaNomina.DataSource Is DataTable Then
@@ -991,7 +992,7 @@ Public Class FrmLiquidarNomina
                         consulta = dtOriginal.Clone()
                     End If
                 End If
-                Creagrillahorizontal()
+
 
                 If Not IsNothing(consulta) Then consulta.Rows.Clear()
 
@@ -1479,47 +1480,126 @@ Public Class FrmLiquidarNomina
         End If
     End Sub
 
-    Public Sub GuardarConceptos()
+    Private Sub GuardarConceptos()
         Dim wait As New ClEspera
         wait.Mostrar()
-        wait.Descripcion = "Buscando..."
-        Dim tblah As DataTable = CType(gcLiquidaNomina.DataSource, DataTable)
-        If tblah Is Nothing Then
-        Else
-            If tblah.Rows.Count > 0 Then
-                For incre As Integer = 0 To tblah.Rows.Count - 1
-                    Dim Val = "0"
-                    Dim ActlzAnt As Boolean
-                    Dim SecConcepto As String = ""
-                    Dim NomConcepto As String = ""
-                    Dim BaseConcepto As String = ""
-                    Dim ValBase As Decimal = 0
-                    Dim PlantillaConceptos = xmladatatablePlantillas(gvLiquidaNomina.GetRowCellValue(incre, "PlantillaEmpl").ToString)
-                    For i As Integer = 0 To PlantillaConceptos.Rows.Count - 1
+        wait.Descripcion = "Completando liquidación..."
+        Try
+            ' Crear el request
+            Dim request As New CompletarLiquidacionRequest With {
+            .SecNominaLiquida = CInt(SecNominaLiquida),
+            .SecPeriodo = CInt(SecPeriodo),
+            .EsLiquidacionDefinitiva = EstaLiquidando,
+            .Usuario = ObjetosNomina.Datos.Smt_Usuario
+        }
 
-                        SecConcepto = PlantillaConceptos.Rows(i)("Sec").ToString
-                        NomConcepto = PlantillaConceptos.Rows(i)("Nombre").ToString
-                        BaseConcepto = PlantillaConceptos.Rows(i)("Base").ToString
-                        ValBase = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(incre, "Base")), 0, gvLiquidaNomina.GetRowCellValue(incre, "Base")))
-                        Val = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(incre, PlantillaConceptos.Rows(i)("Nombre").ToString)), 0, gvLiquidaNomina.GetRowCellValue(incre, PlantillaConceptos.Rows(i)("Nombre").ToString))).ToString
-                        ActlzAnt = ActualizaNovedades
-                        If ExisteDato("NominaLiquidaConceptos", String.Format("LiquidaContrato='{0}' And SecConcepto='{1}' ", gvLiquidaNomina.GetRowCellValue(incre, "NominaLiquidaContrato").ToString, SecConcepto), ObjetoApiNomina) Then
-                            ActualizaNovedades = True
-                            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(incre, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
-                                                                SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
-                            End If
+            ' Obtener datos del grid
+            Dim dt As DataTable = CType(gcLiquidaNomina.DataSource, DataTable)
+
+            ' Procesar cada contrato
+            For incre As Integer = 0 To dt.Rows.Count - 1
+
+                Dim contratoDto As New ContratoCompletarLiquidacionDto With {
+                .SecNominaLiquidaContrato = CInt(dt.Rows(incre)("NominaLiquidaContrato")),
+                .CodContrato = CInt(dt.Rows(incre)("CodContrato")),
+                .HorasMes = CInt(dt.Rows(incre)("HorasMes")),
+                .CargoActual = CInt(dt.Rows(incre)("CargoActual")),
+                .Asignacion = CDec(dt.Rows(incre)("Asignacion"))
+            }
+
+                ' Procesar Conceptos ID (Ingresos/Deducciones)
+                If ConceptosContrato.Rows.Count > 0 Then
+                    For i As Integer = 0 To ConceptosContrato.Rows.Count - 1
+                        Dim Fila As EditorRow
+                        If ConceptosContrato.Rows(i)("Tipo").ToString = "Deducciones" Then
+                            Fila = TryCast(vgIngresosDeducciones.GetRowByCaption("Deducciones"), EditorRow).ChildRows(ConceptosContrato.Rows(i)("Nombre").ToString)
                         Else
-                            ActualizaNovedades = False
-                            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(incre, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
-                                                                SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
+                            Fila = TryCast(vgIngresosDeducciones.GetRowByCaption(ConceptosContrato.Rows(i)("Nombre").ToString), EditorRow)
+                        End If
+
+                        Dim valor As Decimal = CDec(Fila.Properties.Value)
+                        Dim basev As Decimal = 0
+
+                        If gvLiquidaNomina.GetRowCellValue(incre, ConceptosContrato.Rows(i)("Base").ToString) IsNot Nothing Then
+                            basev = CDec(gvLiquidaNomina.GetRowCellValue(incre, ConceptosContrato.Rows(i)("Base").ToString))
+                        End If
+
+                        Dim conceptoDto As New ConceptoLiquidacionDto With {
+                        .NomConcepto = ConceptosContrato.Rows(i)("Nombre").ToString(),
+                        .Valor = valor,
+                        .Base = basev,
+                        .NomBase = ConceptosContrato.Rows(i)("Base").ToString(),
+                        .SecConcepto = CInt(ConceptosContrato.Rows(i)("Sec"))
+                    }
+
+                        contratoDto.ConceptosID.Add(conceptoDto)
+                    Next
+                End If
+
+                ' Procesar Conceptos DPN (Descuentos por Nómina)
+                If ConceptosAtadosAlContratoLiquida.Rows.Count > 0 Then
+                    For i As Integer = 0 To ConceptosAtadosAlContratoLiquida.Rows.Count - 1
+                        Dim Fila As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString), EditorRow)
+                        Dim valor As Decimal = CDec(Fila.Properties.Value)
+
+                        Dim conceptoDto As New ConceptoLiquidacionDto With {
+                        .NomConcepto = ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString(),
+                        .Valor = valor,
+                        .Base = 0,
+                        .NomBase = "",
+                        .SecConceptoP = CInt(ConceptosAtadosAlContratoLiquida.Rows(i)("SecConcepto")),
+                        .SecConceptoP2 = CInt(ConceptosAtadosAlContratoLiquida.Rows(i)("SecDescuento"))
+                    }
+
+                        If EstaLiquidando Then
+                            ' Calcular cuota si es liquidación definitiva
+                            Dim sql As String = "SELECT COUNT(*) + 1 FROM NominaLiquidadaConceptos WHERE SecConceptoP2 = " + conceptoDto.SecConceptoP2.ToString()
+                            Dim dtCuota As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
+                            If dtCuota.Rows.Count > 0 Then
+                                conceptoDto.Cuota = CInt(dtCuota.Rows(0)(0))
                             End If
                         End If
-                        ActualizaNovedades = ActlzAnt
+
+                        contratoDto.ConceptosDPN.Add(conceptoDto)
                     Next
-                Next
+                End If
+
+                ' Calcular totales del VGrid
+                Dim categoriaID As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Total"), EditorRow)
+                Dim categoriaIng As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Ingresos"), EditorRow)
+                Dim categoriadeduc As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Deducciones"), EditorRow)
+                Dim categoriaP As EditorRow = TryCast(vgProviciones.GetRowByCaption("Provisiones"), EditorRow)
+                Dim categoriaDPN As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption("Total De Descuentos Por Nomina"), EditorRow)
+
+                contratoDto.Total = If(categoriaID Is Nothing, 0, CDec(categoriaID.Properties.Value))
+                contratoDto.TotalIngresos = If(categoriaIng Is Nothing, 0, CDec(categoriaIng.Properties.Value))
+                contratoDto.TotalDeducciones = If(categoriadeduc Is Nothing, 0, Math.Abs(CDec(categoriadeduc.Properties.Value)))
+                contratoDto.TotalProvisiones = If(categoriaP Is Nothing, 0, CDec(categoriaP.Properties.Value))
+                contratoDto.TotalDescuentosNomina = If(categoriaDPN Is Nothing, 0, CDec(categoriaDPN.Properties.Value))
+
+                request.Contratos.Add(contratoDto)
+            Next
+
+            ' Ejecutar procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_CompletarLiquidacionNomina", request.ToJObject())
+            Dim response = resp.ToObject(Of CompletarLiquidacionResponse)()
+
+            wait.Terminar()
+
+            If response.EsExitoso Then
+                HDevExpre.mensajeExitoso($"Liquidación completada exitosamente. Se procesaron {response.ContratosProcesados} contratos.")
+
+                If EstaLiquidando Then
+                    Me.Close()
+                End If
+            Else
+                HDevExpre.MensagedeError($"Error al completar la liquidación: {response.Mensaje}")
             End If
-        End If
-        wait.Terminar()
+
+        Catch ex As Exception
+            wait.Terminar()
+            HDevExpre.msgError(ex, ex.Message, "GuardarConceptos")
+        End Try
     End Sub
 
     Private Sub GridView1_CellValueChanged(sender As Object, e As Views.Base.CellValueChangedEventArgs) Handles gvLiquidaNomina.CellValueChanged
@@ -1948,55 +2028,46 @@ Public Class FrmLiquidarNomina
         'End Using
     End Sub
 
-    Public Function EliminarBorrador(Conexion As Object) As Boolean
+    Public Function EliminarBorrador() As Boolean
+        Try
+            ' Obtener el SecNominaLiquida
+            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina,
+            "SELECT Sec AS Codigo FROM NominaLiquida WHERE Periodo = " + SecPeriodo)
 
-        SecNominaLiquida = SMT_AbrirTabla(ObjetoApiNomina, "SELECT Sec AS Codigo FROM NominaLiquida Where Periodo =" + SecPeriodo).Rows(0)(0).ToString
-
-        Dim sql As String = "Select DNLV.Sec From DescripVarPer DNLV INNER JOIN NominaLiquidaVariables NLV ON DNLV.CodVarP = NLV.Sec INNER JOIN NominaLiquidaContratos NLC  ON NLV.SecLiquidaContrato = NLC.Sec WHERE NLC.NominaLiquida=" + SecNominaLiquida
-        Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If dt.Rows.Count > 0 Then
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("Delete DescripVarPer From DescripVarPer DNLV INNER JOIN NominaLiquidaVariables NLV ON DNLV.CodVarP = NLV.Sec INNER JOIN NominaLiquidaContratos NLC  ON NLV.SecLiquidaContrato = NLC.Sec WHERE NLC.NominaLiquida={0}", SecNominaLiquida)) > 0 Then
-
-            Else
+            If dt.Rows.Count = 0 Then
+                HDevExpre.MensagedeError("No se encontró el borrador a eliminar")
                 Return False
             End If
-        End If
 
-        sql = "Select NLV.Sec From NominaLiquidaVariables NLV INNER JOIN NominaLiquidaContratos NLC  ON NLV.SecLiquidaContrato = NLC.Sec WHERE NLC.NominaLiquida=" + SecNominaLiquida
-        dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If dt.Rows.Count > 0 Then
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("Delete NominaLiquidaVariables From NominaLiquidaVariables NLV INNER JOIN NominaLiquidaContratos NLC  ON NLV.SecLiquidaContrato = NLC.Sec WHERE NLC.NominaLiquida={0}", SecNominaLiquida)) > 0 Then
+            SecNominaLiquida = dt.Rows(0)(0).ToString()
 
+            ' Crear el request
+            Dim request As New EliminarBorradorNominaRequest With {
+            .SecNominaLiquida = CInt(SecNominaLiquida),
+            .Usuario = ObjetosNomina.Datos.Smt_Usuario,
+            .Terminal = ObjetosNomina.Datos.Smt_NombreTerminal
+        }
+
+            ' Ejecutar procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarBorradorNomina", request.ToJObject())
+            Dim response = resp.ToObject(Of EliminarBorradorNominaResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                Return True
             Else
+                ' Log del error si es necesario
+                Console.WriteLine($"Error al eliminar borrador: {response.Mensaje}")
+                If response.CodigoError.HasValue Then
+                    Console.WriteLine($"Código de error SQL: {response.CodigoError.Value}")
+                End If
                 Return False
             End If
-        End If
 
-        sql = "Select NLCC.Sec From NominaLiquidaConceptos NLCC INNER JOIN NominaLiquidaContratos NLC  ON NLCC.LiquidaContrato = NLC.Sec WHERE NLC.NominaLiquida=" + SecNominaLiquida
-        dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If dt.Rows.Count > 0 Then
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("Delete NominaLiquidaConceptos From NominaLiquidaConceptos NLCC INNER JOIN NominaLiquidaContratos NLC  ON NLCC.LiquidaContrato = NLC.Sec WHERE NLC.NominaLiquida={0}", SecNominaLiquida)) > 0 Then
-
-            Else
-                Return False
-            End If
-        End If
-
-        sql = "Select Sec From NominaLiquidaContratos  WHERE NominaLiquida=" + SecNominaLiquida
-        dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If dt.Rows.Count > 0 Then
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("Delete From NominaLiquidaContratos  WHERE NominaLiquida={0}", SecNominaLiquida)) > 0 Then
-
-            Else
-                Return False
-            End If
-        End If
-
-        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("Delete From NominaLiquida Where Sec={0}", SecNominaLiquida)) > 0 Then
-        Else
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "EliminarBorrador")
             Return False
-        End If
-        Return True
+        End Try
     End Function
 
     Private Sub btnLiquidar_Click(sender As Object, e As EventArgs) Handles btnLiquidar.Click
@@ -2013,7 +2084,7 @@ Public Class FrmLiquidarNomina
                     wait.Descripcion = "Guardando Datos..."
                     EstaLiquidando = True
                     If GuardaBorrador(ObjetoApiNomina) Then
-                        If EliminarBorrador(ObjetoApiNomina) Then
+                        If EliminarBorrador() Then
                             wait.Terminar()
                             LimpiarTodosCampos(ObjetoApiNomina)
                             HDevExpre.mensajeExitoso("Información guardada exitosamente!")
@@ -2588,9 +2659,9 @@ Public Class FrmLiquidarNomina
             ElseIf estadoNomina = "BORRADOR" Then
                 ' Si existe borrador, solo cargar datos
                 SecNominaLiquida = dtEstadoNomina.Rows(0)("SecNominaLiquida").ToString()
-                ConsultaDatos()
-                wait.Terminar()
-                Exit Sub
+                'ConsultaDatos()
+                'wait.Terminar()
+                'Exit Sub
             End If
 
             ' Validar contratos
@@ -2601,16 +2672,24 @@ Public Class FrmLiquidarNomina
             End If
 
             ' Si no existe, crear nueva liquidación
+
             wait.Terminar()
+
             Dim basarEnAnterior = False
-            If HDevExpre.MsgSamit("¿Desea partir con los datos del último periodo liquidado?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                basarEnAnterior = True
+            If SecNominaLiquida <> "" And SecNominaLiquida <> "0" Then
                 wait.Mostrar()
-                wait.Descripcion = "Importando Nómina..."
+                wait.Descripcion = "Buscando Nómina..."
             Else
-                wait.Mostrar()
-                wait.Descripcion = "Creando Nómina..."
+                If HDevExpre.MsgSamit("¿Desea partir con los datos del último periodo liquidado?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                    basarEnAnterior = True
+                    wait.Mostrar()
+                    wait.Descripcion = "Importando Nómina..."
+                Else
+                    wait.Mostrar()
+                    wait.Descripcion = "Creando Nómina..."
+                End If
             End If
+
 
             ' Crear request para el procedimiento almacenado
             Dim request As New UpsertLiquidacionNominaRequest With {
@@ -2794,24 +2873,18 @@ Public Class FrmLiquidarNomina
 
     Private Sub btnEliminarBorrador_Click(sender As Object, e As EventArgs) Handles btnEliminarBorrador.Click
         If HDevExpre.MsgSamit("Seguro que desea eliminar este borrador?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-            'Using trans As New Transactions.TransactionScope
-            'Using ObjetoApiNomina As New SqlClient.SqlConnection(CadConexionBdGeneral)
-            'ObjetoApiNomina.Open()
-            SMT_EjcutarComandoSql(ObjetoApiNomina, "set dateformat dmy", 0)
+
             Dim wait As New ClEspera
             wait.Mostrar()
             wait.Descripcion = "Eliminando Datos..."
-            If EliminarBorrador(ObjetoApiNomina) Then
+            If EliminarBorrador() Then
                 LimpiarTodosCampos(ObjetoApiNomina)
                 wait.Terminar()
-                'trans.Complete()
                 HDevExpre.mensajeExitoso("El Borrador ha sido eliminado correctamente!..")
             Else
                 Exit Sub
                 wait.Terminar()
             End If
-            'End Using
-            'End Using
         End If
     End Sub
 
