@@ -1480,48 +1480,227 @@ Public Class FrmLiquidarNomina
         End If
     End Sub
 
-    Public Sub GuardarConceptos()
+    Public Function GuardarConceptos() As GuardarBorradorNominaRequest
+        Dim request As New GuardarBorradorNominaRequest()
+        request.SecNominaLiquida = CInt(SecNominaLiquida)
+        request.SecPeriodo = CInt(SecPeriodo)
+        request.EsBorrador = True
+        request.EstaLiquidando = False
+        request.Usuario = ObjetosNomina.Datos.Smt_Usuario
+        request.Terminal = ObjetosNomina.Datos.Smt_NombreTerminal
+
         Dim wait As New ClEspera
         wait.Mostrar()
-        wait.Descripcion = "Buscando..."
-        Dim tblah As DataTable = CType(gcLiquidaNomina.DataSource, DataTable)
-        If tblah Is Nothing Then
-        Else
-            If tblah.Rows.Count > 0 Then
-                For incre As Integer = 0 To tblah.Rows.Count - 1
-                    Dim Val = "0"
-                    Dim ActlzAnt As Boolean
-                    Dim SecConcepto As String = ""
-                    Dim NomConcepto As String = ""
-                    Dim BaseConcepto As String = ""
-                    Dim ValBase As Decimal = 0
-                    Dim PlantillaConceptos = xmladatatablePlantillas(gvLiquidaNomina.GetRowCellValue(incre, "PlantillaEmpl").ToString)
-                    For i As Integer = 0 To PlantillaConceptos.Rows.Count - 1
+        wait.Descripcion = "Guardando..."
 
-                        SecConcepto = PlantillaConceptos.Rows(i)("Sec").ToString
-                        NomConcepto = PlantillaConceptos.Rows(i)("Nombre").ToString
-                        BaseConcepto = PlantillaConceptos.Rows(i)("Base").ToString
-                        ValBase = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(incre, "Base")), 0, gvLiquidaNomina.GetRowCellValue(incre, "Base")))
-                        Val = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(incre, PlantillaConceptos.Rows(i)("Nombre").ToString)), 0, gvLiquidaNomina.GetRowCellValue(incre, PlantillaConceptos.Rows(i)("Nombre").ToString))).ToString
-                        ActlzAnt = ActualizaNovedades
-                        If ExisteDato("NominaLiquidaConceptos", String.Format("LiquidaContrato='{0}' And SecConcepto='{1}' ", gvLiquidaNomina.GetRowCellValue(incre, "NominaLiquidaContrato").ToString, SecConcepto), ObjetoApiNomina) Then
-                            ActualizaNovedades = True
-                            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(incre, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
-                                                                SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
-                            End If
-                        Else
-                            ActualizaNovedades = False
-                            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(incre, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
-                                                                SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
-                            End If
+        Dim tblah As DataTable = CType(gcLiquidaNomina.DataSource, DataTable)
+        If tblah IsNot Nothing AndAlso tblah.Rows.Count > 0 Then
+            For incre As Integer = 0 To tblah.Rows.Count - 1
+                ' CAMBIAR EL FOCUS A LA FILA ACTUAL
+                gvLiquidaNomina.FocusedRowHandle = incre
+                Application.DoEvents()
+
+                IndexRow = incre.ToString
+
+                ' Crear grillas verticales para calcular valores
+                CreagrillaVerticalID(ObjetoApiNomina, tblah.Rows(incre)("CodContrato").ToString,
+                                tblah.Rows(incre)("PlantillaEmpl").ToString,
+                                tblah.Rows(incre)("ConceptosContratos").ToString)
+                CreagrillaVerticalP()
+                PasarValores()
+                CreagrillaVerticalDPN()
+
+                ' Obtener totales de las grillas verticales
+                Dim categoriaID As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Total"), EditorRow)
+                Dim categoriaIng As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Ingresos"), EditorRow)
+                Dim categoriadeduc As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Deducciones"), EditorRow)
+                Dim categoriaP As EditorRow = TryCast(vgProviciones.GetRowByCaption("Provisiones"), EditorRow)
+                Dim categoriaDPN As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption("Total De Descuentos Por Nomina"), EditorRow)
+
+                Dim totalID As Decimal = 0
+                Dim totalIng As Decimal = 0
+                Dim totaldeduc As Decimal = 0
+                Dim totalP As Decimal = 0
+                Dim totalDPN As Decimal = 0
+                Dim totalcID As String = "0"
+
+                ' Calcular totales
+                If categoriaID IsNot Nothing Then
+                    totalID = CDec(categoriaID.Properties.Value)
+                    totalcID = totalID.ToString
+                End If
+
+                If categoriaP IsNot Nothing Then
+                    totalP = CDec(categoriaP.Properties.Value)
+                End If
+
+                If categoriaIng IsNot Nothing Then
+                    totalIng = CDec(categoriaIng.Properties.Value)
+                End If
+
+                If categoriadeduc IsNot Nothing Then
+                    totaldeduc = CDec(categoriadeduc.Properties.Value)
+                    If totaldeduc < 0 Then
+                        HDevExpre.MensagedeError("El total de las deducciones no puede ser superior al total de los ingresos!.. (Error en el contrato numero " + tblah.Rows(incre)("CodContrato").ToString + ")")
+                        wait.Terminar()
+                        Return Nothing
+                    End If
+                End If
+
+                If categoriaDPN IsNot Nothing Then
+                    totalDPN = CDec(categoriaDPN.Properties.Value)
+                End If
+
+                ' Ajustar totalcID si hay conceptos atados
+                If ConceptosAtadosAlContratoLiquida.Rows.Count > 0 Then
+                    totalID = totalID - totalDPN
+                    totalcID = totalID.ToString
+                End If
+
+                ' Validar que deducciones no superen ingresos
+                If totaldeduc > totalIng Then
+                    HDevExpre.MensagedeError("El total de las deducciones no puede ser superior al total de los ingresos!.. (Error en el contrato numero " + tblah.Rows(incre)("CodContrato").ToString + ")")
+                    wait.Terminar()
+                    Return Nothing
+                End If
+
+                ' Crear objeto contrato
+                Dim contratoDTO As New ContratoLiquidaDTO()
+
+                ' Datos del contrato
+                contratoDTO.CodContrato = tblah.Rows(incre)("CodContrato").ToString()
+                contratoDTO.SecContratoLiquida = CInt(tblah.Rows(incre)("NominaLiquidaContrato").ToString())
+                contratoDTO.NominaLiquida = CInt(SecNominaLiquida)
+                contratoDTO.HorasMes = CDec(tblah.Rows(incre)("HorasMes"))
+                contratoDTO.CargoActual = CInt(tblah.Rows(incre)("CargoActual"))
+                contratoDTO.Asignacion = CDec(tblah.Rows(incre)("Asignacion"))
+                contratoDTO.Total = totalID
+                contratoDTO.TotalIngresos = totalIng
+                contratoDTO.TotalDeducciones = totaldeduc
+                contratoDTO.TotalProvisiones = totalP
+                contratoDTO.TotalDescuentosNomina = totalDPN
+
+                ' Procesar conceptos de plantilla (Ingresos, Deducciones y PROVISIONES)
+                Dim PlantillaConceptos = xmladatatablePlantillas(tblah.Rows(incre)("PlantillaEmpl").ToString)
+                If PlantillaConceptos.Rows.Count > 0 Then
+                    For i As Integer = 0 To PlantillaConceptos.Rows.Count - 1
+                        Dim tipoConcepto As String = PlantillaConceptos.Rows(i)("Tipo").ToString
+                        Dim nombreConcepto As String = PlantillaConceptos.Rows(i)("Nombre").ToString
+                        Dim nombreBase As String = PlantillaConceptos.Rows(i)("Base").ToString ' NOMBRE DE LA BASE
+                        Dim valor As Decimal = 0
+                        Dim valorBase As Decimal = 0
+                        Dim fila As EditorRow = Nothing
+
+                        ' Determinar de qué grilla obtener el valor del concepto
+                        Select Case tipoConcepto
+                            Case "Ingresos", "Deducciones"
+                                fila = TryCast(vgIngresosDeducciones.GetRowByCaption(nombreConcepto), EditorRow)
+                            Case "Provisiones"
+                                fila = TryCast(vgProviciones.GetRowByCaption(nombreConcepto), EditorRow)
+                        End Select
+
+                        If fila IsNot Nothing Then
+                            valor = CDec(fila.Properties.Value)
                         End If
-                        ActualizaNovedades = ActlzAnt
+
+                        ' Obtener el valor de la base desde la grilla horizontal
+                        If nombreBase <> "" AndAlso tblah.Columns.Contains(nombreBase) Then
+                            valorBase = CDec(IIf(IsNothing(tblah.Rows(incre)(nombreBase)), 0,
+                                           tblah.Rows(incre)(nombreBase)))
+                        End If
+
+                        Dim conceptoDTO As New ConceptoLiquidaDTO()
+                        conceptoDTO.SecConcepto = CInt(PlantillaConceptos.Rows(i)("Sec"))
+                        conceptoDTO.NomConcepto = nombreConcepto
+                        conceptoDTO.Valor = valor
+                        conceptoDTO.Base = valorBase      ' VALOR de la base
+                        conceptoDTO.NomBase = nombreBase  ' NOMBRE de la base
+                        conceptoDTO.EsDescuento = False
+
+
+                        contratoDTO.Conceptos.Add(conceptoDTO)
                     Next
+                End If
+
+                ' Procesar conceptos atados al contrato (descuentos)
+                If ConceptosAtadosAlContratoLiquida.Rows.Count > 0 Then
+                    For i As Integer = 0 To ConceptosAtadosAlContratoLiquida.Rows.Count - 1
+                        Dim Fila As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption(
+                        ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString), EditorRow)
+
+                        Dim valor As Decimal = 0
+                        If Fila IsNot Nothing Then
+                            valor = CDec(Fila.Properties.Value)
+                        End If
+
+                        Dim conceptoDTO As New ConceptoLiquidaDTO()
+                        conceptoDTO.SecConceptoP = CInt(ConceptosAtadosAlContratoLiquida.Rows(i)("SecConcepto"))
+                        conceptoDTO.SecConceptoP2 = CInt(ConceptosAtadosAlContratoLiquida.Rows(i)("SecDescuento"))
+                        conceptoDTO.NomConcepto = ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString()
+                        conceptoDTO.Valor = valor
+                        conceptoDTO.Base = CDec(totalcID)                                    ' VALOR de la base (totalcID)
+                        conceptoDTO.NomBase = "B-" + conceptoDTO.NomConcepto                ' NOMBRE de la base
+                        conceptoDTO.EsDescuento = True
+
+
+                        contratoDTO.Conceptos.Add(conceptoDTO)
+                    Next
+                End If
+
+                ' Procesar variables
+                For i As Integer = 0 To ColumnasVP.Rows.Count - 1
+                    Dim valor As Decimal = 0
+                    Dim nombreColumna As String = ColumnasVP.Rows(i)("Nombre").ToString()
+
+                    If tblah.Columns.Contains(nombreColumna) Then
+                        valor = CDec(tblah.Rows(incre)(nombreColumna))
+                    End If
+
+                    Dim variableDTO As New VariableLiquidaDTO()
+                    variableDTO.Variable = CInt(ColumnasVP.Rows(i)("Sec"))
+                    variableDTO.Cantidad = valor
+
+                    contratoDTO.Variables.Add(variableDTO)
                 Next
-            End If
+
+                ' Actualizar los totales en la grilla horizontal
+                gvLiquidaNomina.SetRowCellValue(incre, "TotalIngresos", totalIng)
+                gvLiquidaNomina.SetRowCellValue(incre, "TotalDeducciones", totaldeduc)
+                gvLiquidaNomina.SetRowCellValue(incre, "TotalDescuentosNomina", totalDPN)
+                gvLiquidaNomina.SetRowCellValue(incre, "NetoAPagar", totalID)
+
+                ' Agregar contrato al request
+                request.Contratos.Add(contratoDTO)
+            Next
         End If
-        wait.Terminar()
-    End Sub
+
+        ' Regresar el focus a la primera fila
+        ActualizaNovedades = False
+        If gvLiquidaNomina.RowCount > 0 Then
+            gvLiquidaNomina.SelectRow(0)
+        End If
+
+        Dim datos = request.ToJObject().ToString()
+        ' Ejecutar procedimiento almacenado
+        Try
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_GuardarBorradorNomina", request.ToJObject())
+            Dim response = resp.ToObject(Of GuardarBorradorNominaResponse)()
+
+            If response.EsExitoso Then
+                wait.Terminar()
+                Return request
+            Else
+                wait.Terminar()
+                HDevExpre.MensagedeError("Error al guardar: " & response.Mensaje)
+                Return Nothing
+            End If
+        Catch ex As Exception
+            wait.Terminar()
+            HDevExpre.MensagedeError("Error al guardar: " & ex.Message)
+            Return Nothing
+        End Try
+
+    End Function
 
     Private Sub GridView1_CellValueChanged(sender As Object, e As Views.Base.CellValueChangedEventArgs) Handles gvLiquidaNomina.CellValueChanged
         Dim NomColumn = e.Column.ToString
@@ -1548,45 +1727,45 @@ Public Class FrmLiquidarNomina
                     Next
                     Dim SecContrato = gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString
 
-                    If EsVariable Then
-                        Dim Val = "0"
-                        Dim ActlzAnt As Boolean
-                        For i As Integer = 0 To PlantillaConceptos.Rows.Count - 1
+                    'If EsVariable Then
+                    '    Dim Val = "0"
+                    '    Dim ActlzAnt As Boolean
+                    '    For i As Integer = 0 To PlantillaConceptos.Rows.Count - 1
 
-                            SecConcepto = PlantillaConceptos.Rows(i)("Sec").ToString
-                            NomConcepto = PlantillaConceptos.Rows(i)("Nombre").ToString
-                            BaseConcepto = PlantillaConceptos.Rows(i)("Base").ToString
-                            ValBase = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(e.RowHandle, "Base")), 0, gvLiquidaNomina.GetRowCellValue(e.RowHandle, "Base")))
-                            Val = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(e.RowHandle, PlantillaConceptos.Rows(i)("Nombre").ToString)), 0, gvLiquidaNomina.GetRowCellValue(e.RowHandle, PlantillaConceptos.Rows(i)("Nombre").ToString))).ToString
-                            ActlzAnt = ActualizaNovedades
-                            If ExisteDato("NominaLiquidaConceptos", String.Format("LiquidaContrato='{0}' And SecConcepto='{1}' ", gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString, SecConcepto), ObjetoApiNomina) Then
-                                ActualizaNovedades = True
-                                If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
-                                                                    SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
-                                End If
-                            Else
-                                ActualizaNovedades = False
-                                If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
-                                                                    SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
-                                End If
-                            End If
-                            ActualizaNovedades = ActlzAnt
-                        Next
+                    '        SecConcepto = PlantillaConceptos.Rows(i)("Sec").ToString
+                    '        NomConcepto = PlantillaConceptos.Rows(i)("Nombre").ToString
+                    '        BaseConcepto = PlantillaConceptos.Rows(i)("Base").ToString
+                    '        ValBase = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(e.RowHandle, "Base")), 0, gvLiquidaNomina.GetRowCellValue(e.RowHandle, "Base")))
+                    '        Val = CDec(IIf(IsNothing(gvLiquidaNomina.GetRowCellValue(e.RowHandle, PlantillaConceptos.Rows(i)("Nombre").ToString)), 0, gvLiquidaNomina.GetRowCellValue(e.RowHandle, PlantillaConceptos.Rows(i)("Nombre").ToString))).ToString
+                    '        ActlzAnt = ActualizaNovedades
+                    '        If ExisteDato("NominaLiquidaConceptos", String.Format("LiquidaContrato='{0}' And SecConcepto='{1}' ", gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString, SecConcepto), ObjetoApiNomina) Then
+                    '            ActualizaNovedades = True
+                    '            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
+                    '                                                SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
+                    '            End If
+                    '        Else
+                    '            ActualizaNovedades = False
+                    '            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, gvLiquidaNomina.GetRowCellValue(e.RowHandle, "NominaLiquidaContrato").ToString, Val.ToString, NomConcepto,
+                    '                                                SecConcepto, "", ValBase.ToString, BaseConcepto, False, "") Then
+                    '            End If
+                    '        End If
+                    '        ActualizaNovedades = ActlzAnt
+                    '    Next
 
 
-                        Val = gvLiquidaNomina.GetRowCellValue(e.RowHandle, NomColumn).ToString
-                        ActlzAnt = ActualizaNovedades
-                        If ExisteDato("NominaLiquidaVariables", String.Format("SecLiquidaContrato='{0}' And Variable='{1}' ", SecContrato, SecVar), ObjetoApiNomina) Then
-                            ActualizaNovedades = True
-                            If GuardaNominaLiquidaVariables(ObjetoApiNomina, SecContrato, Val, SecVar) Then
-                            End If
-                        Else
-                            ActualizaNovedades = False
-                            If GuardaNominaLiquidaVariables(ObjetoApiNomina, SecContrato, Val, SecVar) Then
-                            End If
-                        End If
-                        ActualizaNovedades = ActlzAnt
-                    End If
+                    '    Val = gvLiquidaNomina.GetRowCellValue(e.RowHandle, NomColumn).ToString
+                    '    ActlzAnt = ActualizaNovedades
+                    '    If ExisteDato("NominaLiquidaVariables", String.Format("SecLiquidaContrato='{0}' And Variable='{1}' ", SecContrato, SecVar), ObjetoApiNomina) Then
+                    '        ActualizaNovedades = True
+                    '        If GuardaNominaLiquidaVariables(ObjetoApiNomina, SecContrato, Val, SecVar) Then
+                    '        End If
+                    '    Else
+                    '        ActualizaNovedades = False
+                    '        If GuardaNominaLiquidaVariables(ObjetoApiNomina, SecContrato, Val, SecVar) Then
+                    '        End If
+                    '    End If
+                    '    ActualizaNovedades = ActlzAnt
+                    'End If
                 End If
                 If Not ActualizaNovedades Then
                     If PasaValor Then
@@ -1653,273 +1832,40 @@ Public Class FrmLiquidarNomina
         LimpiarTodosCampos(ObjetoApiNomina)
     End Sub
     Public Function GuardaBorrador(ObjetoApiNomina As Object) As Boolean
+        ' Validaciones de errores en fórmulas
         For incre As Integer = 0 To CamposCalculados.Rows.Count - 1
             Dim Valor As String = gvLiquidaNomina.GetRowCellValue(0, CamposCalculados.Rows(incre)("Nombre").ToString).ToString
             Dim Nombre As String = CamposCalculados.Rows(incre)("Nombre").ToString
             If Valor = "#Err" Then
                 If CamposCalculados.Rows(incre)("Tipo").ToString = "B" Then
-                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine & "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine & "De la base: " + Nombre + ", por favor verificar!..")
+                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine &
+                    "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine &
+                    "De la base: " + Nombre + ", por favor verificar!..")
                     Return False
                 End If
                 If CamposCalculados.Rows(incre)("Tipo").ToString = "C" Then
-                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine & "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine & "Del concepto: " + Nombre + ", por favor verificar!..")
+                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine &
+                    "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine &
+                    "Del concepto: " + Nombre + ", por favor verificar!..")
                     Return False
                 End If
                 If CamposCalculados.Rows(incre)("Tipo").ToString = "CP" Then
-                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine & "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine & "Del concepto personal: " + Nombre + ", por favor verificar!..")
-                    Return False
-                End If
-                'If CamposCalculados.Rows(incre)("Tipo").ToString = "BC" Then
-                '    MensagedeError(String.Format("Se ha encontrado un error.{0}En la formula: {1}{0}De la base del concepto: {2}, por favor verificar!..", vbNewLine, CamposCalculados.Rows(incre)("Formula"), Nombre.Substring(2, Nombre.Length - 2)))
-                '    Return False
-                'End If
-                If CamposCalculados.Rows(incre)("Tipo").ToString = "DPN" Then
-                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine & "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine & "Del perfil de conceptos: " + Nombre.Substring(2, Nombre.Length - 2) + ", por favor verificar!..")
+                    HDevExpre.MensagedeError("Se ha encontrado un error." & vbNewLine &
+                    "En la formula: " + CamposCalculados.Rows(incre)("Formula").ToString & vbNewLine &
+                    "Del concepto personal: " + Nombre + ", por favor verificar!..")
                     Return False
                 End If
             End If
         Next
-        ActualizaNovedades = True
-        Dim dt As DataTable = CType(gcLiquidaNomina.DataSource, DataTable)
-        If dt.Rows.Count > 0 Then
-            If EstaLiquidando Then
-                If Not ExisteDato("NominaLiquidada", String.Format("Periodo='{0}' And Estado<>'A' ", SecPeriodo), ObjetoApiNomina) Then
-                    If GuardaNominaLiquida(ObjetoApiNomina) Then
-                        Dim asdf As DataTable = SMT_AbrirTabla(ObjetoApiNomina, "SELECT Sec AS Codigo FROM NominaLiquidada Where Estado<>'A' And Periodo =" + SecPeriodo)
-                        SecNominaLiquida = SMT_AbrirTabla(ObjetoApiNomina, "SELECT Sec AS Codigo FROM NominaLiquidada Where Estado<>'A' And Periodo =" + SecPeriodo).Rows(0)(0).ToString
-                    Else
-                        HDevExpre.MensagedeError("Ha ocurrido un error al liquidar la nomina..!")
-                        Return False
-                    End If
-                Else
-                    HDevExpre.MensagedeError("Este periodo ya ha sido liquidado..!")
-                End If
-            End If
 
-            For incre As Integer = 0 To dt.Rows.Count - 1
-                If ExisteDato("Contratos", "Terminado=1 And CodContrato=" + dt.Rows(incre)("CodContrato").ToString, ObjetoApiNomina) Then
-                    incre = incre + 1
-                    If incre > dt.Rows.Count - 1 Then
-                        Exit For
-                    End If
-                End If
-                IndexRow = incre.ToString
+        ' Construir objeto con todos los datos
+        Dim request As GuardarBorradorNominaRequest = GuardarConceptos()
 
-                CreagrillaVerticalID(ObjetoApiNomina, dt.Rows(incre)("CodContrato").ToString, dt.Rows(incre)("PlantillaEmpl").ToString, dt.Rows(incre)("ConceptosContratos").ToString)
-                CreagrillaVerticalP()
-                PasarValores()
-                CreagrillaVerticalDPN()
-
-                Dim categoriaID As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Total"), EditorRow)
-                Dim categoriaIng As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Ingresos"), EditorRow)
-                Dim categoriadeduc As EditorRow = TryCast(vgIngresosDeducciones.GetRowByCaption("Deducciones"), EditorRow)
-                Dim categoriaP As EditorRow = TryCast(vgProviciones.GetRowByCaption("Provisiones"), EditorRow)
-                Dim categoriaDPN As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption("Total De Descuentos Por Nomina"), EditorRow)
-                Dim totalID As Decimal = 0
-                Dim totalIng As Decimal = 0
-                Dim totaldeduc As Decimal = 0
-                Dim totalP As Decimal = 0
-                Dim totalDPN As Decimal = 0
-                Dim totalcID As String = "0"
-                Dim totalcP As String = "0"
-                Dim totalcIng As String = "0"
-                Dim totalcdeduc As String = "0"
-                Dim totalcDPN As String = "0"
-
-                If categoriaID Is Nothing Then
-
-                Else
-                    totalID = CDec(categoriaID.Properties.Value)
-                    totalcID = totalID.ToString
-                End If
-                If categoriaP Is Nothing Then
-
-                Else
-                    totalP = CDec(categoriaP.Properties.Value)
-                    totalcP = totalP.ToString
-                End If
-                If categoriaIng Is Nothing Then
-
-                Else
-                    totalIng = CDec(categoriaIng.Properties.Value)
-                    totalcIng = totalIng.ToString
-                End If
-
-                If categoriadeduc Is Nothing Then
-
-                Else
-                    totaldeduc = CDec(categoriadeduc.Properties.Value)
-                    totalcdeduc = totaldeduc.ToString
-                    If totaldeduc < 0 Then
-                        HDevExpre.MensagedeError("El total de las deducciones no puede ser superior al total de los ingresos!..  (Error en el contrato numero " + dt.Rows(incre)("CodContrato").ToString + ")")
-                        Return False
-                    End If
-                End If
-
-                If categoriaDPN Is Nothing Then
-
-                Else
-                    totalDPN = CDec(categoriaDPN.Properties.Value)
-                    totalcDPN = totalDPN.ToString
-                End If
-
-                If ConceptosAtadosAlContratoLiquida.Rows.Count > 0 Then
-                    totalID = totalID - totalDPN
-                    totalcID = totalID.ToString
-                End If
-
-                If totaldeduc > totalIng Then
-                    HDevExpre.MensagedeError("El total de las deducciones no puede ser superior al total de los ingresos!..  (Error en el contrato numero " + dt.Rows(incre)("CodContrato").ToString + ")")
-                    Return False
-                End If
-
-                If GuardaNominaLiquidaContratos(ObjetoApiNomina, dt.Rows(incre)("CodContrato").ToString, SecNominaLiquida, totalcID, dt.Rows(incre)("HorasMes").ToString, dt.Rows(incre)("CargoActual").ToString,
-                                                dt.Rows(incre)("Asignacion").ToString, totalcP, totalcIng, totaldeduc.ToString, dt.Rows(incre)("Comentario").ToString, totalcDPN) Then
-                    Dim TabConceptos As String = ""
-                    Dim TabVariables As String = ""
-                    Dim DetallesVar As String = ""
-                    Dim CampoTabConceptos As String = ""
-                    Dim CampoTabVariables As String = ""
-
-                    If EstaLiquidando Then
-                        SecContratoLiquida = SMT_AbrirTabla(ObjetoApiNomina, "SELECT Sec AS Codigo FROM NominaLiquidadaContratos Where NominaLiquidada =" + SecNominaLiquida + " And Contrato=" + dt.Rows(incre)("CodContrato").ToString).Rows(0)(0).ToString
-                        TabConceptos = "NominaLiquidadaConceptos"
-                        TabVariables = "NominaLiquidadaVariables"
-                        DetallesVar = "NominaLiquidaDescripVarPer"
-                        CampoTabConceptos = "LiquidadaContrato"
-                        CampoTabVariables = "SecLiquidadaContrato"
-
-                    Else
-                        SecContratoLiquida = dt.Rows(incre)("NominaLiquidaContrato").ToString
-                        TabConceptos = "NominaLiquidaConceptos"
-                        TabVariables = "NominaLiquidaVariables"
-                        DetallesVar = "DescripVarPer"
-                        CampoTabConceptos = "LiquidaContrato"
-                        CampoTabVariables = "SecLiquidaContrato"
-                    End If
-
-                    'Registra Conceptos de Nomina
-                    If ConceptosContrato.Rows.Count > 0 Then
-                        For i As Integer = 0 To ConceptosContrato.Rows.Count - 1
-                            Dim Fila As New EditorRow
-                            If ConceptosContrato.Rows(i)("Tipo").ToString = "Provisiones" Then
-                                Fila = TryCast(vgProviciones.GetRowByCaption(ConceptosContrato.Rows(i)("Nombre").ToString), EditorRow)
-                            Else
-                                Fila = TryCast(vgIngresosDeducciones.GetRowByCaption(ConceptosContrato.Rows(i)("Nombre").ToString), EditorRow)
-                            End If
-                            Dim valor As Decimal = CDec(Fila.Properties.Value)
-                            Dim valorc2 As String = valor.ToString
-                            Dim Basev As Decimal = 0
-                            If gvLiquidaNomina.GetRowCellValue(incre, ConceptosContrato.Rows(i)("Base").ToString) Is Nothing Then
-                                Basev = 0
-                            Else
-                                Basev = CDec(gvLiquidaNomina.GetRowCellValue(incre, ConceptosContrato.Rows(i)("Base").ToString).ToString)
-                            End If
-                            If ExisteDato(TabConceptos, String.Format(CampoTabConceptos + "='{0}' And SecConcepto='{1}' ", dt.Rows(incre)("NominaLiquidaContrato").ToString, ConceptosContrato.Rows(i)("Sec").ToString), ObjetoApiNomina) Then
-                                If GuardaNominaLiquidaConceptos(ObjetoApiNomina, SecContratoLiquida, valorc2, ConceptosContrato.Rows(i)("Nombre").ToString,
-                                                                ConceptosContrato.Rows(i)("Sec").ToString, "", Basev.ToString, ConceptosContrato.Rows(i)("Base").ToString, False, "") Then
-                                Else
-                                    Return False
-                                End If
-                            Else
-                                ActualizaNovedades = False
-                                If GuardaNominaLiquidaConceptos(ObjetoApiNomina, SecContratoLiquida, valorc2, ConceptosContrato.Rows(i)("Nombre").ToString,
-                                                                ConceptosContrato.Rows(i)("Sec").ToString, "", Basev.ToString, ConceptosContrato.Rows(i)("Base").ToString, False, "") Then
-                                    ActualizaNovedades = True
-                                Else
-                                    Return False
-                                End If
-                            End If
-                        Next
-                    End If
-                    'Registra Conceptos Atados al Contrato
-                    If ConceptosAtadosAlContratoLiquida.Rows.Count > 0 Then
-
-                        For i As Integer = 0 To ConceptosAtadosAlContratoLiquida.Rows.Count - 1
-                            Dim Fila As New EditorRow
-                            Fila = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString), EditorRow)
-                            Dim valor As Decimal = CDec(Fila.Properties.Value)
-                            Dim valorc As String = valor.ToString
-
-
-                            If Not ExisteDato(TabConceptos, String.Format(CampoTabConceptos + "='{0}' And SecConceptoP='{1}' ", SecContratoLiquida, ConceptosAtadosAlContratoLiquida.Rows(i)("SecConcepto").ToString), ObjetoApiNomina) Then
-                                ActualizaNovedades = False
-                            Else
-                                ActualizaNovedades = True
-                            End If
-                            Dim Cuota As Integer = 0
-                            Cuota = CInt(SMT_AbrirTabla(ObjetoApiNomina, "Select Isnull(CuotaActual,0) Cuota From ConceptosP_Contratos where Sec=" + ConceptosAtadosAlContratoLiquida.Rows(i)("SecDescuento").ToString).Rows(0)(0).ToString)
-                            If GuardaNominaLiquidaConceptos(ObjetoApiNomina, SecContratoLiquida, valorc, ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString,
-                                                            ConceptosAtadosAlContratoLiquida.Rows(i)("SecConcepto").ToString, ConceptosAtadosAlContratoLiquida.Rows(i)("SecDescuento").ToString, totalcID, "B-" + ConceptosAtadosAlContratoLiquida.Rows(i)("Nombre").ToString, True, Cuota.ToString) Then
-                                If EstaLiquidando Then
-                                    Dim TotalDescontado As Decimal = 0
-                                    Dim TotalDescontar As Decimal = 0
-                                    Dim Vigente As String = "0"
-                                    For incremento As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
-                                        If ConceptosAtadosAlContrato.Rows(incremento)("SecDescuento").ToString = ConceptosAtadosAlContratoLiquida.Rows(i)("SecDescuento").ToString Then
-                                            TotalDescontado = CDec(ConceptosAtadosAlContrato.Rows(incremento)("TotalDescontado"))
-                                            TotalDescontar = CDec(ConceptosAtadosAlContrato.Rows(incremento)("TotalDescontar"))
-                                        End If
-                                    Next
-                                    TotalDescontado = TotalDescontado + valor
-                                    If TotalDescontado >= TotalDescontar Then
-                                        Vigente = "0"
-                                    Else
-                                        Vigente = "1"
-                                    End If
-
-                                    If ModificaDescuentosPorNomina(ObjetoApiNomina, ConceptosAtadosAlContratoLiquida.Rows(i)("SecDescuento").ToString, TotalDescontado.ToString, Vigente, Cuota.ToString) Then
-
-                                    Else
-                                        Return False
-                                    End If
-                                End If
-                                ActualizaNovedades = True
-                            Else
-                                Return False
-                            End If
-
-                        Next
-                    End If
-                    'Registra Variables
-                    For i As Integer = 0 To ColumnasVP.Rows.Count - 1
-                        Dim valor As Decimal = CDec(dt.Rows(incre)(ColumnasVP.Rows(i)("Nombre").ToString).ToString)
-                        Dim valorc2 As String = valor.ToString
-                        If ExisteDato(TabVariables, String.Format(CampoTabVariables + "='{0}' And Variable='{1}' ", SecContratoLiquida, ColumnasVP.Rows(i)("Sec").ToString), ObjetoApiNomina) Then
-                            If GuardaNominaLiquidaVariables(ObjetoApiNomina, SecContratoLiquida, valorc2, ColumnasVP.Rows(i)("Sec").ToString) Then
-                            Else
-                                Return False
-                            End If
-                        Else
-                            ActualizaNovedades = False
-                            If GuardaNominaLiquidaVariables(ObjetoApiNomina, SecContratoLiquida, valorc2, ColumnasVP.Rows(i)("Sec").ToString) Then
-                                ActualizaNovedades = True
-                                If EstaLiquidando Then
-                                    Dim SecVar As String = SMT_AbrirTabla(ObjetoApiNomina, "select sec from NominaLiquidadaVariables where SecLiquidadaContrato='" + SecContratoLiquida + "' And Variable='" + ColumnasVP.Rows(i)("Sec").ToString + "'").Rows(0)(0).ToString
-                                    Dim SecVarAnt As String = SMT_AbrirTabla(ObjetoApiNomina, "select sec from NominaLiquidaVariables where SecLiquidaContrato='" + dt.Rows(incre)("NominaLiquidaContrato").ToString + "' And Variable='" + ColumnasVP.Rows(i)("Sec").ToString + "'").Rows(0)(0).ToString
-
-                                    Dim dtDetalles As DataTable = SMT_AbrirTabla(ObjetoApiNomina, "select * from DescripVarPer Where CodVarP='" + SecVarAnt + "'")
-                                    If dtDetalles.Rows.Count > 0 Then
-                                        For increvar As Integer = 0 To dtDetalles.Rows.Count - 1
-                                            If Not GuardaNominaLiquidaDetallesVar(Convert.ToDateTime(dtDetalles.Rows(increvar)("FechaHoraInicio")), Convert.ToDateTime(dtDetalles.Rows(increvar)("FechaHoraFin")), dtDetalles.Rows(increvar)("Cantidad").ToString, SecVar, dtDetalles.Rows(increvar)("TipoDesc").ToString) Then
-                                                Return False
-                                            End If
-                                        Next
-                                    End If
-                                End If
-                            Else
-                                Return False
-                            End If
-                        End If
-                    Next
-                Else
-                    Return False
-                End If
-            Next
+        If IsNothing(request) Then
+            Return False
+        Else
+            Return True
         End If
-        ActualizaNovedades = False
-        gvLiquidaNomina.SelectRow(0)
-        Return True
     End Function
 
     Private Sub btnGuardaBorrador_Click(sender As Object, e As EventArgs)
@@ -2814,6 +2760,7 @@ Public Class FrmLiquidarNomina
             If gvLiquidaNomina.RowCount = 0 Then Exit Sub
             'SQL PARA NOMINAS EN BORRADOR
             GuardarConceptos()
+            Exit Sub
             Dim sql As String = String.Format("SELECT EM.Identificacion,CAST(CAST(EM.Identificacion AS VARCHAR) +' | '+ RTRIM(LTRIM(RTRIM(LTRIM(EM.PNombre)) + ' ' + " +
               " RTRIM(LTRIM(EM.SNombre)) + ' ' +  RTRIM(LTRIM(EM.PApellido)) + ' ' + RTRIM(LTRIM(EM.SApellido)))) AS VARCHAR) AS Nombres, " +
               " CP.Sec AS SecConcep,CP.NomConcepto, NLC.Valor, CP.Tipo, TP.NomTipo,CT.IdContrato" +
