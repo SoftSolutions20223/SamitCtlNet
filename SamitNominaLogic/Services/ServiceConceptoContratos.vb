@@ -25,7 +25,7 @@ Public Class ServiceConceptoContratos
         End If
     End Function
 
-    Public Function UpsertConceptosContratos(ConceptosContratos As ConceptosPersonales) As JArray
+    Public Function UpsertConceptosContratos(ConceptosContratos As ConceptosPersonales) As DynamicUpsertResponseDto
         Dim Peticion As New ParametrosApi()
 
         Dim fila As New JObject
@@ -35,14 +35,15 @@ Public Class ServiceConceptoContratos
         fila("Clasificacion") = ConceptosContratos.Clasificacion
         fila("ValMaxDescuento") = ConceptosContratos.ValMaxDescuento
         fila("PeriodosLiquida") = ConceptosContratos.PeriodosLiquida
+        fila("CodDian") = ConceptosContratos.CodDian
 
         Dim datos As New JArray()
         datos.Add(fila)
 
         ' Hacer la petición con el JArray como segundo parámetro
-        Peticion.PostParametros("ConceptosContratos", datos)
+        Dim res = Peticion.PostParametros("ConceptosPersonales", datos)
 
-        Return datos
+        Return res
     End Function
 
     Public Function EliminarConceptosContratos(ConceptosContratos As ConceptosPersonales) As JArray

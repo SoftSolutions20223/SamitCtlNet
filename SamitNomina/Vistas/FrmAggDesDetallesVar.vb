@@ -150,21 +150,24 @@ Select '3' As Codigo, 'Laboral' As Descripcion")
             HDevExpre.msgError(ex, ex.Message, "Crea Grilla")
         End Try
     End Sub
-    Private Function GuardaDatos(sec As Integer, fechaini As DateTime, fechafin As DateTime, cantidad As String, TipoDes As String, NomTipo As String) As Boolean
+    Private Function GuardaDatos(fechaini As DateTime, fechafin As DateTime, cantidad As String, TipoDes As String, NomTipo As String) As Boolean
         Try
-            DetallesVar = New DescripVarPer
-            DetallesVar.NomTipo = txtTipoIncapacidad.ValordelControl
-            DetallesVar.Sec = sec
-            DetallesVar.Cantidad = txtCantidad.ValordelControl
-            DetallesVar.FechaHoraInicio = Convert.ToDateTime(dteFechaIni.EditValue)
-            DetallesVar.FechaHoraFin = Convert.ToDateTime(dteFechaFin.EditValue)
-            Dim RegDetalleVar As New ServiceDesDetalleVar
-            Dim registro As JArray
-            If RegDetalleVar.ValidarCampos(DetallesVar) Then
-                registro = RegDetalleVar.UpsertDesDetalleVar(DetallesVar)
+            Dim GenSql As New SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
+            GenSql.PasoConexionTabla(ObjetoApiNomina, "DescripVarPer")
+            GenSql.PasoValores("FechaHoraInicio", fechaini.ToString("dd/MM/yyyy HH:mm:ss"), SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+            GenSql.PasoValores("FechaHoraFin", fechafin.ToString("dd/MM/yyyy HH:mm:ss"), SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+            GenSql.PasoValores("Cantidad", cantidad, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+            GenSql.PasoValores("CodVarP", CodVar, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+            If Tipo = "Incapacidad" Then
+                GenSql.PasoValores("TipoDesc", TipoDes, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+                GenSql.PasoValores("NomTipo", NomTipo, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
             End If
-            If registro.Count > 0 Then
+
+            Dim SecDetalles = SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (Sec),0)+1 AS Codigo FROM  DescripVarPer").Rows(0)(0).ToString
+            GenSql.PasoValores("Sec", SecDetalles, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+            If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Insercion, "") Then
                 Return True
+            Else : Return False
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "Guardando Detalles")
@@ -173,8 +176,7 @@ Select '3' As Codigo, 'Laboral' As Descripcion")
     End Function
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         If ValidaCampos() Then
-            Dim sec As Integer = 0
-            If GuardaDatos(sec, Convert.ToDateTime(dteFechaIni.EditValue), Convert.ToDateTime(dteFechaFin.EditValue), txtCantidad.ValordelControl, txtTipoIncapacidad.ValordelControl, txtTipoIncapacidad.DescripciondelControl) Then
+            If GuardaDatos(Convert.ToDateTime(dteFechaIni.EditValue), Convert.ToDateTime(dteFechaFin.EditValue), txtCantidad.ValordelControl, txtTipoIncapacidad.ValordelControl, txtTipoIncapacidad.DescripciondelControl) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LlenaGrillaDetalles()
                 txtTipoIncapacidad.ValordelControl = ""
@@ -266,11 +268,5 @@ Select '3' As Codigo, 'Laboral' As Descripcion")
         HDevExpre.SaleControlDateEditDEV(dteFechaFin, lblFechaFin)
     End Sub
 
-    Private Sub gbxPrincipal_Paint(sender As Object, e As PaintEventArgs) Handles gbxPrincipal.Paint
 
-    End Sub
-
-    Private Sub txtTipoIncapacidad_Load(sender As Object, e As EventArgs) Handles txtTipoIncapacidad.Load
-
-    End Sub
 End Class

@@ -9,6 +9,7 @@ Imports DevExpress.XtraVerticalGrid
 Imports DevExpress.XtraVerticalGrid.Rows
 Imports DevExpress.XtraEditors.Repository
 Imports SamitNomina.HelperNomina
+Imports SamitNominaLogic
 
 Public Class FrmConsultaLiquidaciones
 
@@ -40,7 +41,7 @@ Public Class FrmConsultaLiquidaciones
     Public Sub txtOficina_Leave(sender As Object, e As EventArgs) Handles txtOficina.Leave
         If txtOficina.ValordelControl <> "" And txtOficina.DescripciondelControl <> "No Se Encontraron Registros" And txtOficina.DescripciondelControl <> "" Then
             txtNominas.ValordelControl = ""
-            txtNominas.ConsultaSQL = String.Format("SELECT SecNomina AS Codigo,NomNomina As Descripcion FROM  Nominas Where Oficina=" + txtOficina.ValordelControl)
+            txtNominas.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomNomina As Descripcion FROM  Nominas Where Oficina=" + txtOficina.ValordelControl)
             txtNominas.RefrescarDatos()
         End If
     End Sub
@@ -73,9 +74,9 @@ Public Class FrmConsultaLiquidaciones
 
     Private Sub AsignaScriptAcontroles()
         Try
-            txtTipoContrato.ConsultaSQL = String.Format("SELECT CodTipo AS Codigo,NomTipo As Descripcion FROM  CAT_TipoContratos")
+            txtTipoContrato.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomTipo As Descripcion FROM  CAT_TipoContratos")
             Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
-            txtOficina.ConsultaSQL = String.Format("SELECT NumOficina AS Codigo,NomOficina As Descripcion FROM SEGURIDAD..Oficinas WHERE Estado='V' AND NumEmpresa={0}", Empresa.ToString)
+            txtOficina.DatosDefecto = ObjetosNomina.Oficinas
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
         End Try
@@ -144,9 +145,9 @@ Public Class FrmConsultaLiquidaciones
         End If
         HDevExpre.CreaColumnasG(gvLiquidaciones, "Fecha", "Fecha", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 10, gcLiquidaciones.Width)
         HDevExpre.CreaColumnasG(gvLiquidaciones, "Estado", "Estado", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 10, gcLiquidaciones.Width)
-        'CreaColumnasG(gvLiquidaciones, "Contabilizada", "Contabilizada", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 10, gcLiquidaciones.Width)
-        'CreaColumnasG(gvLiquidaciones, "DocContable", "Doc Contable", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 7, gcLiquidaciones.Width)
-        'CreaColumnasG(gvLiquidaciones, "DocumentoContable", "Doc Contable", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 7, gcLiquidaciones.Width)
+        HDevExpre.CreaColumnasG(gvLiquidaciones, "Contabilizada", "Contabilizada", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 10, gcLiquidaciones.Width)
+        HDevExpre.CreaColumnasG(gvLiquidaciones, "DocContable", "Doc Contable", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 7, gcLiquidaciones.Width)
+        HDevExpre.CreaColumnasG(gvLiquidaciones, "DocumentoContable", "Doc Contable", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 7, gcLiquidaciones.Width)
         gvLiquidaciones.OptionsView.ShowFooter = True
         gvLiquidaciones.Appearance.HeaderPanel.Font = New Font("Trebuchet MS", 11.0!, FontStyle.Bold)
         gvLiquidaciones.Columns(0).Summary.Add(DevExpress.Data.SummaryItemType.Count, "", "{0}  Registros")
@@ -155,22 +156,18 @@ Public Class FrmConsultaLiquidaciones
         Try
             Dim sql As String = ""
             If grbTipoConsul.SelectedIndex = 0 Then
-                sql = "Select NL.Sec as Sec,P.PeriodoMes,N.FormaLiquida,P.Descripcion As Periodo,N.NomNomina As Nomina,convert(date ,NL.FechaCrea) As Fecha,P.CodPeriodo,P.Nomina as NumNomina,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable, " &
-                    " (select Doc_TipoComp + '-' + cast(Doc_IdComp as varchar(10)) + '-' + cast(doc_numdocumento as varchar(20)) from E" + Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa.ToString("000") + Year(Datos.Smt_FechaDeTrabajo).ToString + "..CT_Documentos where doc_secuencial  =  DocContable ) as DocumentoContable " +
+                sql = "Select NL.Sec as Sec,P.PeriodoMes,N.FormaLiquida,P.Descripcion As Periodo,N.NomNomina As Nomina,convert(date ,NL.FechaCrea) As Fecha,P.CodPeriodo,P.Nomina as NumNomina,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable " &
 " FROM  NominaLiquidada NL INNER JOIN PeriodosLiquidacion P ON NL.Periodo = P.Sec " +
-"INNER JOIN Nominas N ON P.Nomina = N.SecNomina Where NL.OfiNomina='" + txtOficina.ValordelControl + "' And P.Nomina='" + txtNominas.ValordelControl + "' And P.Año='" + txtAño.ValordelControl + "'"
+"INNER JOIN Nominas N ON P.Nomina = N.Sec Where NL.OfiNomina='" + txtOficina.ValordelControl + "' And P.Nomina='" + txtNominas.ValordelControl + "' And P.Año='" + txtAño.ValordelControl + "'"
             ElseIf grbTipoConsul.SelectedIndex = 1 Then
-                sql = "Select NL.Sec as Sec,'Semestre entre '+Cast(P.FechaInicio as varchar)+' y '+Cast(P.FechaFin as varchar) As Semestre,P.Nomina As NumNomina,N.NomNomina As Nomina,convert(date ,NL.FechaCrea) As Fecha,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable, " &
-                    " (select Doc_TipoComp + '-' + cast(Doc_IdComp as varchar(10)) + '-' + cast(doc_numdocumento as varchar(20)) from E" + Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa.ToString("000") + Year(Datos.Smt_FechaDeTrabajo).ToString + "..CT_Documentos where doc_secuencial  =  DocContable ) as DocumentoContable " +
+                sql = "Select NL.Sec as Sec,'Semestre entre '+Cast(P.FechaInicio as varchar)+' y '+Cast(P.FechaFin as varchar) As Semestre,P.Nomina As NumNomina,N.NomNomina As Nomina,convert(date ,NL.FechaCrea) As Fecha,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable " &
 " From NominaLiquidaSemestres NL INNER JOIN SemestresLiquidacion P ON NL.Semestre = P.Sec " +
-"INNER JOIN Nominas N ON P.Nomina = N.SecNomina Where NL.OfiNomina='" + txtOficina.ValordelControl + "' And P.Nomina='" + txtNominas.ValordelControl + "' And P.Año='" + txtAño.ValordelControl + "'"
+"INNER JOIN Nominas N ON P.Nomina = N.Sec Where NL.OfiNomina='" + txtOficina.ValordelControl + "' And P.Nomina='" + txtNominas.ValordelControl + "' And P.Año='" + txtAño.ValordelControl + "'"
             ElseIf grbTipoConsul.SelectedIndex = 2 Then
-                sql = "Select NL.Sec as Sec,N.NomNomina As Nomina,N.SecNomina As NumNomina,convert(date ,NL.FechaCrea) As Fecha,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable, " &
-                    " (select Doc_TipoComp + '-' + cast(Doc_IdComp as varchar(10)) + '-' + cast(doc_numdocumento as varchar(20)) from E" + Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa.ToString("000") + Year(Datos.Smt_FechaDeTrabajo).ToString + "..CT_Documentos where doc_secuencial  =  DocContable ) as DocumentoContable " +
-" From NominaLiquidaExtraordinaria NL INNER JOIN Nominas N ON NL.Nomina = N.SecNomina Where NL.OfiNomina ='" + txtOficina.ValordelControl + "' And NL.Nomina='" + txtNominas.ValordelControl + "' And DATEPART(year, NL.FechaCrea)='" + txtAño.ValordelControl + "'"
+                sql = "Select NL.Sec as Sec,N.NomNomina As Nomina,N.Sec As NumNomina,convert(date ,NL.FechaCrea) As Fecha,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable " &
+" From NominaLiquidaExtraordinaria NL INNER JOIN Nominas N ON NL.Nomina = N.Sec Where NL.OfiNomina ='" + txtOficina.ValordelControl + "' And NL.Nomina='" + txtNominas.ValordelControl + "' And DATEPART(year, NL.FechaCrea)='" + txtAño.ValordelControl + "'"
             ElseIf grbTipoConsul.SelectedIndex = 3 Then
-                sql = "Select NL.Sec as Sec,N.NomTipo As TipoContrato,convert(date ,NL.FechaCrea) As Fecha,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable, " &
-                    " (select Doc_TipoComp + '-' + cast(Doc_IdComp as varchar(10)) + '-' + cast(doc_numdocumento as varchar(20)) from E" + Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa.ToString("000") + Year(Datos.Smt_FechaDeTrabajo).ToString + "..CT_Documentos where doc_secuencial  =  DocContable ) as DocumentoContable " +
+                sql = "Select NL.Sec as Sec,N.NomTipo As TipoContrato,convert(date ,NL.FechaCrea) As Fecha,case NL.Estado WHEN 'A' then 'Anulada' when 'P' then 'Pendiente' when 'L' then 'Liquidada' end As Estado,isnull(Contabilizada,0) as Contabilizada,DocContable " &
 " From ContratosLiquidados NL INNER JOIN CAT_TipoContratos N ON NL.TipoContrato = N.CodTipo " +
 "Where NL.OfiNomina ='" + txtOficina.ValordelControl + "' And NL.TipoContrato='" + txtTipoContrato.ValordelControl + "' And DATEPART(year, NL.FechaCrea)='" + txtAño.ValordelControl + "'"
             End If
@@ -796,99 +793,76 @@ Public Class FrmConsultaLiquidaciones
         End If
     End Function
 
+
     Private Sub btnAnular_Click(sender As Object, e As EventArgs) Handles btnAnular.Click
-        'Using trans As New Transactions.TransactionScope
-        'Using ObjetoApiNomina As New SqlClient.SqlConnection(CadConexionBdGeneral)
-        'ObjetoApiNomina.Open()
-        SMT_EjcutarComandoSql(ObjetoApiNomina, "set dateformat dmy", 0)
+
         Dim wait As New ClEspera
+
         Try
-            If ValidaCamposAnula() Then
-                If grbTipoConsul.SelectedIndex = 0 Then
-                    If HDevExpre.MsgSamit("Seguro que desea anular esta liquidación de periodos?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        wait.Mostrar()
-                        wait.Descripcion = "Anulando..."
-                        If Not RecorreDescuentos(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString, "P") Then
-                            wait.Terminar()
-                            HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                            Exit Sub
-                        Else
-                            If AnulaLiquidaPeriodos(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString) Then
-                                wait.Terminar()
-                                HDevExpre.mensajeExitoso("Liquidación anulada exitosamente!")
-                            Else
-                                wait.Terminar()
-                                HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                                Exit Sub
-                            End If
-                        End If
-                    End If
-                ElseIf grbTipoConsul.SelectedIndex = 1 Then
-                    If HDevExpre.MsgSamit("Seguro que desea anular esta liquidación de semestres?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        wait.Mostrar()
-                        wait.Descripcion = "Anulando..."
-                        If Not RecorreDescuentos(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString, "S") Then
-                            wait.Terminar()
-                            HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                            Exit Sub
-                        Else
-                            If AnulaLiquidaSemestres(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString) Then
-                                wait.Terminar()
-                                HDevExpre.mensajeExitoso("Liquidación anulada exitosamente!")
-                            Else
-                                wait.Terminar()
-                                HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                                Exit Sub
-                            End If
-                        End If
-                    End If
-                ElseIf grbTipoConsul.SelectedIndex = 2 Then
-                    If HDevExpre.MsgSamit("Seguro que desea anular esta liquidación extraordinaria?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        wait.Mostrar()
-                        wait.Descripcion = "Anulando..."
-                        If Not RecorreDescuentos(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString, "E") Then
-                            wait.Terminar()
-                            HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                            Exit Sub
-                        Else
-                            If AnulaLiquidaExtraordinaria(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString) Then
-                                wait.Terminar()
-                                HDevExpre.mensajeExitoso("Liquidación anulada exitosamente!")
-                            Else
-                                wait.Terminar()
-                                HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                                Exit Sub
-                            End If
-                        End If
-                    End If
-                ElseIf grbTipoConsul.SelectedIndex = 3 Then
-                    If HDevExpre.MsgSamit("Seguro que desea anular esta liquidación de contratos?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        wait.Mostrar()
-                        wait.Descripcion = "Anulando..."
+            ' Validar que se pueda anular
+            If Not ValidaCamposAnula() Then
+                Exit Sub
+            End If
 
-                        If AnulaLiquidaContratos(ObjetoApiNomina, gvLiquidaciones.GetFocusedRowCellValue("Sec").ToString) Then
-                            wait.Terminar()
-                            HDevExpre.mensajeExitoso("Liquidación anulada exitosamente!")
-                        Else
-                            wait.Terminar()
-                                    HDevExpre.MensagedeError("Error al anular la liquidación..!")
-                                    Exit Sub
-                                End If
-                            End If
-                        End If
+            ' Determinar tipo de liquidación
+            Dim tipoLiquidacion As String = ""
+            Dim mensajeConfirmacion As String = ""
 
+            Select Case grbTipoConsul.SelectedIndex
+                Case 0 ' Periodos
+                    tipoLiquidacion = "P"
+                    mensajeConfirmacion = "Seguro que desea anular esta liquidación de periodos?"
+                Case 1 ' Semestres
+                    tipoLiquidacion = "S"
+                    mensajeConfirmacion = "Seguro que desea anular esta liquidación de semestres?"
+                Case 2 ' Extraordinaria
+                    tipoLiquidacion = "E"
+                    mensajeConfirmacion = "Seguro que desea anular esta liquidación extraordinaria?"
+                Case 3 ' Contratos
+                    tipoLiquidacion = "C"
+                    mensajeConfirmacion = "Seguro que desea anular esta liquidación de contratos?"
+            End Select
+
+            ' Confirmar con el usuario
+            If HDevExpre.MsgSamit(mensajeConfirmacion, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+                ' Mostrar mensaje de espera
+                wait.Mostrar()
+                wait.Descripcion = "Anulando..."
+
+                ' Crear el request
+                Dim request As New AnularLiquidacionRequest With {
+                .SecLiquidacion = CInt(gvLiquidaciones.GetFocusedRowCellValue("Sec")),
+                .TipoLiquidacion = tipoLiquidacion
+            }
+
+                ' Ejecutar procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_AnularLiquidacion", request.ToJObject())
+                Dim response = resp.ToObject(Of AnularLiquidacionResponse)()
+
+                ' Procesar respuesta
+                wait.Terminar()
+
+                If response.EsExitoso Then
+                    ' Mostrar mensaje de éxito
+                    HDevExpre.mensajeExitoso(response.Mensaje)
+
+                    ' Refrescar la grilla
+                    LlenaGrilla()
+                Else
+                    ' Mostrar mensaje de error
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                    ' Log adicional si hay código de error
+                    If response.CodigoError.HasValue Then
+                        Console.WriteLine($"Código de error SQL: {response.CodigoError.Value}")
                     End If
-                Catch ex As Exception
-                    HDevExpre.MensagedeError(ex.Message)
-                    wait.Terminar()
-                    Exit Sub
-                End Try
+                End If
+            End If
 
-        'trans.Complete()
-
-        'End Using
-        'End Using
-        LlenaGrilla()
+        Catch ex As Exception
+            wait.Terminar()
+            HDevExpre.MensagedeError(ex.Message)
+        End Try
     End Sub
 
     Private Sub btnSalir_Click(sender As Object, e As EventArgs) Handles btnSalir.Click

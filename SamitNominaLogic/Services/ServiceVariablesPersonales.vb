@@ -21,23 +21,25 @@ Public Class ServiceVariablesPersonales
         End If
     End Function
 
-    Public Function UpsertVariablesPersonal(VariablePersonal As VariablesPersonales) As JArray
+    Public Function UpsertVariablesPersonal(VariablePersonal As VariablesPersonales) As DynamicUpsertResponseDto
         Dim Peticion As New ParametrosApi()
 
         Dim fila As New JObject
-        fila("Nom") = VariablePersonal.NomVariable
+        fila("NomVariable") = VariablePersonal.NomVariable
         fila("Sec") = VariablePersonal.Sec
         fila("Vigente") = VariablePersonal.Vigente
         fila("ValorMaximo") = VariablePersonal.ValorMaximo
         fila("ValorDefecto") = VariablePersonal.ValorDefecto
+        fila("EsPredeterminado") = VariablePersonal.EsPredeterminado
+        fila("CodDian") = VariablePersonal.CodDian
 
         Dim datos As New JArray()
         datos.Add(fila)
 
         ' Hacer la petición con el JArray como segundo parámetro
-        Peticion.PostParametros("VariablePersonal", datos)
+        Dim res = Peticion.PostParametros("VariablesPersonales", datos)
 
-        Return datos
+        Return res
     End Function
 
     Public Function EliminarVariablesPersonal(VariablePersonal As VariablesPersonales) As JArray

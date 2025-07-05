@@ -74,19 +74,21 @@ Public Class FrmAggVariablesPersonales
         If txtNombreVariable.ValordelControl <> "" Then
             If txtValorMaximo.ValordelControl <> "" Then
                 If TxtValDefecto.ValordelControl <> "" Then
-                    Dim sec As Integer = 0
-                    If Actualizando Then sec = secReg
-                    If GuardaDatos(sec, SecVariablesp, txtNombreVariable.ValordelControl, grbVigente.SelectedIndex.ToString(), txtValorMaximo.ValordelControl, TxtValDefecto.ValordelControl,
-                               Actualizando) Then
-                        HNomina.ModNomFormulas(NomVariable, txtNombreVariable.ValordelControl)
-                        HDevExpre.mensajeExitoso("Información Guardada exitosamente")
-                        LlenaGrillaVariablesP()
-                        LimpiarCampos()
-                    Else
-                        HDevExpre.MensagedeError("Error al guardar los datos!")
+                    If SecVariablesp = "" Then
+                        SecVariablesp = "0"
+                    End If
+                    If ValidaNombres(SecVariablesp, txtNombreVariable.ValordelControl, Actualizando) Then
+                        If GuardaDatos(SecVariablesp, txtNombreVariable.ValordelControl, grbVigente.SelectedIndex.ToString(), txtValorMaximo.ValordelControl, TxtValDefecto.ValordelControl, txtCodDian.ValordelControl) Then
+                            HNomina.ModNomFormulas(NomVariable, txtNombreVariable.ValordelControl)
+                            HDevExpre.mensajeExitoso("Información Guardada exitosamente")
+                            LlenaGrillaVariablesP()
+                            LimpiarCampos()
+                        Else
+                            HDevExpre.MensagedeError("Error al guardar los datos!")
+                        End If
                     End If
                 Else
-                    HDevExpre.MensagedeError("El campo valor por defecto no puede estar vacío!")
+                        HDevExpre.MensagedeError("El campo valor por defecto no puede estar vacío!")
                     TxtValDefecto.Focus()
                 End If
             Else
@@ -133,7 +135,7 @@ Public Class FrmAggVariablesPersonales
             btnLimpiar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Limpiar)
             grbVigente.SelectedIndex = 1
 
-            txtCodDian.ConsultaSQL = String.Format("SELECT * FROM {0}..CodigosDian")
+            txtCodDian.ConsultaSQL = String.Format("SELECT Codigo,Descripcion FROM CodigosDian")
             txtCodDian.RefrescarDatos()
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AcomodaForm Agrega Variables Personales!")
@@ -223,7 +225,7 @@ Public Class FrmAggVariablesPersonales
 
     Private Function ValidaNombres(Sec As String, Nombre As String, EstaActualizando As Boolean) As Boolean
         If Not EstaActualizando Then
-            If HNomina.ValidaNombresR(txtNombreVariable.ValordelControl) Then
+            If HNomina.ValidaNombresR(Nombre) Then
                 Return True
             Else
                 HDevExpre.MensagedeError("Ya existe un registro con este nombre (Los Conceptos,Variables Generales,Variables Personales y Bases no pueden coincidir en el nombre)!..")
@@ -267,20 +269,26 @@ Public Class FrmAggVariablesPersonales
         Return True
     End Function
 
-    Private Function GuardaDatos(Sec As Integer, SecVariable As String, NomVariable As String, Vigente As String, ValorMaximo As String, ValorDefecto As String, EstaActualizando As Boolean) As Boolean
+    Private Function GuardaDatos(SecVariable As String, NomVariable As String, Vigente As String, ValorMaximo As String, ValorDefecto As String, CodDian As String) As Boolean
         Try
             VariablePersonal = New VariablesPersonales
-            VariablePersonal.NomVariable = txtNombreVariable.ValordelControl
-            VariablePersonal.Sec = Sec
-            VariablePersonal.Vigente = grbVigente.SelectedIndex.ToString()
-            VariablePersonal.ValorMaximo = txtValorMaximo.ValordelControl
-            VariablePersonal.ValorDefecto = TxtValDefecto.ValordelControl
+            VariablePersonal.NomVariable = NomVariable
+            VariablePersonal.Sec = CInt(SecVariable)
+            VariablePersonal.Vigente = Vigente
+            VariablePersonal.ValorMaximo = ValorMaximo
+            VariablePersonal.ValorDefecto = ValorDefecto
+            VariablePersonal.CodDian = CodDian
+            If VariablePersonal.Sec = 0 Then
+                VariablePersonal.EsPredeterminado = False
+            Else
+                VariablePersonal.EsPredeterminado = EsPredeterminado
+            End If
             Dim RegVariablePersonal As New ServiceVariablesPersonales
-            Dim registro As JArray
+            Dim registro As DynamicUpsertResponseDto
             If RegVariablePersonal.ValidarCampos(VariablePersonal) Then
                 registro = RegVariablePersonal.UpsertVariablesPersonal(VariablePersonal)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception
@@ -327,66 +335,6 @@ Public Class FrmAggVariablesPersonales
         End If
     End Sub
 #End Region
-
-
-    'Public Function ModificaFormulas(NomVar As String, NuevoNomVar As String) As Boolean
-    '    Dim sql As String = "Select Formula From ConfigConceptos WHERE Formula LIKE '%" + NomVar + "%'"
-    '    Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
-    '    If dt.Rows.Count > 0 Then
-    '        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("UPDATE ConfigConceptos SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVar + "]', '[" + NuevoNomVar + "]')")) > 0 Then
-
-    '        Else
-    '            Return False
-    '        End If
-    '    End If
-
-    '    sql = "Select ValMaxDescuento From ConceptosPersonales WHERE ValMaxDescuento LIKE '%" + NomVar + "%'"
-    '    dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-    '    If dt.Rows.Count > 0 Then
-    '        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("UPDATE ConceptosPersonales SET ValMaxDescuento = REPLACE(SUBSTRING(ValMaxDescuento, 1, DATALENGTH(ValMaxDescuento)),'[" + NomVar + "]', '[" + NuevoNomVar + "]')")) > 0 Then
-    '        Else
-    '            Return False
-    '        End If
-    '    End If
-
-    '    sql = "Select Formula From BasesConceptos WHERE Formula LIKE '%" + NomVar + "%'"
-    '    dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-    '    If dt.Rows.Count > 0 Then
-    '        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("UPDATE BasesConceptos SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVar + "]', '[" + NuevoNomVar + "]')")) > 0 Then
-    '        Else
-    '            Return False
-    '        End If
-    '    End If
-
-    '    sql = "Select ValorMaxDescontar From Plantillas WHERE ValorMaxDescontar LIKE '%" + NomVar + "%'"
-    '    dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-    '    If dt.Rows.Count > 0 Then
-    '        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("UPDATE Plantillas SET ValorMaxDescontar = REPLACE(SUBSTRING(ValorMaxDescontar, 1, DATALENGTH(ValorMaxDescontar)),'[" + NomVar + "]', '[" + NuevoNomVar + "]')")) > 0 Then
-    '        Else
-    '            Return False
-    '        End If
-    '    End If
-
-    '    sql = "Select Formula From TiposContratos_ConceptosNomina WHERE Formula LIKE '%" + NomVar + "%'"
-    '    dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-    '    If dt.Rows.Count > 0 Then
-    '        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("UPDATE TiposContratos_ConceptosNomina SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVar + "]', '[" + NuevoNomVar + "]')")) > 0 Then
-    '        Else
-    '            Return False
-    '        End If
-    '    End If
-
-    '    sql = "Select Formula From ConfigProvisiones WHERE Formula LIKE '%" + NomVar + "%'"
-    '    dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-    '    If dt.Rows.Count > 0 Then
-    '        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("UPDATE ConfigProvisiones SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVar + "]', '[" + NuevoNomVar + "]')")) > 0 Then
-    '        Else
-    '            Return False
-    '        End If
-    '    End If
-
-    '    Return True
-    'End Function
 
     Private Sub FrmAggVariablesPersonales_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
         LimpiarCampos()

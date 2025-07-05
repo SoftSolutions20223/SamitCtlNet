@@ -111,8 +111,10 @@ Public Class FrmAggConceptosContratos
             ElseIf ckePeriodo1.Checked = False And ckePeriodo3.Checked = True And ckePeriodo2.Checked = True Then
                 Periodos = "2,3"
             End If
-            Dim sec As Integer = 0
-            If GuardaDatos(sec, Sec_Concepto, txtNombre.ValordelControl, grbVigente.SelectedIndex.ToString(), txtClasificacion.ValordelControl, Periodos, txtMaximoDescuento.ValordelControl, txtCodDian.ValordelControl,
+            If Sec_Concepto = "" Then
+                Sec_Concepto = "0"
+            End If
+            If GuardaDatos(Sec_Concepto, txtNombre.ValordelControl, grbVigente.SelectedIndex.ToString(), txtClasificacion.ValordelControl, Periodos, txtMaximoDescuento.ValordelControl, txtCodDian.ValordelControl,
                        Actualizando) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LlenaGrillaConceptos()
@@ -167,7 +169,7 @@ Public Class FrmAggConceptosContratos
     Private Sub AsignaScriptAcontroles()
         Try
             txtClasificacion.ConsultaSQL = String.Format("SELECT Sec AS Codigo,Nom As Descripcion FROM  ClasConceptosPersonales")
-            txtCodDian.ConsultaSQL = String.Format("SELECT * FROM  CodigosDian")
+            txtCodDian.ConsultaSQL = String.Format("SELECT Codigo,Descripcion FROM  CodigosDian")
             txtCodDian.RefrescarDatos()
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
@@ -307,23 +309,26 @@ Public Class FrmAggConceptosContratos
         Return True
     End Function
 
-    Private Function GuardaDatos(Sec As Integer, SecConceptos As String, NomConcepto As String, Vigente As String, Clasificacion As String, PeriodoLiquida As String, MaximoDescuento As String, CodDian As String, EstaActualizando As Boolean) As Boolean
+    Private Function GuardaDatos(SecConceptos As String, NomConcepto As String, Vigente As String, Clasificacion As String, PeriodoLiquida As String, MaximoDescuento As String, CodDian As String, EstaActualizando As Boolean) As Boolean
         Try
-            ConceptosContratos = New ConceptosPersonales
-            ConceptosContratos.NomConcepto = txtNombre.ValordelControl
-            ConceptosContratos.Sec = Sec
-            ConceptosContratos.Vigente = grbVigente.SelectedIndex.ToString()
-            ConceptosContratos.ValMaxDescuento = txtMaximoDescuento.ValordelControl
-            ConceptosContratos.Clasificacion = txtClasificacion.ValordelControl
-            ConceptosContratos.CodDian = txtCodDian.ValordelControl
+            If ValidaNombres(SecConceptos, NomConcepto, EstaActualizando) Then
+                ConceptosContratos = New ConceptosPersonales
+                ConceptosContratos.NomConcepto = NomConcepto
+                ConceptosContratos.Sec = CInt(SecConceptos)
+                ConceptosContratos.Vigente = Vigente
+                ConceptosContratos.ValMaxDescuento = MaximoDescuento
+                ConceptosContratos.Clasificacion = Clasificacion
+                ConceptosContratos.CodDian = CodDian
+                ConceptosContratos.PeriodosLiquida = PeriodoLiquida
 
-            Dim RegConceptoContratos As New ServiceConceptoContratos
-            Dim registro As JArray
-            If RegConceptoContratos.ValidarCampos(ConceptosContratos) Then
-                registro = RegConceptoContratos.UpsertConceptosContratos(ConceptosContratos)
-            End If
-            If registro.Count > 0 Then
-                Return True
+                Dim RegConceptoContratos As New ServiceConceptoContratos
+                Dim registro As DynamicUpsertResponseDto
+                If RegConceptoContratos.ValidarCampos(ConceptosContratos) Then
+                    registro = RegConceptoContratos.UpsertConceptosContratos(ConceptosContratos)
+                End If
+                If registro.ErrorCount < 1 Then
+                    Return True
+                End If
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "Guardando Conceptos")

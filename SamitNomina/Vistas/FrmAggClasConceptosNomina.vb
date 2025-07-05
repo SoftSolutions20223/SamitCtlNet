@@ -14,7 +14,7 @@ Public Class FrmAggClasConceptosNomina
     Dim FormularioAbierto As Boolean = False
     Dim HDevExpre As New HelperDevExpress
     Dim HNomina As New HelperNomina
-    Dim ConceptosNominas As New ConceptosNomina
+    Dim ConceptosNominas As New ClasConceptosNomina
     Public Property P_FormularioAbierto() As Boolean
         Get
             Return FormularioAbierto
@@ -67,7 +67,9 @@ Public Class FrmAggClasConceptosNomina
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         If txtNombreClas.ValordelControl <> "" Then
             Dim sec As Integer = 0
-            If Actualizando Then sec = secReg
+            If SecClasConceptos <> "0" And SecClasConceptos <> "" Then
+                sec = CInt(SecClasConceptos)
+            End If
             If GuardaDatos(sec, SecClasConceptos, txtNombreClas.ValordelControl, grbVigente.SelectedIndex.ToString(),
                        Actualizando) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
@@ -189,17 +191,17 @@ Public Class FrmAggClasConceptosNomina
     End Sub
     Private Function GuardaDatos(Sec As Integer, SecTipo As String, NomVariable As String, Vigente As String, EstaActualizando As Boolean) As Boolean
         Try
-            ConceptosNominas = New ConceptosNomina
-            ConceptosNominas.NomConcepto = txtNombreClas.ValordelControl
+            ConceptosNominas = New ClasConceptosNomina
+            ConceptosNominas.Nom = txtNombreClas.ValordelControl
             ConceptosNominas.Sec = Sec
             ConceptosNominas.Vigente = grbVigente.SelectedIndex.ToString()
 
             Dim RegConceptoNomina As New ServiceClasConceptosNomina
-            Dim registro As JArray
+            Dim registro As DynamicUpsertResponseDto
             If RegConceptoNomina.ValidarCampos(ConceptosNominas) Then
                 registro = RegConceptoNomina.UpsertClasConceptosNomina(ConceptosNominas)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception
@@ -227,7 +229,7 @@ Public Class FrmAggClasConceptosNomina
             Exit Sub
         End If
         If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombreClas.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-            ConceptosNominas = New ConceptosNomina
+            ConceptosNominas = New ClasConceptosNomina
             ConceptosNominas.Sec = secReg
 
             Dim RegConceptoNomina As New ServiceClasConceptosNomina

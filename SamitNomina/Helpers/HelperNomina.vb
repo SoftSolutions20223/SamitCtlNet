@@ -4,6 +4,7 @@ Imports SamitCtlNet
 Imports Kiai.Nomina.Modelo
 Imports Kiai.Nomina
 Imports System.Threading
+Imports Newtonsoft.Json.Linq
 
 Public Class HelperNomina
     Dim HDevExpre As New HelperDevExpress
@@ -695,14 +696,7 @@ Public Class HelperNomina
     End Function
 
     Public Sub ModNomFormulas(NomVariable As String, NuevoNomVariable As String)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE ConfigConceptos SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVariable + "]', '[" + NuevoNomVariable + "]')"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE ConceptosPersonales SET ValMaxDescuento = REPLACE(SUBSTRING(ValMaxDescuento, 1, DATALENGTH(ValMaxDescuento)),'[" + NomVariable + "]', '[" + NuevoNomVariable + "]')"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE BasesConceptos SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVariable + "]', '[" + NuevoNomVariable + "]')"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE Plantillas SET ValorMaxDescontar = REPLACE(SUBSTRING(ValorMaxDescontar, 1, DATALENGTH(ValorMaxDescontar)),'[" + NomVariable + "]', '[" + NuevoNomVariable + "]')"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE TiposContratos_ConceptosNomina SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVariable + "]', '[" + NuevoNomVariable + "]')"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE ConfigProvisiones SET Formula = REPLACE(SUBSTRING(Formula, 1, DATALENGTH(Formula)),'[" + NomVariable + "]', '[" + NuevoNomVariable + "]')"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE TiposContratos_ConceptosNomina SET BaseCalculo ='" + NuevoNomVariable + "' Where BaseCalculo='" + NomVariable + "'"), 0)
-        SMT_EjcutarComandoSql(ObjetoApiNomina, String.Format("UPDATE ConceptosNomina SET Base = '" + NuevoNomVariable + "' Where Base='" + NomVariable + "'"), 0)
+        SMT_EjcutarComandoSql(ObjetoApiNomina, "exec dbo.SP_ModNomFormulas '" + NomVariable + "','" + NuevoNomVariable + "'", 0)
     End Sub
 
     Public Function ValidaEnFormulas(NomVariable As String) As Boolean

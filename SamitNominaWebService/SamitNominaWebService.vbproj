@@ -160,6 +160,7 @@
     <Compile Include="Model\Contratos_CentroCostos.vb" />
     <Compile Include="Model\Contrato_Cargos.vb" />
     <Compile Include="Model\CT_CentroCostos.vb" />
+    <Compile Include="Model\CT_PlandeCuentas.vb" />
     <Compile Include="Model\Dependencias.vb" />
     <Compile Include="Model\DescripVarPer.vb" />
     <Compile Include="Model\DetallesVariablesGenerales.vb" />

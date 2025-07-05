@@ -20,7 +20,7 @@ Public Module ModAdoNET
     End Function
     Public Function ExisteDato(Tabla As String, Cond As String, ByRef Conex As Object, Optional CampoYnoNull As String = "", Optional MostrarMensageError As Boolean = True) As Boolean
         ' Funcion que nos indica se existe Una Cuenta Contable
-        On Error GoTo Err_ExisteCta
+
         Dim TxtSQL As String
         If Tabla <> "" Then
             If CampoYnoNull = "" Then
@@ -77,42 +77,46 @@ Public Module ModAdoNET
             End If
             Tbl.Dispose()
             Return RetexisteDato
-Err_ExisteCta:
+
             Tbl.Dispose()
             If MostrarMensageError Then MensajedeError()
             Return False
 
         ElseIf TypeOf Conex Is Api Then
-            Dim MiApi As Api = CType(Conex, Api)
-            Dim paramsDefinition = New With {
-                .sql = TxtSQL
-            }
-            Dim url = $"/Api/Parametros.asmx/SqlGet"
-            Dim resApi = MiApi.ApiPOST(Of DataTable)(url, paramsDefinition)
-            If Not IsNothing(resApi.ObjetoRes) Then
-                If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
-                    resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
-                    resApi.ObjetoRes.Rows.Clear()
-                End If
-            End If
-            Dim existe As Boolean
-            Dim tabl = resApi.ObjetoRes
-            If Tabla <> "" Then
-                If CampoYnoNull = "" Then
-                    If tabl.Rows.Count > 0 Then existe = True
-                Else
-                    If tabl.Rows.Count > 0 Then
-                        If IsNothing(tabl.Rows(0)(0)) Then
-                            existe = False
-                        Else
-                            existe = True
-                        End If
+            Try
+                Dim MiApi As Api = CType(Conex, Api)
+                Dim paramsDefinition = New With {
+                    .sql = TxtSQL
+                }
+                Dim url = $"/Api/Parametros.asmx/SqlGet"
+                Dim resApi = MiApi.ApiPOST(Of DataTable)(url, paramsDefinition)
+                If Not IsNothing(resApi.ObjetoRes) Then
+                    If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                        resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                        resApi.ObjetoRes.Rows.Clear()
                     End If
                 End If
-            Else
-                If tabl.Rows.Count > 0 Then existe = True
-            End If
-            Return existe
+                Dim existe As Boolean
+                Dim tabl = resApi.ObjetoRes
+                If Tabla <> "" Then
+                    If CampoYnoNull = "" Then
+                        If tabl.Rows.Count > 0 Then existe = True
+                    Else
+                        If tabl.Rows.Count > 0 Then
+                            If IsNothing(tabl.Rows(0)(0)) Then
+                                existe = False
+                            Else
+                                existe = True
+                            End If
+                        End If
+                    End If
+                Else
+                    If tabl.Rows.Count > 0 Then existe = True
+                End If
+                Return existe
+            Catch ex As Exception
+                MessageBox.Show(ex.Message)
+            End Try
         End If
     End Function
     Public Function SMT_AbrirRecordSetReader(ByVal Con As SqlConnection, ByVal SQL As String) As SqlDataReader
@@ -161,134 +165,182 @@ Err_ExisteCta:
     End Sub
 
     Public Function SMT_AbrirTabla(ByVal Conex As Object, ByVal SQL As String) As DataTable
-        On Error Resume Next
-        If TypeOf Conex Is SqlConnection Then
-            Dim Con As SqlConnection = CType(Conex, SqlConnection)
-            Dim SMTCmd As New SqlCommand, TB As New DataTable, Adaptador As SqlDataAdapter
-            SMTCmd.Connection = Con
-            SMTCmd.CommandText = SQL
-            SMTCmd.CommandType = CommandType.Text
-            Adaptador = New SqlDataAdapter(SMTCmd)
-            Adaptador.Fill(TB)
-            Adaptador.Dispose()
-            SMTCmd.Dispose()
-            Return TB
-        ElseIf TypeOf Conex Is Api Then
-            Dim MiApi As Api = CType(Conex, Api)
-            Dim paramsDefinition = New With {
-                .sql = SQL
-            }
-            Dim url = $"/Api/Parametros.asmx/SqlGet"
-            Dim resApi As ApiResponseClient(Of DataTable)
-            Dim Res As New DataTable
-            Res = Nothing
-            Dim contador = 0
-            Do While IsNothing(Res) Or contador <= 3
-                contador = contador + 1
-                resApi = MiApi.ApiPOST(Of DataTable)(url, paramsDefinition)
-                If Not IsNothing(resApi.ObjetoRes) Then
-                    If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
-                        resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
-                        resApi.ObjetoRes.Rows.Clear()
-                    End If
-                    Exit Do
-                End If
-            Loop
+        Try
 
-            Return resApi.ObjetoRes
-        End If
-    End Function
-
-    Public Function SMT_GetDataset(ByVal Conex As Object, ByVal SQLQueries() As String) As DataSet
-        On Error Resume Next
-        If TypeOf Conex Is SqlConnection Then
-            Dim Con As SqlConnection = CType(Conex, SqlConnection)
-            Dim dataset As New DataSet()
-            For i As Integer = 0 To SQLQueries.Length - 1
-                Dim SMTCmd As New SqlCommand
-                Dim TB As New DataTable($"Tabla{i}")
-                Dim Adaptador As SqlDataAdapter
+            If TypeOf Conex Is SqlConnection Then
+                Dim Con As SqlConnection = CType(Conex, SqlConnection)
+                Dim SMTCmd As New SqlCommand, TB As New DataTable, Adaptador As SqlDataAdapter
                 SMTCmd.Connection = Con
-                SMTCmd.CommandText = SQLQueries(i)
+                SMTCmd.CommandText = SQL
                 SMTCmd.CommandType = CommandType.Text
                 Adaptador = New SqlDataAdapter(SMTCmd)
                 Adaptador.Fill(TB)
                 Adaptador.Dispose()
                 SMTCmd.Dispose()
-                dataset.Tables.Add(TB)
-            Next
-            Return dataset
-        ElseIf TypeOf Conex Is Api Then
-            Dim MiApi As Api = CType(Conex, Api)
-            Dim paramsDefinition = New With {
-            .sqlQueries = SQLQueries
-        }
-            Dim url = $"/Api/Parametros.asmx/SqlGetMultiple"
-            Dim resApi As ApiResponseClient(Of DataSet)
-            Dim ResDataSet As New DataSet
-            Dim contador = 0
-
-            Do While ResDataSet.Tables.Count = 0 AndAlso contador <= 3
-                contador = contador + 1
-                resApi = MiApi.ApiPOST(Of DataSet)(url, paramsDefinition)
-                If Not IsNothing(resApi.ObjetoRes) Then
-                    ' Procesar cada tabla devuelta
-                    For Each tabla As DataTable In resApi.ObjetoRes.Tables
-                        ' Crear una copia de la tabla para poder agregarla al nuevo DataSet
-                        Dim tablaCopia As DataTable = tabla.Copy()
-
-                        If tablaCopia.Columns.Contains("NoContieneDatos") Then
-                            tablaCopia.Columns.Remove("NoContieneDatos")
-                            tablaCopia.Rows.Clear()
+                Return TB
+            ElseIf TypeOf Conex Is Api Then
+                Dim MiApi As Api = CType(Conex, Api)
+                Dim paramsDefinition = New With {
+                    .sql = SQL
+                }
+                Dim url = $"/Api/Parametros.asmx/SqlGet"
+                Dim resApi As ApiResponseClient(Of DataTable)
+                Dim Res As New DataTable
+                Res = Nothing
+                Dim contador = 0
+                Do While IsNothing(Res) Or contador <= 3
+                    contador = contador + 1
+                    resApi = MiApi.ApiPOST(Of DataTable)(url, paramsDefinition)
+                    If Not IsNothing(resApi.ObjetoRes) Then
+                        If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                            resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                            resApi.ObjetoRes.Rows.Clear()
                         End If
+                        Exit Do
+                    End If
+                Loop
 
-                        ' Asignar nombre a la tabla si no tiene
-                        If String.IsNullOrEmpty(tablaCopia.TableName) Then
-                            tablaCopia.TableName = $"Tabla{ResDataSet.Tables.Count}"
-                        End If
+                Return resApi.ObjetoRes
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+            Return Nothing
+        End Try
+    End Function
 
-                        ResDataSet.Tables.Add(tablaCopia)
-                    Next
-                    Exit Do
-                End If
-            Loop
-            Return ResDataSet
-        End If
+    Public Function SMT_GetDataset(ByVal Conex As Object, ByVal SQLQueries() As String) As DataSet
+        Try
+            If TypeOf Conex Is SqlConnection Then
+                Dim Con As SqlConnection = CType(Conex, SqlConnection)
+                Dim dataset As New DataSet()
+                For i As Integer = 0 To SQLQueries.Length - 1
+                    Dim SMTCmd As New SqlCommand
+                    Dim TB As New DataTable($"Tabla{i}")
+                    Dim Adaptador As SqlDataAdapter
+                    SMTCmd.Connection = Con
+                    SMTCmd.CommandText = SQLQueries(i)
+                    SMTCmd.CommandType = CommandType.Text
+                    Adaptador = New SqlDataAdapter(SMTCmd)
+                    Adaptador.Fill(TB)
+                    Adaptador.Dispose()
+                    SMTCmd.Dispose()
+                    dataset.Tables.Add(TB)
+                Next
+                Return dataset
+            ElseIf TypeOf Conex Is Api Then
+                Dim MiApi As Api = CType(Conex, Api)
+                Dim paramsDefinition = New With {
+                .sqlQueries = SQLQueries
+            }
+                Dim url = $"/Api/Parametros.asmx/SqlGetMultiple"
+                Dim resApi As ApiResponseClient(Of DataSet)
+                Dim ResDataSet As New DataSet
+                Dim contador = 0
+
+                Do While ResDataSet.Tables.Count = 0 AndAlso contador <= 3
+                    contador = contador + 1
+                    resApi = MiApi.ApiPOST(Of DataSet)(url, paramsDefinition)
+                    If Not IsNothing(resApi.ObjetoRes) Then
+                        ' Procesar cada tabla devuelta
+                        For Each tabla As DataTable In resApi.ObjetoRes.Tables
+                            ' Crear una copia de la tabla para poder agregarla al nuevo DataSet
+                            Dim tablaCopia As DataTable = tabla.Copy()
+
+                            If tablaCopia.Columns.Contains("NoContieneDatos") Then
+                                tablaCopia.Columns.Remove("NoContieneDatos")
+                                tablaCopia.Rows.Clear()
+                            End If
+
+                            ' Asignar nombre a la tabla si no tiene
+                            If String.IsNullOrEmpty(tablaCopia.TableName) Then
+                                tablaCopia.TableName = $"Tabla{ResDataSet.Tables.Count}"
+                            End If
+
+                            ResDataSet.Tables.Add(tablaCopia)
+                        Next
+                        Exit Do
+                    End If
+                Loop
+                Return ResDataSet
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+            Return Nothing
+        End Try
     End Function
 
     Public Function SMT_EjecutaProcedimientos(ByVal Conex As Object, ByVal Procedimiento As String, ByVal Datos As JObject) As JObject
-        On Error Resume Next
-        If TypeOf Conex Is Api Then
-            Dim MiApi As Api = CType(Conex, Api)
-            Dim paramsDefinition = New With {
-                .Procedimiento = Procedimiento,
-                .Datos = Datos
-            }
-            Dim url = $"/Api/Parametros.asmx/SqlProcedures"
-            Dim resApi = MiApi.ApiPOST(Of JObject)(url, paramsDefinition)
-            Return resApi.ObjetoRes
-        End If
-        Return Nothing
+        Try
+            If TypeOf Conex Is Api Then
+                Dim MiApi As Api = CType(Conex, Api)
+                Dim paramsDefinition = New With {
+                    .Procedimiento = Procedimiento,
+                    .Datos = Datos
+                }
+                Dim url = $"/Api/Parametros.asmx/SqlProcedures"
+                Dim resApi = MiApi.ApiPOST(Of JObject)(url, paramsDefinition)
+                Return resApi.ObjetoRes
+            End If
+            Return Nothing
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+            Return Nothing
+        End Try
     End Function
 
     Public Sub SMT_EjcutarComandoSql(ByVal Conex As Object, ByVal TxtSQL As String, ByRef Retorno As Long)
-        If TypeOf Conex Is SqlConnection Then
-            Dim Con As SqlConnection = CType(Conex, SqlConnection)
-            Dim Cmd As New SqlCommand
-            Try
-                Cmd.Connection = Con
-                Cmd.CommandText = TxtSQL
-                Cmd.CommandType = CommandType.Text
-                Retorno = Cmd.ExecuteNonQuery()
-            Catch ex As Exception
-                MessageBox.Show(ex.Message)
-            End Try
-        Else
-            'se especifica que hacer
-        End If
+        Try
+
+
+            If TypeOf Conex Is SqlConnection Then
+                Dim Con As SqlConnection = CType(Conex, SqlConnection)
+                Dim Cmd As New SqlCommand
+                Try
+                    Cmd.Connection = Con
+                    Cmd.CommandText = TxtSQL
+                    Cmd.CommandType = CommandType.Text
+                    Retorno = Cmd.ExecuteNonQuery()
+                Catch ex As Exception
+                    MessageBox.Show(ex.Message)
+                End Try
+            Else
+                Dim MiApi As Api = CType(Conex, Api)
+                Dim paramsDefinition = New With {
+                    .sql = TxtSQL
+                }
+                Dim url = $"/Api/Parametros.asmx/SqlPost"
+                Dim resApi As ApiResponseClient(Of DataTable)
+                Dim Res As New DataTable
+                Res = Nothing
+                Dim contador = 0
+                Do While IsNothing(Res) Or contador <= 3
+                    contador = contador + 1
+                    resApi = MiApi.ApiPOST(Of DataTable)(url, paramsDefinition)
+                    If Not IsNothing(resApi.ObjetoRes) Then
+                        If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                            resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                            resApi.ObjetoRes.Rows.Clear()
+                        End If
+                        Exit Do
+                    End If
+                Loop
+                If resApi.ObjetoRes.Rows.Count > 0 Then
+                    If resApi.ObjetoRes.Rows(0)(0).ToString = "si" Then
+                        Retorno = 1
+                    Else
+                        Retorno = 0
+                    End If
+                Else
+                    Retorno = 0
+                End If
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        End Try
     End Sub
 
     Public Function SMT_EjcutarComandoSqlBool(ByVal Conex As Object, ByVal TxtSQL As String) As Boolean
+
         If TypeOf Conex Is SqlConnection Then
             Dim Con As SqlConnection = CType(Conex, SqlConnection)
             Dim Cmd As New SqlCommand
@@ -304,13 +356,46 @@ Err_ExisteCta:
                     Return False
                 End If
             Catch ex As Exception
-
                 MessageBox.Show(ex.Message)
                 Return False
             End Try
         Else
-            'se especifica que hacer
-            Return False
+            Try
+
+
+                Dim MiApi As Api = CType(Conex, Api)
+                Dim paramsDefinition = New With {
+                    .sql = TxtSQL
+                }
+                Dim url = $"/Api/Parametros.asmx/SqlPost"
+                Dim resApi As ApiResponseClient(Of DataTable)
+                Dim Res As New DataTable
+                Res = Nothing
+                Dim contador = 0
+                Do While IsNothing(Res) Or contador <= 3
+                    contador = contador + 1
+                    resApi = MiApi.ApiPOST(Of DataTable)(url, paramsDefinition)
+                    If Not IsNothing(resApi.ObjetoRes) Then
+                        If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                            resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                            resApi.ObjetoRes.Rows.Clear()
+                        End If
+                        Exit Do
+                    End If
+                Loop
+                If resApi.ObjetoRes.Rows.Count > 0 Then
+                    If resApi.ObjetoRes.Rows(0)(0).ToString = "si" Then
+                        Return True
+                    Else
+                        Return False
+                    End If
+                Else
+                    Return False
+                End If
+            Catch ex As Exception
+                MessageBox.Show(ex.Message)
+                Return Nothing
+            End Try
         End If
     End Function
 

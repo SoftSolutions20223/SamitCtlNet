@@ -17,16 +17,6 @@ Public Class FrmAggValorMaxDesc
             FormularioAbierto = value
         End Set
     End Property
-    'Private Sub AsignaScriptAcontroles()
-    '    Try
-
-    '        txtCargos.ConsultaSQL = String.Format("SELECT SecCargo AS Codigo,Denominacion As Descripcion FROM {0}..cargos")
-    '        Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
-    '        txtOficina.ConsultaSQL = String.Format("SELECT NumOficina AS Codigo,NomOficina As Descripcion FROM SEGURIDAD..Oficinas WHERE Estado='V' AND NumEmpresa={0}", Empresa.ToString)
-    '    Catch ex As Exception
-    '       HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
-    '    End Try
-    'End Sub
 
     Private Sub CreaGrillaValorMaxDescontar()
         Dim coloor As System.Drawing.Color = Color.White
@@ -101,7 +91,7 @@ Public Class FrmAggValorMaxDesc
     Private Sub LlenaGrillaValorMaxDescontar(Parametros As String)
         Try
             Dim dt As New DataTable
-            Dim sql As String = "Select SecPlantilla,NomPlantilla,ValorMaxDescontar From Plantillas "
+            Dim sql As String = "Select Sec as SecPlantilla,NomPlantilla,ValorMaxDescontar From Plantillas "
 
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             gcValMaxDescuento.DataSource = dt
@@ -144,6 +134,7 @@ Public Class FrmAggValorMaxDesc
             If Tbla.Rows.Count > 0 Then
                 For incre As Integer = 0 To Tbla.Rows.Count - 1
                     If Not GuardaDatos(Tbla.Rows(incre)("SecPlantilla").ToString, Tbla.Rows(incre)("ValorMaxDescontar").ToString) Then
+                        HDevExpre.MensagedeError("No se han podido guardar los datos, verifica la conexion a internet!..")
                         Exit Sub
                     End If
                 Next
@@ -158,17 +149,9 @@ Public Class FrmAggValorMaxDesc
 
     Private Function GuardaDatos(Contrato As String, nomina As String) As Boolean
         Try
-            Dim sql As String = "UPDATE Plantillas SET ValorMaxDescontar=@nom Where SecPlantilla=" + Contrato
-            ' Dim cmd As SqlCommand = New SqlCommand(sql, ObjetoApiNomina)
-            'cmd.Parameters.AddWithValue("@nom", nomina)
-            'Dim cant As Integer = cmd.ExecuteNonQuery()
-            'If cant > 0 Then
-
-            '    Return True
-            'Else
-            '    Return False
-            'End If
-
+            Dim sql As String = "UPDATE Plantillas SET ValorMaxDescontar='" + nomina + "' Where Sec=" + Contrato
+            Dim Modi = SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql)
+            Return Modi
         Catch ex As Exception
             Return False
         End Try
@@ -201,63 +184,57 @@ Public Class FrmAggValorMaxDesc
         dt.Columns.Add("SalarioPromedioMensualAnual", GetType(Decimal))
         CreaColumnas(gvVariables, "SalarioPromedioMensualSemestral", "SalarioPromedioMensualSemestral", True, True, "", Color.FromArgb(&HFF, &HE3, &HDB), True, 0, 0)
         dt.Columns.Add("SalarioPromedioMensualSemestral", GetType(Decimal))
-        'Variables Generales
-        sql = "SELECT VG.NomVariable AS Nombre,MAX(VGD.Fecha) AS Fecha,VG.Sec AS Variable " &
-              "FROM DetallesVariablesGenerales VGD INNER JOIN " &
-              "VariablesGenerales VG ON VGD.Variable = vG.Sec " &
-              "group by VG.NomVariable,VG.Sec"
-        Dim Columnas As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If Columnas.Rows.Count > 0 Then
-            For incre As Integer = 0 To Columnas.Rows.Count - 1
-                Dim fecha As DateTime = CDate(Columnas.Rows(incre)("Fecha"))
-                Dim fecha_s As String = fecha.ToString("dd/MM/yyyy")
-                sql = "SELECT VG.NomVariable AS Nombre " &
-"FROM DetallesVariablesGenerales VGD " &
-"INNER JOIN VariablesGenerales VG ON VGD.Variable = vG.Sec " &
-"WHERE Variable ='" + Columnas.Rows(incre)("Variable").ToString + "' AND VGD.Fecha = '" + fecha_s + "' "
 
-                Dim ArmaColumnas As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
-                If ArmaColumnas.Rows.Count > 0 Then
+        Dim consultas() As String = {"Select NomVariable as Nombre from VariablesGenerales",
+            "select NomVariable as Nombre from VariablesPersonales",
+            "select NomBase as Nombre from BasesConceptos",
+            "select NomConcepto as Nombre from ConceptosNomina"}
+        Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
+        'Variables Generales
+
+        Dim ColumnasVG As DataTable = Datos.Tables(0)
+        If ColumnasVG.Rows.Count > 0 Then
+            For incre As Integer = 0 To ColumnasVG.Rows.Count - 1
+                If ColumnasVG.Rows.Count > 0 Then
                     Dim ColorColumna As System.Drawing.Color = Color.FromArgb(&HB1, &HF3, &HDA)
-                    dt.Columns.Add(ArmaColumnas.Rows(0)("Nombre").ToString, GetType(Decimal))
-                    CreaColumnas(gvVariables, ArmaColumnas.Rows(0)("Nombre").ToString, ArmaColumnas.Rows(0)("Nombre").ToString, True, False, "", ColorColumna, True, 0, 0)
+                    dt.Columns.Add(ColumnasVG.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                    dt.Columns(incre).AllowDBNull = False
+                    CreaColumnas(gvVariables, ColumnasVG.Rows(incre)("Nombre").ToString, ColumnasVG.Rows(incre)("Nombre").ToString, True, False, "", ColorColumna, True, 0, 0)
                 End If
             Next
         End If
 
         'Variables Personales
-        sql = "select NomVariable as Nombre from VariablesPersonales"
-        Columnas = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If Columnas.Rows.Count > 0 Then
-            For incre As Integer = 0 To Columnas.Rows.Count - 1
+        Dim ColumnasVP = Datos.Tables(1)
+        If ColumnasVP.Rows.Count > 0 Then
+            For incre As Integer = 0 To ColumnasVP.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HFF, &HE3, &HDB)
-                dt.Columns.Add(Columnas.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                dt.Columns.Add(ColumnasVP.Rows(incre)("Nombre").ToString, GetType(Decimal))
                 dt.Columns(incre).AllowDBNull = False
-                CreaColumnas(gvVariables, Columnas.Rows(incre)("Nombre").ToString, Columnas.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 0, 0)
+                CreaColumnas(gvVariables, ColumnasVP.Rows(incre)("Nombre").ToString, ColumnasVP.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 0, 0)
             Next
         End If
 
         'Bases
-        sql = "select NomBase as Nombre from BasesConceptos"
-        Columnas = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If Columnas.Rows.Count > 0 Then
-            For incre As Integer = 0 To Columnas.Rows.Count - 1
+        Dim ColumnasB = Datos.Tables(2)
+        If ColumnasB.Rows.Count > 0 Then
+            For incre As Integer = 0 To ColumnasB.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HFF, &HE3, &HDB)
-                dt.Columns.Add(Columnas.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                dt.Columns.Add(ColumnasB.Rows(incre)("Nombre").ToString, GetType(Decimal))
                 dt.Columns(incre).AllowDBNull = False
-                CreaColumnas(gvVariables, Columnas.Rows(incre)("Nombre").ToString, Columnas.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 0, 0)
+                CreaColumnas(gvVariables, ColumnasB.Rows(incre)("Nombre").ToString, ColumnasB.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 0, 0)
             Next
         End If
 
         'Conceptos
-        sql = "select NomConcepto as Nombre from ConceptosNomina"
-        Columnas = SMT_AbrirTabla(ObjetoApiNomina, sql)
-        If Columnas.Rows.Count > 0 Then
-            For incre As Integer = 0 To Columnas.Rows.Count - 1
+        sql = ""
+        Dim ColumnasC = Datos.Tables(3)
+        If ColumnasC.Rows.Count > 0 Then
+            For incre As Integer = 0 To ColumnasC.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HFF, &HE3, &HDB)
-                dt.Columns.Add(Columnas.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                dt.Columns.Add(ColumnasC.Rows(incre)("Nombre").ToString, GetType(Decimal))
                 dt.Columns(incre).AllowDBNull = False
-                CreaColumnas(gvVariables, Columnas.Rows(incre)("Nombre").ToString, Columnas.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 0, 0)
+                CreaColumnas(gvVariables, ColumnasC.Rows(incre)("Nombre").ToString, ColumnasC.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 0, 0)
             Next
         End If
 
@@ -272,20 +249,6 @@ Public Class FrmAggValorMaxDesc
 
     Private Sub FrmNominasContratos_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
         LimpiarCampos()
-    End Sub
-
-    Private Sub btnBuscar_Click(sender As Object, e As EventArgs)
-        'Dim sql As String = ""
-        'If txtOficina.ValordelControl <> "" And txtOficina.DescripciondelControl <> "No Se Encontraron Registros" And txtOficina.DescripciondelControl <> "" And txtCargos.ValordelControl <> "" And txtCargos.DescripciondelControl <> "No Se Encontraron Registros" And txtCargos.DescripciondelControl <> "" Then
-        '    sql = "Where C.Oficina=" + txtOficina.ValordelControl + " And CC.Cargo=" + txtCargos.ValordelControl
-        'ElseIf txtOficina.ValordelControl <> "" And txtOficina.DescripciondelControl <> "No Se Encontraron Registros" And txtOficina.DescripciondelControl <> "" Then
-        '    sql = "Where C.Oficina=" + txtOficina.ValordelControl
-        'ElseIf txtCargos.ValordelControl <> "" And txtCargos.DescripciondelControl <> "No Se Encontraron Registros" And txtCargos.DescripciondelControl <> "" Then
-        '    sql = "Where CC.Cargo=" + txtCargos.ValordelControl
-        'Else
-        '   HDevExpre.MensagedeError("Parametros de busqueda incorrectos!..")
-        'End If
-        'LlenaGrillaValorMaxDescontar(sql)
     End Sub
 
     Private Sub gvValMaxDescuento_ShownEditor(sender As Object, e As EventArgs) Handles gvValMaxDescuento.ShownEditor

@@ -55,6 +55,45 @@ Public Class Parametros
         ApiHelper.WriteResponse(Context, JsonConvert.SerializeObject(res))
     End Sub
 
+    <WebMethod()>
+    <ScriptMethod(ResponseFormat:=ResponseFormat.Json)>
+    Public Sub SqlPost()
+        Dim paramsDefinition = New With {
+            .sql = ""
+        }
+        Dim res As New ApiResponse
+
+        Try
+
+            Dim requestData = ApiHelper.AuthBearerRequestWithParams(Context, paramsDefinition)
+            If requestData.AuthSuccess Then
+                Dim data = requestData.Data
+                Dim auth = requestData.Auth
+
+                Dim token = auth.KeyToken
+                token.Servidor = "LAPTOP-3JUTLUGJ\SAMIT"
+                Dim conexion = New ConexionSQL(token.Servidor, token.BaseDatosNominaFull)
+                Dim respost = conexion.SqlQuerySingle(requestData.Data.sql)
+                conexion.CerrarConexion()
+                Dim tblres As New DataTable
+                tblres.Columns.Add("Res", GetType(String))
+                Dim fila As DataRow = tblres.NewRow()
+                fila("Res") = respost
+                tblres.Rows.Add(fila)
+
+                res.ObjetoRes = tblres
+                res.Estado = "OK"
+            Else
+                res = requestData.Auth.Resultado
+            End If
+        Catch ex As Exception
+            res.Estado = "ERROR"
+            res.AgregarDetalle("INTERNAL: " & ex.Message)
+        End Try
+
+        ApiHelper.WriteResponse(Context, JsonConvert.SerializeObject(res))
+    End Sub
+
 
     <WebMethod()>
     <ScriptMethod(ResponseFormat:=ResponseFormat.Json)>

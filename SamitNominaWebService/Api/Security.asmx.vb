@@ -92,6 +92,7 @@ Public Class Security
     "CAT_ClaseLibreta",
     "CAT_Profesiones",
     "G_Pais",
+    "CT_PlandeCuentas",
     "G_Departamento",
     "G_Municipio",
     "CodigosDian"
@@ -159,6 +160,9 @@ END
                             Case "G_Pais"
                                 accionSql = p.sqlGPais
 
+                            Case "CT_PlandeCuentas"
+                                accionSql = p.sqlCt_Plandecuentas
+
                             Case "G_Municipio"
                                 accionSql = p.sqlGMunicipio
 
@@ -212,6 +216,7 @@ END
     "CAT_ClaseLibreta",
     "CAT_Profesiones",
     "G_Pais",
+    "CT_PlandeCuentas",
     "G_Departamento",
     "G_Municipio",
     "CodigosDian"
@@ -280,6 +285,9 @@ END
 
                             Case "G_Pais"
                                 accionSql = p.sqlGPais
+
+                            Case "CT_PlandeCuentas"
+                                accionSql = p.sqlCt_Plandecuentas
 
                             Case "G_Municipio"
                                 accionSql = p.sqlGMunicipio

@@ -14,7 +14,7 @@ Public Class FrmImpNominas
     Dim HNomina As New HelperNomina
     Dim FechaLiquida As String
     Public CodNomina As String
-    Public Datos As New SamitCtlNet.SamitCtlNet
+    Public Datos = ObjetosNomina.Datos
     Public Property SecConsulta As Integer
     Public Property TipoConsultaXimprimir As TipoDeLiquidacionImprime
     Public Property SecNomina As Integer
@@ -42,18 +42,10 @@ Public Class FrmImpNominas
         btnSalir.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.SalirCuadroConX)
         SimpleButton1.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Liquidaciones)
 
-        'btnBuscar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Buscar)
 
-        'rgMostrarPor.SelectedIndex = 0
-        'vgIngresosDeducciones.Visible = False
-        'gcRes.Width = gbxFiltro.Width
         CreaGrillaXnomina()
-        'txtPeriodo.Enabled = False
-        AsignaSqlAcontroles()
-        'rgMostrarPor.Focus()
-        'txtNomina.MensajedeAyuda = "Seleccione la nómina sobre la cual desea consultar. (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
-        'txtOficina.MensajedeAyuda = "Seleccione la oficina sobre la cual desea consultar. (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
-        'txtPeriodo.MensajedeAyuda = "Seleccione el periodo sobre el cual desea consultar. (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
+
+
         CreaGrillaXperiodo()
         Consultar()
         Try
@@ -64,77 +56,28 @@ Public Class FrmImpNominas
         End Try
     End Sub
 
-    Private Sub AsignaSqlAcontroles()
-        Try
-            'txtOficina.ConsultaSQL = String.Format("SELECT DISTINCT OO.NumOficina AS Codigo, OO.NomOficina AS Descripcion FROM SEGURIDAD..Oficinas OO " +
-            '                        " INNER JOIN  NominaLiquidada NL ON OO.NumOficina = NL.OfiNomina AND OO.NumEmpresa = {1}",
-            '                        NombreBdNomina, Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa)
-        Catch ex As Exception
 
-        End Try
-    End Sub
 
 
     Private Sub rgMostrarPor_SelectedIndexChanged(sender As Object, e As EventArgs)
         Try
-            'txtOficina.ValordelControl = ""
-            'txtNomina.ValordelControl = ""
-            'txtPeriodo.ValordelControl = ""
-            'txtOficina.TieneErrorControl = False
-            'txtNomina.TieneErrorControl = False
-            'txtPeriodo.TieneErrorControl = False
+
             gcRes.DataSource = Nothing
             vgIngresosDeducciones.DataSource = Nothing
             gvRes.Columns.Clear()
             vgIngresosDeducciones.Rows.Clear()
 
-            'If rgMostrarPor.SelectedIndex = 0 Then
-            '    txtPeriodo.Enabled = False
-            '    gcRes.Width = gbxFiltro.Width
-            '    vgIngresosDeducciones.Visible = False
-            '    btnImpBasica.Enabled = True
-            '    btnImpDetallado.Enabled = True
-            '    btnImpTotalesXperiodo.Enabled = True
-            '    CreaGrillaXnomina()
-            'ElseIf rgMostrarPor.SelectedIndex = 1 Then
-            '    btnImpDesprendible.Enabled = True
-            '    txtPeriodo.Enabled = True
-            '    gcRes.Width = gbxFiltro.Width - (vgIngresosDeducciones.Width + 5)
-            '    vgIngresosDeducciones.Visible = True
-            '    CreaGrillaXperiodo()
-            'End If
-            'txtOficina.Focus()
         Catch ex As Exception
 
         End Try
     End Sub
 
 
-    'Private Sub rgMostrarPor_Enter(sender As Object, e As EventArgs)
-    '    EntraControlRadioGroup(rgMostrarPor, tamañoLetraRG:=rgMostrarPor.Font.Size)
-    '    FrmPrincipal.MensajeDeAyuda.Caption = "Seleccione si desea realizar la busqueda por periodos o por terceros. (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
-    'End Sub
-    'Private Sub rgMostrarPor_Leave(sender As Object, e As EventArgs)
-    '    SaleControlRadioGroup(rgMostrarPor, tamañoLetraRG:=rgMostrarPor.Font.Size)
-    '    FrmPrincipal.MensajeDeAyuda.Caption = ""
-    'End Sub
-
     Private Sub rgMostrarPor_KeyPress(sender As Object, e As KeyPressEventArgs)
         HDevExpre.AvanzaConEnter(e)
     End Sub
 
-    'Private Sub txtNomina_Leave(sender As Object, e As EventArgs)
-    '    If txtNomina.ValordelControl <> "" Then
-    '        If rgMostrarPor.SelectedIndex = 0 Then Exit Sub
-    '        'txtPeriodo.ConsultaSQL = String.Format("SELECT PL.Sec AS Codigo, PL.Descripcion FROM  NominaLiquidada NL INNER JOIN  PeriodosLiquidacion PL ON NL.Periodo = PL.Sec " +
-    '        '                        " WHERE PL.Nomina = {1}", NombreBdNomina, txtNomina.ValordelControl)
-    '        'txtPeriodo.RefrescarDatos()
 
-    '        txtPeriodo.ConsultaSQL = String.Format("SELECT CodPeriodo AS Codigo,Descripcion As Descripcion FROM  PeriodosLiquidacion where Nomina='{1}'", NombreBdNomina, txtNomina.ValordelControl)
-    '        txtPeriodo.RefrescarDatos()
-    '        txtPeriodo.TieneErrorControl = False
-    '    End If
-    'End Sub
 
     Private Sub btnSalir_Click(sender As Object, e As EventArgs) Handles btnSalir.Click
         Me.Close()
@@ -143,19 +86,11 @@ Public Class FrmImpNominas
     Private Sub btnBuscar_Click(sender As Object, e As EventArgs)
         gvRes.Columns.Clear()
 
-        'If rgMostrarPor.SelectedIndex = 0 Then
-        '    CreaGrillaXnomina()
-        '    ConsultaXnomina(CInt(txtNomina.ValordelControl))
-        'ElseIf rgMostrarPor.SelectedIndex = 1 Then
-        '    If txtPeriodo.ValordelControl = "" Or Me.SecPeriodo <= 0 Then
-        '       HDevExpre.MensagedeError("Debe seleccionar el periodo.")
-        '        txtPeriodo.Focus()
-        '        Exit Sub
-        '    End If
+
         CreaGrillaXperiodo()
         vgIngresosDeducciones.Rows.Clear()
         Consultar()
-        'End If
+
     End Sub
 
     Private Sub ConsultaXnomina(secNomina As Integer)
@@ -206,20 +141,20 @@ Public Class FrmImpNominas
             Dim sql As String = ""
             Select Case TipoConsultaXimprimir
                 Case TipoDeLiquidacionImprime.Ordinaria
-                    sql = "SELECT EM.IdEmpleado, CT.CodContrato,EM.Identificacion, RTRIM(LTRIM(RTRIM(LTRIM(EM.PNombre)) + ' ' +  " +
+                    sql = "SELECT EM.Sec as IdEmpleado, CT.CodContrato,EM.Identificacion, RTRIM(LTRIM(RTRIM(LTRIM(EM.PNombre)) + ' ' +  " +
                         " RTRIM(LTRIM(EM.SNombre)) + ' ' +  RTRIM(LTRIM(EM.PApellido)) + ' ' +  RTRIM(LTRIM(EM.SApellido)))) As Nombres," +
                         " EM.codBanco, EM.NumCuenta," +
                         " TC.NomTipo AS NomTipoCont,CT.CargoActual,CG.Denominacion AS NomCargo, CT.FechaInicio AS FechaIniCont" +
                         " FROM NominaLiquidadaContratos NLC " +
                         " INNER JOIN NominaLiquidada NL ON NLC.NominaLiquidada = NL.Sec " +
                         " INNER JOIN Contratos CT ON NLC.Contrato = CT.CodContrato " +
-                        " INNER JOIN Empleados EM ON CT.Empleado = EM.IdEmpleado " +
-                        " INNER JOIN CAT_TipoContratos TC ON CT.TipoContrato = TC.CodTipo" +
+                        " INNER JOIN Empleados EM ON CT.Empleado = EM.Sec " +
+                        " INNER JOIN CAT_TipoContratos TC ON CT.TipoContrato = TC.Sec" +
                         " INNER JOIN Contrato_Cargos CC ON CT.CodContrato = CC.Contrato" +
-                        " INNER JOIN cargos CG ON CC.Cargo = CG.SecCargo" +
+                        " INNER JOIN cargos CG ON CC.Cargo = CG.Sec" +
                         " WHERE NL.Sec = " & SecConsulta
                 Case TipoDeLiquidacionImprime.Extraordinaria
-                    sql = "SELECT     EM.IdEmpleado, CT.CodContrato, EM.Identificacion, " +
+                    sql = "SELECT     EM.Sec as IdEmpleado, CT.CodContrato, EM.Identificacion, " +
                         " RTRIM(LTRIM(RTRIM(LTRIM(EM.PNombre)) + ' ' + RTRIM(LTRIM(EM.SNombre)) + ' ' + " +
                         " RTRIM(LTRIM(EM.PApellido))+ ' ' + RTRIM(LTRIM(EM.SApellido)))) AS Nombres, " +
                         " EM.codBanco, EM.NumCuenta, TC.NomTipo AS NomTipoCont, CT.CargoActual, " +
@@ -227,13 +162,13 @@ Public Class FrmImpNominas
                         " FROM NominaLiquidaExtraordinariaContratos AS NLC " +
                         " INNER JOIN NominaLiquidaExtraordinaria AS NL ON NLC.NominaLiquidaExtraordinaria = NL.Sec " +
                         " INNER JOIN Contratos AS CT ON NLC.Contrato = CT.CodContrato " +
-                        " INNER JOIN Empleados AS EM ON CT.Empleado = EM.IdEmpleado " +
-                        " INNER JOIN CAT_TipoContratos AS TC ON CT.TipoContrato = TC.CodTipo " +
+                        " INNER JOIN Empleados AS EM ON CT.Empleado = EM.Sec " +
+                        " INNER JOIN CAT_TipoContratos AS TC ON CT.TipoContrato = TC.Sec " +
                         " INNER JOIN Contrato_Cargos AS CC ON CT.CodContrato = CC.Contrato " +
-                        " INNER JOIN cargos AS CG ON CC.Cargo = CG.SecCargo" +
+                        " INNER JOIN cargos AS CG ON CC.Cargo = CG.Sec" +
                         " WHERE NL.Sec = " & SecConsulta
                 Case TipoDeLiquidacionImprime.Semestre
-                    sql = "SELECT     EM.IdEmpleado, CT.CodContrato, EM.Identificacion, " +
+                    sql = "SELECT     EM.Sec as IdEmpleado, CT.CodContrato, EM.Identificacion, " +
                         " RTRIM(LTRIM(RTRIM(LTRIM(EM.PNombre)) + ' ' + RTRIM(LTRIM(EM.SNombre)) + ' ' + " +
                         " RTRIM(LTRIM(EM.PApellido))+ ' ' + RTRIM(LTRIM(EM.SApellido)))) AS Nombres, " +
                         " EM.codBanco, EM.NumCuenta, TC.NomTipo AS NomTipoCont, CT.CargoActual, CG.Denominacion AS NomCargo, " +
@@ -241,13 +176,13 @@ Public Class FrmImpNominas
                         " FROM NominaLiquidaSemestresContratos AS NLC " +
                         " INNER JOIN NominaLiquidaSemestres AS NL ON NLC.NominaLiquidaSemestres = NL.Sec " +
                         " INNER JOIN Contratos AS CT ON NLC.Contrato = CT.CodContrato " +
-                        " INNER JOIN Empleados AS EM ON CT.Empleado = EM.IdEmpleado " +
-                        " INNER JOIN CAT_TipoContratos AS TC ON CT.TipoContrato = TC.CodTipo " +
+                        " INNER JOIN Empleados AS EM ON CT.Empleado = EM.Sec " +
+                        " INNER JOIN CAT_TipoContratos AS TC ON CT.TipoContrato = TC.Sec " +
                         " INNER JOIN Contrato_Cargos AS CC ON CT.CodContrato = CC.Contrato " +
-                        " INNER JOIN cargos AS CG ON CC.Cargo = CG.SecCargo" +
+                        " INNER JOIN cargos AS CG ON CC.Cargo = CG.Sec" +
                         " WHERE NL.Sec = " & SecConsulta
                 Case TipoDeLiquidacionImprime.LiquidaContratos
-                    sql = "SELECT     EM.IdEmpleado, CT.CodContrato, EM.Identificacion, " +
+                    sql = "SELECT     EM.Sec as IdEmpleado, CT.CodContrato, EM.Identificacion, " +
                         " RTRIM(LTRIM(RTRIM(LTRIM(EM.PNombre)) + ' ' + RTRIM(LTRIM(EM.SNombre)) + ' ' + " +
                         " RTRIM(LTRIM(EM.PApellido))+ ' ' + RTRIM(LTRIM(EM.SApellido)))) AS Nombres, " +
                         " EM.codBanco, EM.NumCuenta, TC.NomTipo AS NomTipoCont, CT.CargoActual, CG.Denominacion AS NomCargo, " +
@@ -255,10 +190,10 @@ Public Class FrmImpNominas
                         " FROM ContratosLiquidados_Contratos AS NLC " +
                         " INNER JOIN ContratosLiquidados  NL ON NLC.NominaLiquida = NL.Sec " +
                         " INNER JOIN Contratos AS CT ON NLC.Contrato = CT.CodContrato " +
-                        " INNER JOIN Empleados AS EM ON CT.Empleado = EM.IdEmpleado " +
-                        " INNER JOIN CAT_TipoContratos AS TC ON CT.TipoContrato = TC.CodTipo " +
+                        " INNER JOIN Empleados AS EM ON CT.Empleado = EM.Sec " +
+                        " INNER JOIN CAT_TipoContratos AS TC ON CT.TipoContrato = TC.Sec " +
                         " INNER JOIN Contrato_Cargos AS CC ON CT.CodContrato = CC.Contrato " +
-                        " INNER JOIN cargos AS CG ON CC.Cargo = CG.SecCargo" +
+                        " INNER JOIN cargos AS CG ON CC.Cargo = CG.Sec" +
                         " WHERE NL.Sec = " & SecConsulta
                 Case Else
 
@@ -662,7 +597,13 @@ SiguientePaso:
                 " INNER JOIN PeriodosLiquidacion AS PL ON NL.Sec = PL.Sec" +
                 " WHERE (NL.Sec = {0}) AND (CT.Empleado = {1}) AND (CT.CodContrato = {2}) AND (NLC.Valor > 0)", SecConsulta, idEmp, CodContrato)
             End If
-            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
+            Dim consultas() As String = {sql,
+                String.Format("SELECT ES.NombreEntidad,ES.TipoEnte FROM Empleados EM" +
+            " INNER JOIN EntesTercero ET ON EM.Sec = ET.Empleado" +
+            " INNER JOIN EntesSSAP ES ON ET.SecEntesSSAP = ES.Sec" +
+            " WHERE ET.Empleado={0} AND ET.Retirado = 0", idEmp)}
+            Dim DatosC = SMT_GetDataset(ObjetoApiNomina, consultas)
+            Dim dt As DataTable = DatosC.Tables(0)
             If dt.Rows.Count = 0 Then
                 HDevExpre.MensagedeError("Lo sentimos, ha ocurrido un error al cargar la información, por favor vuelva a intentarlo.")
                 Exit Sub
@@ -765,10 +706,10 @@ SiguientePaso:
             RPT.lblSueldo.Text = RPT.lblNetoPagar.Text
             'INICIA CONSULTA DE ENTIDADES
             sql = String.Format("SELECT ES.NombreEntidad,ES.TipoEnte FROM Empleados EM" +
-            " INNER JOIN EntesTercero ET ON EM.IdEmpleado = ET.Empleado" +
+            " INNER JOIN EntesTercero ET ON EM.Sec = ET.Empleado" +
             " INNER JOIN EntesSSAP ES ON ET.SecEntesSSAP = ES.Sec" +
             " WHERE ET.Empleado={0} AND ET.Retirado = 0", idEmp)
-            dtEntidades = SMT_AbrirTabla(ObjetoApiNomina, sql)
+            dtEntidades = DatosC.Tables(1)
             For i = 0 To dtEntidades.Rows.Count - 1
                 Select Case CType(dtEntidades.Rows(i)("TipoEnte"), EnumTipoEntes)
                     Case Is = EnumTipoEntes.Cajas_Compensacion
@@ -863,14 +804,7 @@ SiguientePaso:
     Private Sub FrmImpNominas_SizeChanged(sender As Object, e As EventArgs) Handles MyBase.SizeChanged
         Try
             If gvRes.Columns.Count = 0 Then Exit Sub
-            'If rgMostrarPor.SelectedIndex = 0 Then
-            '    gvRes.Columns("Codigo").Width = CInt((25 * (gbxFiltro.Width - 20)) / 100)
-            '    gvRes.Columns("Descripcion").Width = CInt((73 * (gbxFiltro.Width - 20)) / 100)
-            'ElseIf rgMostrarPor.SelectedIndex = 1 Then
-            '    gvRes.Columns("IdEmpleado").Width = CInt((18 * ((gbxFiltro.Width - (vgIngresosDeducciones.Width + 5)) - 20)) / 100)
-            '    gvRes.Columns("Identificacion").Width = CInt((20 * ((gbxFiltro.Width - (vgIngresosDeducciones.Width + 5)) - 20)) / 100)
-            '    gvRes.Columns("Nombres").Width = CInt((60 * ((gbxFiltro.Width - (vgIngresosDeducciones.Width + 5)) - 20)) / 100)
-            'End If
+
         Catch ex As Exception
 
         End Try
@@ -904,11 +838,6 @@ SiguientePaso:
     End Sub
 
     Private Sub txtPeriodo_Leave(sender As Object, e As EventArgs)
-        'If txtPeriodo.ValordelControl = "" Then Exit Sub
-        'Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, String.Format("SELECT Sec FROM  PeriodosLiquidacion where CodPeriodo = '{1}'", NombreBdNomina, txtPeriodo.ValordelControl))
-        'If dt.Rows.Count > 0 Then
-        '    Me.SecPeriodo = CInt(dt.Rows(0)(0))
-        'End If
     End Sub
 
     Private Sub SimpleButton1_Click(sender As Object, e As EventArgs) Handles SimpleButton1.Click

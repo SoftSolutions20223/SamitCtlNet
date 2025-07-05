@@ -24,5 +24,6 @@ Public Class NominaLiquidaConceptos
     Public Property SecConceptoP As Integer?
 
     Public Property SecConceptoP2 As Integer?
+    Public Property Cuota As Integer?
 
 End Class

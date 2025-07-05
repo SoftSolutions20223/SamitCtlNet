@@ -7,6 +7,7 @@ Imports System.Transactions
 Imports DevExpress.XtraGrid.Views.Grid
 Imports SamitCtlNet.SamitCtlNet
 Imports SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
+Imports SamitNominaLogic
 
 Public Class FrmAggVariablesGenerales
 
@@ -49,7 +50,7 @@ Public Class FrmAggVariablesGenerales
             EliminarDetalle.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.EliminarGris)
             grbVigente.SelectedIndex = 1
 
-            txtCodDian.ConsultaSQL = String.Format("SELECT * FROM {0}..CodigosDian")
+            txtCodDian.ConsultaSQL = String.Format("SELECT Codigo,Descripcion FROM CodigosDian")
             txtCodDian.RefrescarDatos()
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, " AcomodaForm Cargo")
@@ -105,50 +106,89 @@ Public Class FrmAggVariablesGenerales
 
 #Region "Botones Principales"
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
-
-
-
         Try
-                If Not GuardaDatosBasicos() Then
-                    Exit Sub
-                Else
-                    ActualizandoDatosBasicos = True
-                    Dim Tbla As DataTable = CType(gcDetalleVariablesG.DataSource, DataTable)
-                    If Tbla.Rows.Count > 0 Then
-                        If ExisteDato("DetallesVariablesGenerales", String.Format("Variable='{0}'", Sec_Variable), ObjetoApiNomina) Then
-                            Dim sql = String.Format("DELETE FROM DetallesVariablesGenerales WHERE Variable={0}", Sec_Variable)
-                        If Not SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                            If ExisteDato("DetallesVariablesGenerales", String.Format("Variable='{0}'", Sec_Variable), ObjetoApiNomina) Then
-                                Exit Sub
-                            End If
-                        End If
-                    End If
-                        For incre As Integer = 0 To Tbla.Rows.Count - 1
-                            Dim fecha As DateTime = Tbla.Rows(incre)("Fecha")
-                            Dim fecha_ As String = fecha.ToString("dd/MM/yyyy")
-                            If Not ExisteDato("DetallesVariablesGenerales", String.Format("Fecha='{0}' AND Variable='{1}'", fecha_, Sec_Variable), ObjetoApiNomina) Then
-                                If Not GuardaDetallesVariables(Sec_Variable, fecha_, Tbla.Rows(incre)("Valor")) Then
-                                    Exit Sub
-                                End If
-                            End If
-                        Next
-                    Else
-                        Dim sql = String.Format("DELETE FROM DetallesVariablesGenerales WHERE Variable={0}", Sec_Variable)
-                    SMT_EjcutarComandoSql(ObjetoApiNomina, sql, 0)
-                End If
-                HNomina.ModNomFormulas(NomVar, txtNombre.ValordelControl)
+            ' 1) Validar campos básicos
+            If Not ValidaCamposDatosBasicos() Then
+                Exit Sub
             End If
 
+            If Sec_Variable = "" Then
+                Sec_Variable = "0"
+            End If
+
+            ' 2) Determinar si es actualización
+            Dim isUpdate = (ActualizandoDatosBasicos AndAlso CInt(Sec_Variable) > 0)
+
+            ' 3) Crear el request
+            Dim request As New UpsertVariableGeneralRequest With {
+            .Sec = CInt(Sec_Variable),
+            .NomVariable = txtNombre.ValordelControl,
+            .NomVariableAnterior = If(isUpdate, NomVar, Nothing),
+            .CodDian = txtCodDian.ValordelControl,
+            .Vigente = grbVigente.SelectedIndex.ToString(),
+            .Usuario = ObjetosNomina.Datos.Smt_Usuario,
+            .Terminal = ObjetosNomina.Datos.Smt_NombreTerminal
+        }
+
+            ' 4) Agregar detalles desde la grilla
+            Dim dtDetalles As DataTable = DirectCast(gcDetalleVariablesG.DataSource, DataTable)
+            If dtDetalles IsNot Nothing AndAlso dtDetalles.Rows.Count > 0 Then
+                For i As Integer = 0 To dtDetalles.Rows.Count - 1
+                    Dim detalle As New DetalleVariableDTO With {
+                    .Sec = CInt(If(IsDBNull(dtDetalles.Rows(i)("Sec")), 0, dtDetalles.Rows(i)("Sec"))),
+                    .Variable = CInt(If(IsDBNull(dtDetalles.Rows(i)("Variable")), 0, dtDetalles.Rows(i)("Variable"))),
+                    .Fecha = CDate(dtDetalles.Rows(i)("Fecha")),
+                    .Valor = CDec(dtDetalles.Rows(i)("Valor"))
+                }
+                    request.Detalles.Add(detalle)
+                Next
+            End If
+
+            ' 5) Ejecutar procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_UpsertVariablesGenerales", request.ToJObject())
+            Dim response = resp.ToObject(Of UpsertVariableGeneralResponse)()
+
+            ' 6) Procesar respuesta
+            If response.EsExitoso Then
+                ' Actualizar Sec_Variable si fue inserción
+                If Not isUpdate AndAlso response.Variable IsNot Nothing Then
+                    Sec_Variable = response.Variable.Sec.ToString()
+                End If
+
+                ' Mostrar mensaje de éxito con información adicional
+                Dim mensaje = "Datos guardados exitosamente!.."
+
+                ' Agregar información sobre detalles si aplica
+                If response.Variable IsNot Nothing Then
+                    If response.Variable.DetallesInsertados > 0 Then
+                        mensaje &= vbCrLf & $"• Se agregaron {response.Variable.DetallesInsertados} detalles"
+                    End If
+
+                    If response.Variable.FormulasActualizadas > 0 Then
+                        mensaje &= vbCrLf & $"• Se actualizaron {response.Variable.FormulasActualizadas} fórmulas"
+                    End If
+                End If
+
+                HDevExpre.mensajeExitoso(mensaje)
+
+                ' Limpiar y refrescar
                 LimpiarTodosCampos()
                 LlenaGrillaVariablesG()
                 LlenaGrillaDetalleVariables(Sec_Variable)
-            HDevExpre.mensajeExitoso("Datos guardados exitosamente!..")
+
+            Else
+                ' Mostrar error
+                HDevExpre.MensagedeError($"Error al guardar: {response.Mensaje}")
+
+                ' Log adicional si hay código de error
+                If response.CodigoError.HasValue Then
+                    Console.WriteLine($"Código de error SQL: {response.CodigoError.Value}")
+                End If
+            End If
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "btnGuardar_Click/VariablesGenerales")
         End Try
-
-
-
     End Sub
 
     Private Sub btnLimpiar_Click(sender As Object, e As EventArgs) Handles btnLimpiar.Click
@@ -165,32 +205,32 @@ Public Class FrmAggVariablesGenerales
         End If
         'Using trans As New TransactionScope
         Try
-                If ActualizandoDatosBasicos Then
+            If ActualizandoDatosBasicos Then
 
-                    If HDevExpre.MsgSamit("Seguro que desea eliminar esta Variable con todos sus detalles?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        Dim sql = ""
-                        If ExisteDato("DetallesVariablesGenerales", " Variable=" + Sec_Variable, ObjetoApiNomina) Then
-                            sql = "DELETE FROM DetallesVariablesGenerales WHERE Variable=" + Sec_Variable
-                            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
-                                Exit Sub
-                            End If
-                        End If
-                        sql = "DELETE FROM VariablesGenerales WHERE Sec=" + Sec_Variable
+                If HDevExpre.MsgSamit("Seguro que desea eliminar esta Variable con todos sus detalles?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+                    Dim sql = ""
+                    If ExisteDato("DetallesVariablesGenerales", " Variable=" + Sec_Variable, ObjetoApiNomina) Then
+                        sql = "DELETE FROM DetallesVariablesGenerales WHERE Variable=" + Sec_Variable
                         If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
                             Exit Sub
                         End If
                     End If
-
-                Else
-                    MensajedeError("Seleccione la variable a eliminar")
-                    Exit Sub
+                    sql = "DELETE FROM VariablesGenerales WHERE Sec=" + Sec_Variable
+                    If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
+                        Exit Sub
+                    End If
                 End If
+
+            Else
+                MensajedeError("Seleccione la variable a eliminar")
+                Exit Sub
+            End If
             'trans.Complete()
             LimpiarTodosCampos()
-                HDevExpre.mensajeExitoso("Datos eliminados exitosamente!..")
-            Catch ex As Exception
-                HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
-            End Try
+            HDevExpre.mensajeExitoso("Datos eliminados exitosamente!..")
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
+        End Try
         'End Using
 
     End Sub
@@ -314,95 +354,6 @@ Public Class FrmAggVariablesGenerales
         gvVariablesG.Appearance.HeaderPanel.Font = New Font("Trebuchet MS", 11.0!, FontStyle.Bold)
 
     End Sub
-
-    Private Function ValidaNombres(Sec As String, Nombre As String, EstaActualizando As Boolean) As Boolean
-        If Not EstaActualizando Then
-            If HNomina.ValidaNombresR(txtNombre.ValordelControl) Then
-                Return True
-            Else
-                HDevExpre.MensagedeError("Ya existe un registro con este nombre (Los Conceptos,Variables Generales,Variables Personales y Bases no pueden coincidir en el nombre)!..")
-                Return False
-            End If
-        Else
-            Dim sql As String = "Select Consul.Nombre,Consul.tipo,Consul.Sec From(  " +
-" Select NomBase As Nombre,'B' as tipo,Sec as Sec From BasesConceptos" +
-" Union Select NomConcepto As Nombre,'C' as tipo,Sec as Sec From ConceptosNomina " +
-" Union Select NomVariable As Nombre, 'VG' as tipo,Sec as Sec From VariablesGenerales " +
-" Union Select NomVariable As Nombre, 'VP' as tipo,Sec as Sec From VariablesPersonales" +
-" Union Select NomConcepto As Nombre, 'CP' as tipo,Sec as Sec From ConceptosPersonales" +
-        " Union Select 'HorasMes' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'Asignacion' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'RentaExenta' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'DescuentosPorNomina' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'SalarioPromedioPeriodo' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'SalarioPromedioMensualAnual' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'SalarioPromedioMensualSemestral' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'NetoAPagar' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'TotalPagadoMes' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'TotalIngresos' As Nombre,'VPP' As tipo, '0' as Sec " +
-        " Union Select 'TotalDeducciones' As Nombre,'VPP' As tipo, '0' as Sec " +
-" ) as Consul Where Consul.Nombre ='" + txtNombre.ValordelControl + "'"
-            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
-            If dt.Rows.Count > 1 Then
-                HDevExpre.MensagedeError("Ya existe un registro con este nombre (Los Conceptos,Variables Generales,Variables Personales y Bases no pueden coincidir en el nombre)!..")
-                Return False
-
-            ElseIf dt.Rows.Count = 1 Then
-                If dt.Rows(0)("tipo").ToString <> "VG" Then
-                    HDevExpre.MensagedeError("Ya existe un registro con este nombre (Los Conceptos,Variables Generales,Variables Personales y Bases no pueden coincidir en el nombre)!..")
-                    Return False
-
-                ElseIf dt.Rows(0)("tipo").ToString = "VG" And dt.Rows(0)("Sec").ToString <> Sec Then
-                    HDevExpre.MensagedeError("Ya existe un registro con este nombre (Los Conceptos,Variables Generales,Variables Personales y Bases no pueden coincidir en el nombre)!..")
-                    Return False
-                End If
-            End If
-        End If
-        Return True
-    End Function
-
-    Private Function GuardaDatosBasicos() As Boolean
-        If ValidaCamposDatosBasicos() Then
-            Try
-                Dim GenSql_tabTipoConceptos As New ClGeneraSqlDLL
-                GenSql_tabTipoConceptos.PasoConexionTabla(ObjetoApiNomina, "VariablesGenerales")
-                GenSql_tabTipoConceptos.PasoValores("NomVariable", txtNombre.ValordelControl, TipoDatoActualizaSQL.Cadena)
-                GenSql_tabTipoConceptos.PasoValores("CodDian", txtCodDian.ValordelControl, TipoDatoActualizaSQL.Cadena)
-                GenSql_tabTipoConceptos.PasoValores("Vigente", grbVigente.SelectedIndex.ToString, TipoDatoActualizaSQL.Cadena)
-
-
-                If Not ActualizandoDatosBasicos Then
-                    If ValidaNombres("", txtNombre.ValordelControl, False) Then
-                        GenSql_tabTipoConceptos.PasoValores("EsPredeterminado", "0", TipoDatoActualizaSQL.Cadena)
-                        GenSql_tabTipoConceptos.PasoValores("Sec", SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (Sec),0)+1 AS Codigo FROM VariablesGenerales").Rows(0)(0).ToString, TipoDatoActualizaSQL.Cadena)
-                        If GenSql_tabTipoConceptos.EjecutarComandoNET(SQLGenera.Insercion, "") Then
-                            Sec_Variable = SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (Sec),0) AS Codigo FROM VariablesGenerales").Rows(0)(0).ToString
-                            Return True
-                        Else : Return False
-                        End If
-                    Else
-                        Return False
-                    End If
-                Else
-                    If ValidaNombres(Sec_Variable, txtNombre.ValordelControl, True) Then
-                        If GenSql_tabTipoConceptos.EjecutarComandoNET(SQLGenera.Actualizacion, String.Format("Sec='{0}'", Sec_Variable)) Then
-                            Return True
-                        Else : Return False
-                        End If
-                    Else
-                        Return False
-                    End If
-                End If
-
-            Catch ex As Exception
-                HDevExpre.msgError(ex, ex.Message, "GuardaDatosBasicos")
-                Return False
-            End Try
-        Else
-            Return False
-        End If
-
-    End Function
 
 #End Region
 #Region "Funciones y Procedimientos --> DetallesVariablesGenerales"

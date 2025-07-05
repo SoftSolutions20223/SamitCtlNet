@@ -50,7 +50,6 @@ Public Class FrmConsultaPeriodosL
         AsignaScriptAcontroles()
         Memo.SuppressMouseEventOnOuterMouseClick = True
         AcomodaForm()
-        Creagrillahorizontal()
         ConsultaDatos(ObjetoApiNomina)
         If gvLiquidaNomina.RowCount > 0 Then
             Dim dtos = CType(gcLiquidaNomina.DataSource, DataTable)
@@ -79,33 +78,22 @@ Public Class FrmConsultaPeriodosL
             'txtDependencia.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomDependencia As Descripcion FROM  Dependencias where Vigente = 1")
 
             'txtCargos.ConsultaSQL = String.Format("SELECT SecCargo AS Codigo,Denominacion As Descripcion FROM  cargos")
+            Dim consultas() As String = {
+    "select NomVariable as Nombre,ValorMaximo as ValorMaximo,ValorDefecto As ValorDefecto,Sec as Sec, EsPredeterminado, vigente from VariablesPersonales WHERE EsPredeterminado = 1 OR (vigente = 1 AND EsPredeterminado = 0)",
+    "select NomBase as Nombre,Formula from BasesConceptos",
+    "select CN.NomConcepto as Nombre,CCN.Formula,CN.Base,CN.Redondea,CCN.Nomina from ConceptosNomina CN INNER JOIN ConfigConceptos CCN ON CCN.Concepto = CN.Sec",
+    "select NomConcepto as Nombre,ValMaxDescuento As Formula from ConceptosPersonales",
+    "select NomPlantilla as Nombre,ValorMaxDescontar as Formula from Plantillas",
+    "WITH VariablesConFechaMax AS ( SELECT VG.Sec AS Variable,VG.NomVariable AS Nombre,VGD.Fecha,VGD.Valor,ROW_NUMBER() OVER (PARTITION BY VG.Sec ORDER BY VGD.Fecha DESC) AS rn FROM DetallesVariablesGenerales VGD INNER JOIN VariablesGenerales VG ON VGD.Variable = VG.Sec) SELECT Variable, Nombre, Fecha, Valor FROM VariablesConFechaMax WHERE rn = 1"
+}
+            Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
+            ColumnasVP = Datos.Tables(0)
+            Bases = Datos.Tables(1)
+            Conceptos = Datos.Tables(2)
+            ConceptosPersonales = Datos.Tables(3)
+            ValoresMaximosaDescontar = Datos.Tables(4)
+            ColumnasVG = Datos.Tables(5)
 
-            Dim Sql As String = "select NomVariable as Nombre,ValorMaximo as ValorMaximo,ValorDefecto As ValorDefecto,Sec as Sec from VariablesPersonales"
-            ColumnasVP = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-            Sql = "select NomBase as Nombre,Formula from BasesConceptos"
-            Bases = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-            Sql = "select CN.NomConcepto as Nombre,CCN.Formula,CN.Base,CN.Redondea from ConceptosNomina CN INNER JOIN ConfigConceptos CCN ON CCN.Concepto = CN.Sec Where CCN.Nomina=" + CodNomina
-            Conceptos = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-            Sql = "select NomConcepto as Nombre,ValMaxDescuento As Formula from ConceptosPersonales"
-            ConceptosPersonales = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-            Sql = "select NomPlantilla as Nombre,ValorMaxDescontar as Formula from Plantillas"
-            ValoresMaximosaDescontar = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-            Sql = "SELECT VG.NomVariable AS Nombre,MAX(VGD.Fecha) AS Fecha,VG.Sec AS Variable " &
-                  "FROM DetallesVariablesGenerales VGD INNER JOIN " &
-                  "VariablesGenerales VG ON VGD.Variable = vG.Sec " &
-                  "group by VG.NomVariable,VG.Sec"
-            ColumnasVG = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-            ColumnasVG.Columns.Add("Valor", GetType(Decimal))
-            Dim ArmaColumnas As DataTable
-            For incre As Integer = 0 To ColumnasVG.Rows.Count - 1
-                Dim fecha As String = CDate(ColumnasVG.Rows(incre)("Fecha").ToString).ToString("dd/MM/yyyy")
-                Sql = "SELECT VG.NomVariable AS Nombre,VGD.Valor AS Valor " &
-                    "FROM DetallesVariablesGenerales VGD " &
-                    "INNER JOIN VariablesGenerales VG ON VGD.Variable = vG.Sec " &
-                    "WHERE Variable ='" + ColumnasVG.Rows(incre)("Variable").ToString + "' AND VGD.Fecha = '" + fecha + "'"
-                ArmaColumnas = SMT_AbrirTabla(ObjetoApiNomina, Sql)
-                ColumnasVG.Rows(incre)("Valor") = ArmaColumnas.Rows(0)("Valor")
-            Next
             ConceptosContrato.Columns.Add("Nombre", GetType(String))
             ConceptosContrato.Columns.Add("Formula", GetType(String))
             ConceptosContrato.Columns.Add("Tipo", GetType(String))
@@ -245,23 +233,7 @@ Public Class FrmConsultaPeriodosL
             CreaFilas(vgIngresosDeducciones, "Deducciones", "Deducciones", True, True, "0", True, False, Nothing)
             CreaFilas(vgIngresosDeducciones, "Total", "Total", True, True, "[Ingresos] - [Deducciones]", True, False, Nothing)
             ConceptosPlantillas = xmladatatablePlantillas(ConceptsPlantilla)
-            'Conceptos
-            '        sql = "select CN.NomConcepto as Nombre, CCN.Formula as Formula,TC.NomTipo as Tipo,CN.Sec as Sec,CCN.PeriodosLiquida,P.NomPlantilla as Plantilla,CN.Base as Base " +
-            '" FROM ConceptosNomina CN INNER JOIN TiposConceptosNomina TC ON TC.Sec = CN.Tipo " +
-            '" INNER JOIN ConfigConceptos CCN ON CCN.Concepto = CN.Sec " +
-            '" INNER JOIN ConceptosPlantillas CP ON CP.Concepto = CN.Sec INNER JOIN Plantillas P ON CP.Plantilla = P.SecPlantilla" +
-            '" INNER JOIN Contratos C ON C.Plantilla = P.SecPlantilla Where TC.Vigente= 1 AND CCN.Nomina =" + CodNomina + " And C.CodContrato = " + CodContrato
-            '        ConceptosPlantillas = SMT_AbrirTabla(ObjetoApiNomina, sql)
 
-
-            '        sql = "Select CP.Sec as SecDescuento,CP.DescontarPeriodo As DescontarPeriodo,CP.TotalDescontar as TotalDescontar, " +
-            '" CP.TotalDescontado As TotalDescontado,C.NomConcepto As NomConcepto, " +
-            '" C.PeriodosLiquida As PeriodosLiquida,C.Sec as SecConcepto, " +
-            '" C.ValMaxDescuento As ValMaxDescuento,CC.Nom As Clasificacion from ConceptosP_Contratos CP " +
-            '" INNER JOIN ConceptosPersonales C ON CP.Concepto = C.Sec " +
-            ' " INNER JOIN ClasConceptosPersonales CC ON C.Clasificacion = CC.Sec Where CP.Contrato =" + CodContrato + " And CP.Vigente = 1 And CP.AplicaLiquidaPeriodos = 1 order by cc.NivelP asc"
-
-            'ConceptosAtadosAlContrato = SMT_AbrirTabla(ObjetoApiNomina, sql)
             ConceptosAtadosAlContrato = xmladatatableConceptos(ConceptsContrato)
             ConceptosAtadosAlContrato.Columns.Add("SeLiquida", GetType(String))
 
@@ -345,31 +317,7 @@ Public Class FrmConsultaPeriodosL
 
             Dim filas As New DataTable
             Dim NuevaFila As DataRow = filas.NewRow()
-            'TiposConceptos(Categorias)
 
-            'If ConceptosAtadosAlContrato.Rows.Count > 0 Then
-            '    Dim Clasificacion As New EditorRow
-            '    For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
-            '        Clasificacion = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString), EditorRow)
-            '        If Clasificacion Is Nothing Then
-            '            CreaFilas(vgDescPorNomina, ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString, ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString, True, True, "0", True, False, Nothing)
-            '        End If
-            '    Next
-            'End If
-            'CreaFilas(vgDescPorNomina, "Total De Descuentos Por Nomina", "Total De Descuentos Por Nomina", True, True, "0", True, False, Nothing)
-            'If ConceptosAtadosAlContrato.Rows.Count > 0 Then
-            '    Dim Clasificacion As New EditorRow
-            '    For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
-            '        Clasificacion = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString), EditorRow)
-            '        If Clasificacion Is Nothing Then
-            '        Else
-            '            Dim categoria As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption("Total De Descuentos Por Nomina"), EditorRow)
-            '            Dim Formu As String = categoria.Properties.UnboundExpression
-            '            Formu = Formu + " + " + "[" + ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString + "]"
-            '            categoria.Properties.UnboundExpression = Formu
-            '        End If
-            '    Next
-            'End If
 
             If ConceptosAtadosAlContrato.Rows.Count > 0 Then
                 For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
@@ -456,18 +404,6 @@ Public Class FrmConsultaPeriodosL
                         End If
                     End If
 
-                    'If ValFalta < ValDesc Then
-                    '    If ValFalta > ValMax Then
-                    '       HDevExpre.MensagedeError("El valor del descuento " + ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString + " (" + ValFalta.ToString("c2") + ") es mayor al maximo que se le puede aplicar (" + ValMax.ToString("c2") + ")!..")
-                    '        Exit Sub
-                    '    End If
-                    'Else
-                    '    If ValDesc > ValMax Then
-                    '       HDevExpre.MensagedeError("El valor del descuento " + ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString + " (" + ValDesc.ToString("c2") + ") es mayor al maximo que se le puede aplicar (" + ValMax.ToString("c2") + ")!..")
-                    '        Exit Sub
-                    '    End If
-                    'End If
-
                 Next
 
                 For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
@@ -486,34 +422,6 @@ Public Class FrmConsultaPeriodosL
                 ConceptosAtadosAlContratoLiquida.Rows.Clear()
             End If
 
-
-            'If ConceptosAtadosAlContrato.Rows.Count > 0 Then
-
-            '    For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
-            '        If ConceptosAtadosAlContrato.Rows(incre)("SeLiquida").ToString = "Si" Then
-            '            Dim categoria As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString), EditorRow)
-            '            Dim Formu As String = categoria.Properties.UnboundExpression
-            '            Formu = Formu + " + " + "[" + ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString + "]"
-            '            categoria.Properties.UnboundExpression = Formu
-            '            CreaFilas(vgDescPorNomina, ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString, ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString, True, True, "", True, True, categoria)
-            '            filas.Columns.Add(ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString, GetType(Decimal))
-            '            Dim TotalDescontar, TotalDescontado, DescontarPeriodo, Falta As Decimal
-            '            TotalDescontar = CDec(ConceptosAtadosAlContrato.Rows(incre)("TotalDescontar"))
-            '            TotalDescontado = CDec(ConceptosAtadosAlContrato.Rows(incre)("TotalDescontado"))
-            '            DescontarPeriodo = CDec(ConceptosAtadosAlContrato.Rows(incre)("DescontarPeriodo"))
-            '            Falta = TotalDescontar - TotalDescontado
-            '            If Falta > 0 Then
-            '                If Falta > DescontarPeriodo Then
-            '                    NuevaFila(ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString) = ConceptosAtadosAlContrato.Rows(incre)("DescontarPeriodo")
-            '                ElseIf DescontarPeriodo >= Falta Then
-            '                    NuevaFila(ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString) = Falta
-            '                End If
-            '            Else
-            '                NuevaFila(ConceptosAtadosAlContrato.Rows(incre)("NomConcepto").ToString) = "0"
-            '            End If
-            '        End If
-            '    Next
-            'End If
             filas.Rows.Add(NuevaFila)
             filas.AcceptChanges()
             vgDescPorNomina.DataSource = filas
@@ -628,7 +536,7 @@ Public Class FrmConsultaPeriodosL
         Dim sql As String = ""
         Dim filas As New DataTable
         Dim NuevaFila As DataRow = filas.NewRow()
-        Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
+        Dim dt As New DataTable
         Dim coloor As System.Drawing.Color = Color.FromArgb(&HCC, &HFF, &HCC)
         CreaColumnas(gvLiquidaNomina, "NomNomina", "Nomina", False, False, "", coloor, False, 8, gcLiquidaNomina.Width, False)
         dt.Columns.Add("NomNomina", GetType(String))
@@ -640,7 +548,7 @@ Public Class FrmConsultaPeriodosL
         dt.Columns.Add("IdentificacionEmple", GetType(String))
         CreaColumnas(gvLiquidaNomina, "NomEmple", "Nombre Empleado", True, False, "", coloor, False, 15, gcLiquidaNomina.Width, False, True)
         dt.Columns.Add("NomEmple", GetType(String))
-        CreaColumnas(gvLiquidaNomina, "Comentario", "Comentario", False, True, "", coloor, False, 5, gcLiquidaNomina.Width, True)
+        CreaColumnas(gvLiquidaNomina, "Comentario", "Comentario", True, True, "", coloor, False, 5, gcLiquidaNomina.Width, True)
         dt.Columns.Add("Comentario", GetType(String))
         CreaColumnas(gvLiquidaNomina, "Asignacion", "Asignacion", True, False, "", coloor, True, 8, gcLiquidaNomina.Width, False)
         dt.Columns.Add("NominaLiquidaContrato", GetType(String))
@@ -680,12 +588,13 @@ Public Class FrmConsultaPeriodosL
             Dim sasf As System.Drawing.Color = Color.FromArgb(&HFF, &HE3, &HDB)
             For incre As Integer = 0 To ColumnasVP.Rows.Count - 1
                 dt.Columns.Add(ColumnasVP.Rows(incre)("Nombre").ToString, GetType(Decimal))
-                CreaColumnas(gvLiquidaNomina, ColumnasVP.Rows(incre)("Nombre").ToString, ColumnasVP.Rows(incre)("Nombre").ToString, True, False, "", sasf, True, 20, gcLiquidaNomina.Width, False)
-                For I As Integer = 0 To dt.Columns.Count - 1
-                    If dt.Columns(I).ColumnName.ToString = ColumnasVP.Rows(incre)("Nombre").ToString Then
+                CreaColumnas(gvLiquidaNomina, ColumnasVP.Rows(incre)("Nombre").ToString, ColumnasVP.Rows(incre)("Nombre").ToString, True, True, "", sasf, True, 20, gcLiquidaNomina.Width, False)
+                'For I As Integer = 0 To dt.Columns.Count - 1
+                '    '    If dt.Columns(I).ColumnName.ToString = ColumnasVP.Rows(incre)("Nombre").ToString Then
 
-                    End If
-                Next
+                '    '    End If
+                '    'Next
+                'Next
             Next
 
         End If
@@ -694,12 +603,11 @@ Public Class FrmConsultaPeriodosL
         If Bases.Rows.Count > 0 Then
             For incre As Integer = 0 To Bases.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HB1, &HF3, &HDA)
-                CreaColumnas(gvLiquidaNomina, Bases.Rows(incre)("Nombre").ToString, Bases.Rows(incre)("Nombre").ToString, False, False, "", sasf, True, 0, 0, False)
-                dt.Columns.Add(Bases.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                CreaColumnas(gvLiquidaNomina, Bases.Rows(incre)("Nombre").ToString, Bases.Rows(incre)("Nombre").ToString, False, False, Bases.Rows(incre)("Formula").ToString, sasf, True, 0, 0, False)
                 Dim fila As DataRow = CamposCalculados.NewRow()
                 fila("Nombre") = Bases.Rows(incre)("Nombre").ToString
                 fila("Tipo") = "B"
-                fila("Formula") = ""
+                fila("Formula") = Bases.Rows(incre)("Formula").ToString
                 CamposCalculados.Rows.Add(fila)
                 CamposCalculados.AcceptChanges()
             Next
@@ -708,11 +616,11 @@ Public Class FrmConsultaPeriodosL
         If ValoresMaximosaDescontar.Rows.Count > 0 Then
             For incre As Integer = 0 To ValoresMaximosaDescontar.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HB1, &HF3, &HDA)
-                CreaColumnas(gvLiquidaNomina, ValoresMaximosaDescontar.Rows(incre)("Nombre").ToString, ValoresMaximosaDescontar.Rows(incre)("Nombre").ToString, False, False, "", sasf, True, 0, 0, False)
+                CreaColumnas(gvLiquidaNomina, ValoresMaximosaDescontar.Rows(incre)("Nombre").ToString, ValoresMaximosaDescontar.Rows(incre)("Nombre").ToString, False, False, ValoresMaximosaDescontar.Rows(incre)("Formula").ToString, sasf, True, 0, 0, False)
                 Dim fila As DataRow = CamposCalculados.NewRow()
                 fila("Nombre") = ValoresMaximosaDescontar.Rows(incre)("Nombre").ToString
                 fila("Tipo") = "DPN"
-                fila("Formula") = ""
+                fila("Formula") = ValoresMaximosaDescontar.Rows(incre)("Formula").ToString
                 CamposCalculados.Rows.Add(fila)
                 CamposCalculados.AcceptChanges()
             Next
@@ -721,13 +629,11 @@ Public Class FrmConsultaPeriodosL
         If Conceptos.Rows.Count > 0 Then
             For incre As Integer = 0 To Conceptos.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HB1, &HF3, &HDA)
-                CreaColumnas(gvLiquidaNomina, Conceptos.Rows(incre)("Nombre").ToString, Conceptos.Rows(incre)("Nombre").ToString, True, False, "", sasf, True, 0, 0, False)
-
-                dt.Columns.Add(Conceptos.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                CreaColumnas(gvLiquidaNomina, Conceptos.Rows(incre)("Nombre").ToString, Conceptos.Rows(incre)("Nombre").ToString, True, False, Conceptos.Rows(incre)("Formula").ToString, sasf, True, 0, 0, False)
                 Dim fila As DataRow = CamposCalculados.NewRow()
                 fila("Nombre") = Conceptos.Rows(incre)("Nombre").ToString
                 fila("Tipo") = "C"
-                fila("Formula") = ""
+                fila("Formula") = Conceptos.Rows(incre)("Formula").ToString
                 CamposCalculados.Rows.Add(fila)
                 CamposCalculados.AcceptChanges()
             Next
@@ -736,8 +642,7 @@ Public Class FrmConsultaPeriodosL
         If ConceptosPersonales.Rows.Count > 0 Then
             For incre As Integer = 0 To ConceptosPersonales.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HB1, &HF3, &HDA)
-                CreaColumnas(gvLiquidaNomina, ConceptosPersonales.Rows(incre)("Nombre").ToString, ConceptosPersonales.Rows(incre)("Nombre").ToString, True, False, "", sasf, True, 0, 0, False)
-                dt.Columns.Add(ConceptosPersonales.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                CreaColumnas(gvLiquidaNomina, ConceptosPersonales.Rows(incre)("Nombre").ToString, ConceptosPersonales.Rows(incre)("Nombre").ToString, False, False, ConceptosPersonales.Rows(incre)("Formula").ToString, sasf, True, 0, 0, False)
                 Dim fila As DataRow = CamposCalculados.NewRow()
                 fila("Nombre") = ConceptosPersonales.Rows(incre)("Nombre").ToString
                 fila("Tipo") = "CP"
@@ -750,12 +655,11 @@ Public Class FrmConsultaPeriodosL
         If Conceptos.Rows.Count > 0 Then
             For incre As Integer = 0 To Conceptos.Rows.Count - 1
                 Dim sasf As System.Drawing.Color = Color.FromArgb(&HB1, &HF3, &HDA)
-                CreaColumnas(gvLiquidaNomina, "B-" + Conceptos.Rows(incre)("Nombre").ToString, "B-" + Conceptos.Rows(incre)("Nombre").ToString, False, False, "", sasf, True, 0, 0, False)
-                dt.Columns.Add("B-" + Conceptos.Rows(incre)("Nombre").ToString, GetType(Decimal))
+                CreaColumnas(gvLiquidaNomina, "B-" + Conceptos.Rows(incre)("Nombre").ToString, "B-" + Conceptos.Rows(incre)("Nombre").ToString, False, False, Conceptos.Rows(incre)("Base").ToString, sasf, True, 0, 0, False)
                 Dim fila As DataRow = CamposCalculados.NewRow()
                 fila("Nombre") = "B-" + Conceptos.Rows(incre)("Nombre").ToString
                 fila("Tipo") = "BC"
-                fila("Formula") = ""
+                fila("Formula") = Conceptos.Rows(incre)("Base").ToString
                 CamposCalculados.Rows.Add(fila)
                 CamposCalculados.AcceptChanges()
             Next
@@ -774,54 +678,109 @@ Public Class FrmConsultaPeriodosL
         Try
             PasaValor = False
             Dim sql = ""
-            Dim consulta As DataTable = CType(gcLiquidaNomina.DataSource, DataTable)
+
+            Dim consultasLiquidadas() As String = {
+    "SELECT CN.NomConcepto as Nombre, CCN.Formula, CN.Base, CN.Redondea " +
+    "FROM ConceptosNomina CN " +
+    "INNER JOIN ConfigConceptos CCN ON CCN.Concepto = CN.Sec " +
+    "WHERE CCN.Nomina = " + CodNomina,
+    "SELECT Sec AS Codigo FROM NominaLiquidada WHERE Sec = " + SecNominaLiquida,
+    "WITH ContratosBase AS ( " +
+    "    SELECT " +
+    "        CON.CodContrato, " +
+    "        CON.IdContrato, " +
+    "        CON.HorasMes, " +
+    "        CON.Asignacion, " +
+    "        CON.CargoActual, " +
+    "        CON.Terminado, " +
+    "        CON.Plantilla, " +
+    "        E.Sec AS SecEmpleado, " +
+    "        E.Identificacion AS IdentificacionEmple, " +
+    "        RTRIM(LTRIM(CONCAT(E.PNombre, ' ', E.SNombre, ' ', E.PApellido, ' ', E.SApellido))) AS NomEmple " +
+    "    FROM Contratos CON " +
+    "    INNER JOIN Empleados E ON CON.Empleado = E.Sec " +
+    "    WHERE CON.Terminado = 0 " +
+    "), " +
+    "ValoresExentos AS ( " +
+    "    SELECT Contrato, SUM(Valor) as Valor " +
+    "    FROM Asig_ValoresExentos " +
+    "    WHERE Vigente = 1 " +
+    "    GROUP BY Contrato " +
+    ") " +
+    "SELECT " +
+    "    CB.IdentificacionEmple, " +
+    "    CB.NomEmple, " +
+    "    CB.CodContrato, " +
+    "    CB.IdContrato, " +
+    "    CC.Cargo, " +
+    "    V.NomVariable AS Variable, " +
+    "    NLV.Cantidad, " +
+    "    CA.Denominacion AS NomCargo, " +
+    "    NLC.Sec AS NominaLiquidaContrato, " +
+    "    NLC.Comentario, " +
+    "    CB.HorasMes, " +
+    "    CB.Asignacion, " +
+    "    CB.CargoActual, " +
+    "    NL.Sec AS NominaLiquida, " +
+    "    ISNULL(VEX.Valor, 0) AS RentaExenta, " +
+    "    ISNULL(( " +
+    "        SELECT CN2.NomConcepto as Nombre, NLCP2.Valor as Formula, TC2.NomTipo as Tipo, " +
+    "               CN2.Sec, '1' as PeriodosLiquida, NLCP2.Base as Base " +
+    "        FROM NominaLiquidadaConceptos NLCP2 " +
+    "        INNER JOIN ConceptosNomina CN2 ON NLCP2.SecConcepto = CN2.Sec " +
+    "        INNER JOIN TiposConceptosNomina TC2 ON TC2.Sec = CN2.Tipo " +
+    "        INNER JOIN NominaLiquidadaContratos NLCT2 ON NLCT2.Sec = NLCP2.LiquidadaContrato " +
+    "        INNER JOIN NominaLiquidada NL2 ON NLCT2.NominaLiquidada = NL2.Sec " +
+    "        WHERE NL2.Sec = " + SecNominaLiquida + " " +
+    "            AND NLCT2.Contrato = CB.CodContrato " +
+    "        FOR XML PATH('Fila') " +
+    "    ), 'NoPlantilla') AS PlantillaEmpl, " +
+    "    ISNULL(( " +
+    "        SELECT CP.Sec as SecDescuento, NLCP2.Valor AS DescontarPeriodo, CP.TotalDescontar, " +
+    "               CP.TotalDescontado, C.NomConcepto, C.PeriodosLiquida, " +
+    "               C.Sec as SecConcepto, C.ValMaxDescuento, CC.Nom AS Clasificacion " +
+    "        FROM NominaLiquidadaConceptos NLCP2 " +
+    "        INNER JOIN ConceptosP_Contratos CP ON NLCP2.SecConceptoP = CP.Sec " +
+    "        INNER JOIN ConceptosPersonales C ON CP.Concepto = C.Sec " +
+    "        INNER JOIN NominaLiquidadaContratos NLCT2 ON NLCT2.Sec = NLCP2.LiquidadaContrato " +
+    "        INNER JOIN NominaLiquidada NL2 ON NLCT2.NominaLiquidada = NL2.Sec " +
+    "        INNER JOIN ClasConceptosPersonales CC ON C.Clasificacion = CC.Sec " +
+    "        WHERE NL2.Sec = " + SecNominaLiquida + " " +
+    "            AND NLCT2.Contrato = CB.CodContrato " +
+    "        ORDER BY CC.NivelP ASC " +
+    "        FOR XML PATH('Fila') " +
+    "    ), 'NoConceptos') AS ConceptosContratos " +
+    "FROM NominaLiquidadaVariables NLV " +
+    "INNER JOIN NominaLiquidadaContratos NLC ON NLV.SecLiquidadaContrato = NLC.Sec " +
+    "INNER JOIN VariablesPersonales V ON NLV.Variable = V.Sec " +
+    "INNER JOIN ContratosBase CB ON NLC.Contrato = CB.CodContrato " +
+    "LEFT JOIN ValoresExentos VEX ON VEX.Contrato = CB.CodContrato " +
+    "LEFT JOIN Contrato_Cargos CC ON CB.CargoActual = CC.Cargo AND CB.CodContrato = CC.Contrato " +
+    "INNER JOIN Cargos CA ON CC.Cargo = CA.Sec " +
+    "INNER JOIN NominaLiquidada NL ON NLC.NominaLiquidada = NL.Sec " +
+    "WHERE NL.Sec = " + SecNominaLiquida
+}
+
+            Dim datos = SMT_GetDataset(ObjetoApiNomina, consultasLiquidadas)
+
+            Conceptos = datos.Tables(0)
+
+
+            Dim dt As DataTable = datos.Tables(2)
+
+            Dim consulta As DataTable = Nothing
             Creagrillahorizontal()
-            consulta.Rows.Clear()
-            '" Select Case E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + "+ 
-            '" RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple," +
-            '" C.CodContrato as CodContrato,C.IdContrato As IdContrato,CC.Cargo As Cargo,V.NomVariable As Variable,NLV.Cantidad As Cantidad,CA.Denominacion As NomCargo,NLC.Sec As NominaLiquidaContrato,NLC.Comentario As Comentario,C.HorasMes As HorasMes,C.Asignacion As Asignacion,C.CargoActual As CargoActual,NL.Sec As NominaLiquida,VEX.Valor As RentaExenta From NominaLiquidaVariables NLV "+ 
-            '" INNER JOIN NominaLiquidaContratos NLC On NLV.SecLiquidaContrato = NLC.Sec INNER JOIN VariablesPersonales V On NLV.Variable = V.Sec "+
-            '" INNER JOIN Contratos C On NLC.Contrato = C.CodContrato INNER JOIN Empleados E On C.Empleado = E.IdEmpleado "+
-            '" Left JOIN (Select Contrato, sum(Valor)as Valor from Asig_ValoresExentos Where Vigente =1 group by Contrato) As VEX ON VEX.Contrato = c.CodContrato "+
-            '" INNER JOIN Contrato_Cargos CC ON C.CargoActual = CC.SecCargos INNER JOIN Cargos CA ON CC.Cargo = CA.SecCargo  INNER JOIN NominaLiquida NL ON NLC.NominaLiquida= NL.Sec WHERE NL.Periodo="+ SecPeriodo
 
-            sql = " Select C.IdentificacionEmple,C.NomEmple, " +
-" C.CodContrato as CodContrato,C.IdContrato As IdContrato,CC.Cargo As Cargo,V.NomVariable As Variable,NLV.Cantidad As Cantidad,CA.Denominacion As NomCargo,NLC.Sec As NominaLiquidaContrato, " +
-" NLC.Comentario As Comentario,C.HorasMes As HorasMes,C.Asignacion As Asignacion,C.CargoActual As CargoActual,NL.Sec As NominaLiquida,VEX.Valor As RentaExenta,C.PlantillaEmpl,C.ConceptosContratos " +
-" From " +
-" NominaLiquidadaVariables NLV  INNER JOIN NominaLiquidadaContratos NLC On NLV.SecLiquidadaContrato = NLC.Sec INNER JOIN VariablesPersonales V On NLV.Variable = V.Sec  " +
-" INNER JOIN " +
-" (Select E.IdEmpleado,E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' +  RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple, IsNull(( " +
-" select CN2.NomConcepto as Nombre,NLCP2.Valor as Formula,TC2.NomTipo as Tipo,CN2.Sec as Sec,'1' as PeriodosLiquida,NLCP2.Base as Base " +
-"     FROM NominaLiquidadaConceptos NLCP2 INNER JOIN ConceptosNomina CN2 ON NLCP2.SecConcepto=CN2.Sec INNER JOIN TiposConceptosNomina TC2 ON TC2.Sec = CN2.Tipo " +
-"    INNER JOIN NominaLiquidadaContratos NLCT2 ON NLCT2.Sec=NLCP2.LiquidadaContrato INNER JOIN NominaLiquidada NL2 ON NLCT2.NominaLiquidada= NL2.Sec " +
-"  Where NL2.Sec=" + SecNominaLiquida + "  And NLCT2.Contrato =CON.CodContrato " +
-" For XML PATH('Fila')),'NoPlantilla') As PlantillaEmpl, " +
-" IsNull((Select CP.Sec as SecDescuento,NLCP2.Valor As DescontarPeriodo,CP.TotalDescontar as TotalDescontar, " +
-"     CP.TotalDescontado As TotalDescontado,C.NomConcepto As NomConcepto, " +
-"     C.PeriodosLiquida As PeriodosLiquida,C.Sec as SecConcepto, " +
-"     C.ValMaxDescuento As ValMaxDescuento,CC.Nom As Clasificacion from NominaLiquidadaConceptos NLCP2 INNER JOIN ConceptosP_Contratos CP ON NLCP2.SecConceptoP=CP.Sec" +
-"     INNER JOIN ConceptosPersonales C ON CP.Concepto = C.Sec " +
-"    INNER JOIN NominaLiquidadaContratos NLCT2 ON NLCT2.Sec=NLCP2.LiquidadaContrato INNER JOIN NominaLiquidada NL2 ON NLCT2.NominaLiquidada= NL2.Sec " +
-"     INNER JOIN ClasConceptosPersonales CC ON C.Clasificacion = CC.Sec Where NL2.Sec=" + SecNominaLiquida + "  And NLCT2.Contrato = CON.CodContrato  order by cc.NivelP asc " +
-"	 For XML PATH('Fila')),'NoConceptos') As ConceptosContratos, " +
-" CON.CodContrato as CodContrato,CON.IdContrato As IdContrato,CON.HorasMes As HorasMes,CON.Asignacion As Asignacion,CON.CargoActual As CargoActual,CON.Terminado " +
-" From Contratos CON INNER JOIN Empleados E On CON.Empleado = E.IdEmpleado) As C on NLC.Contrato= C.CodContrato " +
-" Left JOIN (Select Contrato, sum(Valor)as Valor from Asig_ValoresExentos Where Vigente =1 group by Contrato) As VEX ON VEX.Contrato = c.CodContrato  " +
-" INNER JOIN Contrato_Cargos CC ON C.CargoActual = CC.SecCargos INNER JOIN Cargos CA ON CC.Cargo = CA.SecCargo  " +
-" INNER JOIN NominaLiquidada NL ON NLC.NominaLiquidada= NL.Sec " +
-" WHERE C.Terminado=0 And NL.Sec=" + SecNominaLiquida
-            'If txtOficina.ValordelControl <> "" And txtOficina.DescripciondelControl <> "No Se Encontraron Registros" And txtOficina.DescripciondelControl <> "" Or txtNominas.ValordelControl <> "" And txtNominas.DescripciondelControl <> "No Se Encontraron Registros" And txtNominas.DescripciondelControl <> "" Or txtDependencia.ValordelControl <> "" And txtDependencia.DescripciondelControl <> "No Se Encontraron Registros" And txtDependencia.DescripciondelControl <> "" Or txtCargos.ValordelControl <> "" And txtCargos.DescripciondelControl <> "No Se Encontraron Registros" And txtCargos.DescripciondelControl <> "" Then
+            If gcLiquidaNomina.DataSource IsNot Nothing Then
+                If TypeOf gcLiquidaNomina.DataSource Is DataTable Then
+                    Dim dtOriginal As DataTable = DirectCast(gcLiquidaNomina.DataSource, DataTable)
+                    ' Clone() copia solo la estructura (columnas, constraints, etc.) sin las filas
+                    consulta = dtOriginal.Clone()
+                End If
+            End If
 
-            '    If txtDependencia.ValordelControl <> "" And txtDependencia.DescripciondelControl <> "No Se Encontraron Registros" And txtDependencia.DescripciondelControl <> "" Then
-            '        sql = sql + " And C.Dependencia=" + txtDependencia.ValordelControl
-            '    End If
 
-            '    If txtCargos.ValordelControl <> "" And txtCargos.DescripciondelControl <> "No Se Encontraron Registros" And txtCargos.DescripciondelControl <> "" Then
-            '        sql = sql + " And CC.Cargo=" + txtCargos.ValordelControl
-            '    End If
-            'End If
-            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
+            If Not IsNothing(consulta) Then consulta.Rows.Clear()
 
             Dim NumEmp As Integer = 0
             Dim Promedio_M_A = ""

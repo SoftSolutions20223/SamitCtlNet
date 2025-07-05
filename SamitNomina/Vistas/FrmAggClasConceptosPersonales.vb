@@ -15,7 +15,7 @@ Public Class FrmAggClasConceptosPersonales
     Dim FormularioAbierto As Boolean = False
     Dim HDevExpre As New HelperDevExpress
     Dim HNomina As New HelperNomina
-    Dim ConceptosPersonal As New ConceptosPersonales
+    Dim ClasConceptosPersonal As New ClasConceptosPersonales
     Public Property P_FormularioAbierto() As Boolean
         Get
             Return FormularioAbierto
@@ -71,8 +71,11 @@ Public Class FrmAggClasConceptosPersonales
             Else
                 Niveles = SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (NivelP),0)+1 AS Codigo FROM  ClasConceptosPersonales").Rows(0)(0).ToString
             End If
+            If SecClasConceptos <> "0" Or SecClasConceptos <> "" Then
+                sec = CInt(SecClasConceptos)
+            End If
 
-            If GuardaDatos(sec) Then
+            If GuardaDatos(sec, txtNombreClas.ValordelControl, grbVigente.SelectedIndex.ToString(), CInt(Niveles)) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LlenaGrillaClasConceptos()
                 LimpiarCampos()
@@ -193,19 +196,20 @@ Public Class FrmAggClasConceptosPersonales
         txtNombreClas.Focus()
         Nivel = ""
     End Sub
-    Private Function GuardaDatos(Sec As Integer) As Boolean
+    Private Function GuardaDatos(Sec As Integer, Nombre As String, Vigente As String, Nivel As Integer) As Boolean
         Try
-            ConceptosPersonal = New ConceptosPersonales
-            ConceptosPersonal.NomConcepto = txtNombreClas.ValordelControl
-            ConceptosPersonal.Sec = Sec
-            ConceptosPersonal.Vigente = grbVigente.SelectedIndex.ToString()
+            ClasConceptosPersonal = New ClasConceptosPersonales
+            ClasConceptosPersonal.Nom = Nombre
+            ClasConceptosPersonal.Sec = Sec
+            ClasConceptosPersonal.Vigente = Vigente
+            ClasConceptosPersonal.NivelP = Nivel
 
-            Dim RegConceptoPersonal As New ServiceConceptosPersonales
-            Dim registro As JArray
-            If RegConceptoPersonal.ValidarCampos(ConceptosPersonal) Then
-                registro = RegConceptoPersonal.UpsertConceptosPersonal(ConceptosPersonal)
+            Dim RegConceptoPersonal As New ServiceClasConceptosPersonales
+            Dim registro As DynamicUpsertResponseDto
+            If RegConceptoPersonal.ValidarCampos(ClasConceptosPersonal) Then
+                registro = RegConceptoPersonal.UpsertClasConceptosNomina(ClasConceptosPersonal)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception
@@ -234,12 +238,12 @@ Public Class FrmAggClasConceptosPersonales
             Exit Sub
         End If
         If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombreClas.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-            ConceptosPersonal = New ConceptosPersonales
-            ConceptosPersonal.Sec = secReg
+            ClasConceptosPersonal = New ClasConceptosPersonales
+            ClasConceptosPersonal.Sec = secReg
 
-            Dim RegConceptoPersonal As New ServiceConceptosPersonales
+            Dim RegConceptoPersonal As New ServiceClasConceptosPersonales
             Dim registro As JArray
-            registro = RegConceptoPersonal.EliminarConceptosPersonal(ConceptosPersonal)
+            registro = RegConceptoPersonal.EliminarClasConceptosNomina(ClasConceptosPersonal)
 
 
             LimpiarCampos()
@@ -289,13 +293,13 @@ Public Class FrmAggClasConceptosPersonales
                 Else
                     vigente = "0"
                 End If
-                If GuardaDatos(gvClasConceptos.GetFocusedRowCellValue("Sec").ToString) Then
+                If GuardaDatos(gvClasConceptos.GetFocusedRowCellValue("Sec").ToString, gvClasConceptos.GetFocusedRowCellValue("Nom").ToString, vigente, NivelFocus) Then
                     If gvClasConceptos.GetRowCellValue(index, "Vigente").ToString = "Si" Then
                         vigente = "1"
                     Else
                         vigente = "0"
                     End If
-                    If GuardaDatos(gvClasConceptos.GetRowCellValue(index, "Sec").ToString) Then
+                    If GuardaDatos(gvClasConceptos.GetRowCellValue(index, "Sec").ToString, gvClasConceptos.GetRowCellValue(index, "Nom").ToString, vigente, CInt(Nivel2)) Then
                     End If
                 End If
                 If Actualizando Then
@@ -324,13 +328,13 @@ Public Class FrmAggClasConceptosPersonales
                 Else
                     vigente = "0"
                 End If
-                If GuardaDatos(gvClasConceptos.GetFocusedRowCellValue("Sec").ToString) Then
+                If GuardaDatos(gvClasConceptos.GetFocusedRowCellValue("Sec").ToString, gvClasConceptos.GetFocusedRowCellValue("Nom").ToString, vigente, NivelFocus) Then
                     If gvClasConceptos.GetRowCellValue(index, "Vigente").ToString = "Si" Then
                         vigente = "1"
                     Else
                         vigente = "0"
                     End If
-                    If GuardaDatos(gvClasConceptos.GetRowCellValue(index, "Sec").ToString) Then
+                    If GuardaDatos(gvClasConceptos.GetRowCellValue(index, "Sec").ToString, gvClasConceptos.GetRowCellValue(index, "Nom").ToString, vigente, CInt(Nivel2)) Then
                     End If
                 End If
                 If Actualizando Then

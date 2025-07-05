@@ -78,6 +78,8 @@
     <Compile Include="Api\ParametrosApi.vb" />
     <Compile Include="Api\SecurityApi.vb" />
     <Compile Include="Controllers\LoginController.vb" />
+    <Compile Include="DTos\AnularLiquidacionRequest.vb" />
+    <Compile Include="DTos\AnularLiquidacionResponse.vb" />
     <Compile Include="DTos\CargoAsignacionDto.vb" />
     <Compile Include="DTos\CargoAsignacionResponseDto.vb" />
     <Compile Include="DTos\CargoFuncionDto.vb" />
@@ -96,12 +98,15 @@
     <Compile Include="DTos\ContratoResultDto.vb" />
     <Compile Include="DTos\DescuentoNominaDTO.vb" />
     <Compile Include="DTos\DetalleVariableDTO.vb" />
+    <Compile Include="DTos\DetalleVariableGeneralDto.vb" />
     <Compile Include="DTos\DynamicUpsertResponseDto.vb" />
     <Compile Include="DTos\EliminarBorradorNominaRequest.vb" />
     <Compile Include="DTos\EliminarBorradorNominaResponse.vb" />
     <Compile Include="DTos\EliminarNominaResponse.vb" />
     <Compile Include="DTos\GuardarBorradorNominaRequest.vb" />
     <Compile Include="DTos\GuardarBorradorNominaResponse.vb" />
+    <Compile Include="DTos\LiquidarNominaRequest.vb" />
+    <Compile Include="DTos\LiquidarNominaResponse.vb" />
     <Compile Include="DTos\NominaResponseDto.vb" />
     <Compile Include="DTos\PlantillaResponseDto.vb" />
     <Compile Include="DTos\ProvisionConfiguradaDto.vb" />
@@ -124,7 +129,10 @@
     <Compile Include="DTos\UpsertResultItemDto.vb" />
     <Compile Include="DTos\UpsertTipoContratoRequest.vb" />
     <Compile Include="DTos\UpsertTipoContratoResponse.vb" />
+    <Compile Include="DTos\UpsertVariableGeneralRequest.vb" />
+    <Compile Include="DTos\UpsertVariableGeneralResponse.vb" />
     <Compile Include="DTos\VariableDefectoDto.vb" />
+    <Compile Include="DTos\VariableGeneralDto.vb" />
     <Compile Include="DTos\VariableLiquidaDTO.vb" />
     <Compile Include="Model\Asig_ValoresExentos.vb" />
     <Compile Include="Model\Bancos.vb" />
@@ -224,9 +232,11 @@
     <Compile Include="Services\ServiceCargos.vb" />
     <Compile Include="Services\ServiceCentroCostos.vb" />
     <Compile Include="Services\ServiceClasConceptosNomina.vb" />
+    <Compile Include="Services\ServiceClasConceptosPersonales.vb" />
     <Compile Include="Services\ServiceConceptoContratos.vb" />
     <Compile Include="Services\ServiceConceptosNominas.vb" />
     <Compile Include="Services\ServiceConceptosPersonales.vb" />
+    <Compile Include="Services\ServiceConceptosP_Contratos.vb" />
     <Compile Include="Services\ServiceConfigConceptos.vb" />
     <Compile Include="Services\ServiceConfigConceptosPro.vb" />
     <Compile Include="Services\ServiceContratos.vb" />

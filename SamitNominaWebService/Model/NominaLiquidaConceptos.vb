@@ -20,4 +20,6 @@ Public Class NominaLiquidaConceptos
     Public Property SecConceptoP As Integer?
     <SqlColumn(Nombre:="SecConceptoP2", TipoDato:=SqlType.Int)>
     Public Property SecConceptoP2 As Integer?
+    <SqlColumn(Nombre:="Cuota", TipoDato:=SqlType.Int)>
+    Public Property Cuota As Integer?
 End Class

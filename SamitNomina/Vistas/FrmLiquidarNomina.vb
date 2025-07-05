@@ -248,7 +248,7 @@ Public Class FrmLiquidarNomina
 
 
 
-    Private Sub CreagrillaVerticalID(Conexion As Object, CodContrato As String, ConceptsPlantilla As String, ConceptsContrato As String)
+    Private Sub CreagrillaVerticalID(CodContrato As String, ConceptsPlantilla As String, ConceptsContrato As String)
         vgIngresosDeducciones.Rows.Clear()
         ConceptosContrato.Rows.Clear()
         Try
@@ -360,31 +360,6 @@ Public Class FrmLiquidarNomina
 
             Dim filas As New DataTable
             Dim NuevaFila As DataRow = filas.NewRow()
-            'TiposConceptos(Categorias)
-
-            'If ConceptosAtadosAlContrato.Rows.Count > 0 Then
-            '    Dim Clasificacion As New EditorRow
-            '    For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
-            '        Clasificacion = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString), EditorRow)
-            '        If Clasificacion Is Nothing Then
-            '            CreaFilas(vgDescPorNomina, ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString, ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString, True, True, "0", True, False, Nothing)
-            '        End If
-            '    Next
-            'End If
-            'CreaFilas(vgDescPorNomina, "Total De Descuentos Por Nomina", "Total De Descuentos Por Nomina", True, True, "0", True, False, Nothing)
-            'If ConceptosAtadosAlContrato.Rows.Count > 0 Then
-            '    Dim Clasificacion As New EditorRow
-            '    For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
-            '        Clasificacion = TryCast(vgDescPorNomina.GetRowByCaption(ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString), EditorRow)
-            '        If Clasificacion Is Nothing Then
-            '        Else
-            '            Dim categoria As EditorRow = TryCast(vgDescPorNomina.GetRowByCaption("Total De Descuentos Por Nomina"), EditorRow)
-            '            Dim Formu As String = categoria.Properties.UnboundExpression
-            '            Formu = Formu + " + " + "[" + ConceptosAtadosAlContrato.Rows(incre)("Clasificacion").ToString + "]"
-            '            categoria.Properties.UnboundExpression = Formu
-            '        End If
-            '    Next
-            'End If
 
             If ConceptosAtadosAlContrato.Rows.Count > 0 Then
                 For incre As Integer = 0 To ConceptosAtadosAlContrato.Rows.Count - 1
@@ -1503,7 +1478,7 @@ Public Class FrmLiquidarNomina
                 IndexRow = incre.ToString
 
                 ' Crear grillas verticales para calcular valores
-                CreagrillaVerticalID(ObjetoApiNomina, tblah.Rows(incre)("CodContrato").ToString,
+                CreagrillaVerticalID(tblah.Rows(incre)("CodContrato").ToString,
                                 tblah.Rows(incre)("PlantillaEmpl").ToString,
                                 tblah.Rows(incre)("ConceptosContratos").ToString)
                 CreagrillaVerticalP()
@@ -1769,7 +1744,7 @@ Public Class FrmLiquidarNomina
                 End If
                 If Not ActualizaNovedades Then
                     If PasaValor Then
-                        CreagrillaVerticalID(ObjetoApiNomina, gvLiquidaNomina.GetFocusedRowCellValue("CodContrato").ToString, gvLiquidaNomina.GetFocusedRowCellValue("PlantillaEmpl").ToString, gvLiquidaNomina.GetFocusedRowCellValue("ConceptosContratos").ToString)
+                        CreagrillaVerticalID(gvLiquidaNomina.GetFocusedRowCellValue("CodContrato").ToString, gvLiquidaNomina.GetFocusedRowCellValue("PlantillaEmpl").ToString, gvLiquidaNomina.GetFocusedRowCellValue("ConceptosContratos").ToString)
                         CreagrillaVerticalP()
                         PasarValores()
                         CreagrillaVerticalDPN()
@@ -1789,7 +1764,7 @@ Public Class FrmLiquidarNomina
         Else
             If tblah.Rows.Count > 0 Then
                 If PasaValor Then
-                    CreagrillaVerticalID(ObjetoApiNomina, gvLiquidaNomina.GetFocusedRowCellValue("CodContrato").ToString, gvLiquidaNomina.GetFocusedRowCellValue("PlantillaEmpl").ToString, gvLiquidaNomina.GetFocusedRowCellValue("ConceptosContratos").ToString)
+                    CreagrillaVerticalID(gvLiquidaNomina.GetFocusedRowCellValue("CodContrato").ToString, gvLiquidaNomina.GetFocusedRowCellValue("PlantillaEmpl").ToString, gvLiquidaNomina.GetFocusedRowCellValue("ConceptosContratos").ToString)
                     CreagrillaVerticalP()
                     PasarValores()
                     CreagrillaVerticalDPN()
@@ -1798,7 +1773,7 @@ Public Class FrmLiquidarNomina
         End If
     End Sub
 
-    Public Sub LimpiarTodosCampos(Conexion As Object)
+    Public Sub LimpiarTodosCampos()
         'Limpia todos los campos de texto
         'txtDependencia.ValordelControl = ""
         txtOficina.ValordelControl = ""
@@ -1819,7 +1794,7 @@ Public Class FrmLiquidarNomina
         dt.Rows.Clear()
         gvLiquidaNomina.Columns.Clear()
         gcLiquidaNomina.DataSource = dt
-        CreagrillaVerticalID(Conexion, "0", "", "")
+        CreagrillaVerticalID("0", "", "")
         CreagrillaVerticalP()
         CreagrillaVerticalDPN()
         txtOficina.Focus()
@@ -1829,9 +1804,9 @@ Public Class FrmLiquidarNomina
     End Sub
 
     Private Sub btnLimpiar_Click(sender As Object, e As EventArgs) Handles btnLimpiar.Click
-        LimpiarTodosCampos(ObjetoApiNomina)
+        LimpiarTodosCampos()
     End Sub
-    Public Function GuardaBorrador(ObjetoApiNomina As Object) As Boolean
+    Public Function GuardaBorrador() As Boolean
         ' Validaciones de errores en fórmulas
         For incre As Integer = 0 To CamposCalculados.Rows.Count - 1
             Dim Valor As String = gvLiquidaNomina.GetRowCellValue(0, CamposCalculados.Rows(incre)("Nombre").ToString).ToString
@@ -1878,7 +1853,7 @@ Public Class FrmLiquidarNomina
             If ValidaCampos() Then
                 wait.Mostrar()
                 wait.Descripcion = "Guardando Datos..."
-                If GuardaBorrador(ObjetoApiNomina) Then
+                If GuardaBorrador() Then
                     wait.Terminar()
                     HDevExpre.mensajeExitoso("Información guardada exitosamente!..")
                     'trans.Complete()
@@ -1938,43 +1913,38 @@ Public Class FrmLiquidarNomina
     End Function
 
     Private Sub btnLiquidar_Click(sender As Object, e As EventArgs) Handles btnLiquidar.Click
-        'Using trans As New Transactions.TransactionScope(TransactionScopeOption.Required,
-        'New System.TimeSpan(0, 15, 0))
-        'Using ObjetoApiNomina As New SqlClient.SqlConnection(CadConexionBdGeneral)
-        'ObjetoApiNomina.Open()
-        SMT_EjcutarComandoSql(ObjetoApiNomina, "set dateformat dmy", 0)
-        Dim wait As New ClEspera
-        Try
-            If ValidaCampos() Then
-                If HDevExpre.MsgSamit("Seguro que desea liquidar este periodo?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                    wait.Mostrar()
-                    wait.Descripcion = "Guardando Datos..."
-                    EstaLiquidando = True
-                    If GuardaBorrador(ObjetoApiNomina) Then
-                        If EliminarBorrador() Then
-                            wait.Terminar()
-                            LimpiarTodosCampos(ObjetoApiNomina)
-                            HDevExpre.mensajeExitoso("Información guardada exitosamente!")
-                        Else
-                            wait.Terminar()
-                            HDevExpre.MensagedeError("Error al liquidar la nomina..!")
-                            Exit Sub
-                        End If
+        If ValidaCampos() Then
+            If HDevExpre.MsgSamit("Seguro que desea liquidar este periodo?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+                Dim wait As New ClEspera
+                wait.Mostrar()
+                wait.Descripcion = "Guardando Datos..."
+                EstaLiquidando = True
+
+                ' Guardar borrador (ya existe la implementación)
+                If GuardaBorrador() Then
+                    ' Liquidar
+                    wait.Descripcion = "Liquidando nómina..."
+                    Dim request As New LiquidarNominaRequest With {
+                    .SecNominaLiquida = CInt(SecNominaLiquida)
+                }
+
+                    Dim resultado = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_LiquidarNomina", request.ToJObject())
+                    Dim response = resultado.ToObject(Of LiquidarNominaResponse)()
+
+                    If response IsNot Nothing AndAlso response.EsExitoso Then
+                        wait.Terminar()
+                        LimpiarTodosCampos()
+                        HDevExpre.mensajeExitoso("Información guardada exitosamente!")
                     Else
                         wait.Terminar()
                         HDevExpre.MensagedeError("Error al liquidar la nomina..!")
-                        Exit Sub
                     End If
+                Else
+                    wait.Terminar()
+                    HDevExpre.MensagedeError("Error al liquidar la nomina..!")
                 End If
             End If
-        Catch ex As Exception
-            HDevExpre.MensagedeError(ex.Message)
-            wait.Terminar()
-            Exit Sub
-        End Try
-        'trans.Complete()
-        'End Using
-        'End Using
+        End If
     End Sub
     Public Function ValidaCampos() As Boolean
         Dim res As Boolean = False
@@ -2607,7 +2577,7 @@ Public Class FrmLiquidarNomina
 
                 If gvLiquidaNomina.RowCount > 0 Then
                     Dim dtos = CType(gcLiquidaNomina.DataSource, DataTable)
-                    CreagrillaVerticalID(ObjetoApiNomina, gvLiquidaNomina.GetFocusedRowCellValue("CodContrato").ToString(),
+                    CreagrillaVerticalID(gvLiquidaNomina.GetFocusedRowCellValue("CodContrato").ToString(),
                                    gvLiquidaNomina.GetFocusedRowCellValue("PlantillaEmpl").ToString(),
                                    gvLiquidaNomina.GetFocusedRowCellValue("ConceptosContratos").ToString())
                 End If
@@ -2745,7 +2715,7 @@ Public Class FrmLiquidarNomina
             wait.Mostrar()
             wait.Descripcion = "Eliminando Datos..."
             If EliminarBorrador() Then
-                LimpiarTodosCampos(ObjetoApiNomina)
+                LimpiarTodosCampos()
                 wait.Terminar()
                 HDevExpre.mensajeExitoso("El Borrador ha sido eliminado correctamente!..")
             Else

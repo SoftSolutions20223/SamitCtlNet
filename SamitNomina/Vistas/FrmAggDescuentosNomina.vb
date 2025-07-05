@@ -5,6 +5,8 @@ Imports DevExpress.XtraGrid.Views.Grid
 Imports DevExpress.XtraGrid.Columns
 Imports DevExpress.XtraEditors.Controls
 Imports System.Data.SqlClient
+Imports SamitNominaLogic
+Imports Newtonsoft.Json.Linq
 
 
 Public Class FrmAggDescuentosNomina
@@ -122,15 +124,13 @@ Public Class FrmAggDescuentosNomina
             Else
                 LiqE = "0"
             End If
-            'If ckeLiqContratos.Checked Then
-            '    LiqC = "1"
-            'Else
-            '    LiqC = "0"
-            'End If
             If Descontado = "" Then
                 Descontado = "0"
             End If
-             If GuardaDatos(Sec_DescuentoNomina, Cod_Contrato, txtConcepto.ValordelControl, grbVigente.SelectedIndex.ToString, txtTotalDescontar.ValordelControl, txtDescuentoPeriodo.ValordelControl, Descontado, dteFechaIniC.DateTime, dteFechaFinC.DateTime,
+            If Sec_DescuentoNomina = "" Then
+                Sec_DescuentoNomina = "0"
+            End If
+            If GuardaDatos(Sec_DescuentoNomina, Cod_Contrato, txtConcepto.ValordelControl, grbVigente.SelectedIndex.ToString, txtTotalDescontar.ValordelControl, txtDescuentoPeriodo.ValordelControl, Descontado, dteFechaIniC.DateTime, dteFechaFinC.DateTime,
                      txtNumCuotas.ValordelControl, txtCuotaInicial.ValordelControl, txtCuotaFinal.ValordelControl, txtCtaContable.ValordelControl, txtDocContable.ValordelControl, txtCuotaActual.ValordelControl, LiqP, LiqS, LiqE, LiqC, Actualizando) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LimpiarCampos()
@@ -272,7 +272,6 @@ Public Class FrmAggDescuentosNomina
             ckeLiqPeriodos.Checked = True
             txtCuotaActual.Enabled = False
             grbVigente.SelectedIndex = 1
-            txtContrato.Select()
             btnListaCuotas.Enabled = False
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AcomodaForm Agrega Descuentos!")
@@ -281,16 +280,16 @@ Public Class FrmAggDescuentosNomina
 
     Private Sub AsignaScriptAcontroles()
         Try
-
-            txtConcepto.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomConcepto As Descripcion FROM  ConceptosPersonales")
-            txtConcepto.RefrescarDatos()
-            txtContrato.ConsultaSQL = String.Format("Select C.IdContrato As Codigo,'Cc:'+CONVERT(VARCHAR,E.Identificacion) +'    Empleado:'+RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
+            Dim sqlConsultasIniciales = New String() {"SELECT Sec AS Codigo,NomConcepto As Descripcion FROM  ConceptosPersonales",
+                "Select C.IdContrato As Codigo,'Cc:'+CONVERT(VARCHAR,E.Identificacion) +'    Empleado:'+RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
             " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As Descripcion " +
-            " From  Contratos C INNER JOIN  Empleados E ON C.Empleado = E.IdEmpleado ")
-            txtContrato.RefrescarDatos()
-            txtCtaContable.ConsultaSQL = "SELECT CodCuenta AS Codigo, NomCuenta AS Descripcion " & _
-                           " FROM CT_PlandeCuentas WHERE EsdeMovimiento=1 AND Estado='V' AND Detalla = 'P'"
-            txtCtaContable.RefrescarDatos()
+            " From  Contratos C INNER JOIN  Empleados E ON C.Empleado = E.Sec",
+            "SELECT CodCuenta AS Codigo, NomCuenta AS Descripcion " &
+                           " FROM CT_PlandeCuentas WHERE EsdeMovimiento=1 AND Estado='V' AND Detalla = 'P'"}
+            Dim dsInicial = SMT_GetDataset(ObjetoApiNomina, sqlConsultasIniciales)
+            txtConcepto.DatosDefecto = dsInicial.Tables(0)
+            txtContrato.DatosDefecto = dsInicial.Tables(1)
+            txtCtaContable.DatosDefecto = dsInicial.Tables(2)
             txtCtaContable.MensajedeAyuda = "Digite o Seleccione repsionando (F5) la Cuenta x Pagar"
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
@@ -329,13 +328,16 @@ Public Class FrmAggDescuentosNomina
     End Sub
     Private Sub LlenaGrillaDescuentos()
         Try
+            If Cod_Contrato = "" Then
+                Cod_Contrato = "0"
+            End If
             Dim sql As String = "SELECT DC.AplicaLiquidaContratos,DC.AplicaLiquidaExtraordinarias,DC.AplicaLiquidaSemestres,DC.AplicaLiquidaPeriodos,DC.CuotaActual,DC.NumCuotas,DC.CuotaInicial,DC.CuotaFinal,DC.CtaContable,DC.DocContable,DC.Sec As Sec,RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' +  " +
                                 " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple, " +
                                 "C.IdContrato As IdContrato,C.CodContrato As CodContrato,CP.NomConcepto As NomConcepto,CP.Sec As SecConcepto," +
                                 "DC.TotalDescontar As TotalDescontar,DC.DescontarPeriodo As DescontarPeriodo,DC.TotalDescontado As TotalDescontado," +
                                 "DC.FechaInicio As FechaInicio,DC.FechaFin As FechaFin,case DC.Vigente " +
                                 " WHEN '1' then 'Si' when '0' then 'No' end As Vigente FROM ConceptosP_Contratos DC Inner join Contratos C On DC.Contrato = C.CodContrato " +
-                                "Inner join ConceptosPersonales CP ON DC.Concepto = CP.Sec Inner join Empleados E ON C.Empleado = E.IdEmpleado Where DC.Contrato=" + Cod_Contrato
+                                "Inner join ConceptosPersonales CP ON DC.Concepto = CP.Sec Inner join Empleados E ON C.Empleado = E.Sec Where DC.Contrato=" + Cod_Contrato
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             If dt.Rows.Count > 0 Then
                 gcDescuentos.DataSource = dt
@@ -377,38 +379,33 @@ Public Class FrmAggDescuentosNomina
     End Sub
     Private Function GuardaDatos(SecDescuento As String, Contrato As String, Concepto As String, Vigente As String, TotalADescontar As String, DescontarPeriodo As String, TotalDescontado As String, FechaIni As DateTime, FechaFin As DateTime, NumCuotas As String, CuotaInicial As String, CuotaFinal As String, CtaContable As String, DocContable As String, CuotaActual As String, AplicaP As String, AplicaS As String, AplicaE As String, AplicaC As String, EstaActualizando As Boolean) As Boolean
         Try
-            Dim GenSql As New SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
-            GenSql.PasoConexionTabla(ObjetoApiNomina, "ConceptosP_Contratos")
-            GenSql.PasoValores("Contrato", Contrato, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("Concepto", Concepto, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("TotalDescontar", TotalADescontar, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("DescontarPeriodo", DescontarPeriodo, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("TotalDescontado", TotalDescontado, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("FechaInicio", FechaIni.ToString("dd/MM/yyyy"), SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("FechaFin", FechaFin.ToString("dd/MM/yyyy"), SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("Vigente", Vigente, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("NumCuotas", NumCuotas, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("CuotaInicial", CuotaInicial, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("CuotaFinal", CuotaFinal, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("CuotaActual", CuotaActual, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("AplicaLiquidaPeriodos", AplicaP, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("AplicaLiquidaSemestres", AplicaS, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("AplicaLiquidaExtraordinarias", AplicaE, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("AplicaLiquidaContratos", "0", SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("CtaContable", CtaContable, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("DocContable", DocContable, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            If Not EstaActualizando Then
-                SecDescuento = SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (Sec),0)+1 AS Codigo FROM  ConceptosP_Contratos").Rows(0)(0).ToString
-                GenSql.PasoValores("Sec", SecDescuento, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-                If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Insercion, "") Then
-                    Return True
-                Else : Return False
-                End If
-            Else
-                If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Actualizacion, String.Format("Sec={0}", SecDescuento)) Then
-                    Return True
-                Else : Return False
-                End If
+            Dim Descuento = New ConceptosP_Contratos
+            Descuento.Sec = CInt(SecDescuento)
+            Descuento.Contrato = Contrato
+            Descuento.Concepto = Concepto
+            Descuento.TotalDescontar = TotalADescontar
+            Descuento.DescontarPeriodo = DescontarPeriodo
+            Descuento.TotalDescontado = TotalDescontado
+            Descuento.FechaInicio = FechaIni.ToString("dd/MM/yyyy")
+            Descuento.FechaFin = FechaFin.ToString("dd/MM/yyyy")
+            Descuento.Vigente = Vigente
+            Descuento.NumCuotas = NumCuotas
+            Descuento.CuotaInicial = CuotaInicial
+            Descuento.CuotaFinal = CuotaFinal
+            Descuento.CuotaActual = CuotaActual
+            Descuento.AplicaLiquidaPeriodos = AplicaP
+            Descuento.AplicaLiquidaSemestres = AplicaS
+            Descuento.AplicaLiquidaExtraordinarias = AplicaE
+            Descuento.AplicaLiquidaContratos = "0"
+            Descuento.CtaContable = CtaContable
+            Descuento.DocContable = DocContable
+            Dim SDescuento As New ServiceConceptosP_Contratos
+            Dim registro As DynamicUpsertResponseDto
+            If SDescuento.ValidarCampos(Descuento) Then
+                registro = SDescuento.UpsertConceptosP_Contratos(Descuento)
+            End If
+            If registro.ErrorCount < 1 Then
+                Return True
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "Guardando DescuentoPorNomina")
