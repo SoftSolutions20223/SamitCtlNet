@@ -2,7 +2,7 @@
 
 <SqlTable(Nombre:="EntesTercero", BaseDatos:=DatabasesSamit.NominaFull, Version:=1)>
 Public Class EntesTercero
-    <SqlColumn(Nombre:="Sec", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False, Identity:=True, IdentityInicio:=1, IdentityAumento:=1)>
+    <SqlColumn(Nombre:="Sec", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False)>
     Public Property Sec As Integer
     <SqlColumn(Nombre:="Empleado", TipoDato:=SqlType.Int, AceptaNull:=False)>
     Public Property Empleado As Integer

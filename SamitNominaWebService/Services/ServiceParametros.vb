@@ -12,6 +12,7 @@ Public Class ServiceParametros
         End If
 
         Dim command As New SqlCommand("DynamicUpsertJson ")
+        Dim StrDatos = Datos.ToString()
         command.CommandType = CommandType.StoredProcedure
         command.Parameters.AddWithValue("@json", Datos.ToString())
         command.Parameters.AddWithValue("@tabla", Tabla)

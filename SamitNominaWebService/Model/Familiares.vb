@@ -2,7 +2,7 @@
 
 <SqlTable(Nombre:="Familiares", BaseDatos:=DatabasesSamit.NominaFull, Version:=1)>
 Public Class Familiares
-    <SqlColumn(Nombre:="Sec", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False, Identity:=True, IdentityInicio:=1, IdentityAumento:=1)>
+    <SqlColumn(Nombre:="Sec", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False)>
     Public Property Sec As Integer
     <SqlColumn(Nombre:="TipoIdentificacion", TipoDato:=SqlType.VarChar, LargoColumna:=4, AceptaNull:=False)>
     Public Property TipoIdentificacion As String

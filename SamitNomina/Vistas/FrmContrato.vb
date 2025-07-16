@@ -565,12 +565,12 @@ Select '58' As Codigo, 'Estudiantes de prácticas laborales en el sector públic
             Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
             sql = "SELECT NumOficina,NomOficina FROM Oficinas WHERE Estado='V' AND NumEmpresa=" &
                    Empresa.ToString
-            Dim dt2 As DataTable = SMT_AbrirTabla(SMTConex, sql)
+            Dim dt2 As DataTable = ObjetosNomina.Oficinas
             If dt2.Rows.Count > 0 Then
                 For incre As Integer = 0 To dt2.Rows.Count - 1
                     For incre2 As Integer = 0 To CopyDt.Rows.Count - 1
-                        If CopyDt.Rows(incre2)("Oficina") = dt2.Rows(incre)("NumOficina") Then
-                            CopyDt.Rows(incre2)("NomOficina") = dt2.Rows(incre)("NomOficina")
+                        If CopyDt.Rows(incre2)("Oficina") = dt2.Rows(incre)("Codigo") Then
+                            CopyDt.Rows(incre2)("NomOficina") = dt2.Rows(incre)("Descripcion")
                         End If
                     Next
                 Next

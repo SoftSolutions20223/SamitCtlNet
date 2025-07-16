@@ -115,7 +115,6 @@ Public Class FrmEmpleado
             AsignarLimiteCharacteresControles()
             TabPageSeleccionada = TabSeleccionado.DatosBasicos
             btnAmpliaImagenes.Text = "Ver Todas"
-            btnCargarImagen.Text = "Cargar" + vbNewLine + " Imagen"
             btnAmpliaImagenes.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Imagen)
             txtDocEmpleado.Focus()
             txtDocEmpleado.Select()
@@ -133,12 +132,9 @@ Public Class FrmEmpleado
 
     Private Sub tcEmpleados_SelectedPageChanged(sender As Object, e As DevExpress.XtraTab.TabPageChangedEventArgs) Handles tcEmpleados.SelectedPageChanged
         Dim page As String = e.Page.Name
-        btnCargarImagen.Enabled = True
         btnAmpliaImagenes.Enabled = True
         btnAmpliaImagenes.Text = "Ampliar " + vbNewLine + "Imagenes"
         btnAmpliaImagenes.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.AmpliarImagenes)
-        btnCargarImagen.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.CargarImagen)
-        btnCargarImagen.Text = "Cargar" + vbNewLine + " Imagen"
         If page = "tpDatosBasicos" Then
             TabPageSeleccionada = TabSeleccionado.DatosBasicos
             btnAmpliaImagenes.Text = "Ver Todas"
@@ -146,7 +142,6 @@ Public Class FrmEmpleado
             txtDocEmpleado.Focus()
         ElseIf page = "tpAfiliaciones" Then
             TabPageSeleccionada = TabSeleccionado.Afiliaciones
-            btnCargarImagen.Text = "Cargar" + vbNewLine + " Certificado"
             btnAmpliaImagenes.Text = "Ampliar " + vbNewLine + "Certificados"
             txtTipoEntidad.Focus()
         ElseIf page = "tpFamiliares" Then
@@ -156,15 +151,11 @@ Public Class FrmEmpleado
             lkeTipoDocFamiliar.Focus()
         ElseIf page = "tpExpLaboral" Then
             TabPageSeleccionada = TabSeleccionado.ExpereienciaLaboral
-            btnCargarImagen.Text = "Cargar" + vbNewLine + " Certificado"
             btnAmpliaImagenes.Text = "Ampliar " + vbNewLine + "Certificados"
-            btnCargarImagen.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.CargarCertificado)
             txtEmpresaExpLab.Focus()
         ElseIf page = "tpInfAcademica" Then
             TabPageSeleccionada = TabSeleccionado.InformacionAcademica
-            btnCargarImagen.Text = "Cargar" + vbNewLine + " Certificado"
             btnAmpliaImagenes.Text = "Ampliar " + vbNewLine + "Certificados"
-            btnCargarImagen.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.CargarCertificado)
             lkeNivelEducativo.Focus()
         Else
             FrmPrincipal.rcPrincipal.SelectedPage = FrmPrincipal.PaginaInicio
@@ -736,7 +727,6 @@ Public Class FrmEmpleado
             tpInfAcademica.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.InformacionAcademica)
             btnGuardar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Guardar)
             btnLimpiar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Limpiar)
-            btnCargarImagen.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.CargarImagen)
             btnAmpliaImagenes.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.AmpliarImagenes)
             btnEliminar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.EliminarGris)
             btnSalir.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.SalirCuadroConX)
@@ -951,7 +941,7 @@ Public Class FrmEmpleado
 
 #End Region
 #Region "Botones Principales"
-    Private Sub btnCargarImagen_Click(sender As Object, e As EventArgs) Handles btnCargarImagen.Click
+    Private Sub btnCargarImagen_Click(sender As Object, e As EventArgs)
         Try
             Dim openFile As New OpenFileDialog
             Dim emp As New ServiceEmpleados()
@@ -995,9 +985,7 @@ Public Class FrmEmpleado
 
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         If TabPageSeleccionada = TabSeleccionado.DatosBasicos Then
-            If GuardaDatosBasicos() Then
-
-            End If
+            GuardaDatosBasicos()
         ElseIf TabPageSeleccionada = TabSeleccionado.Afiliaciones Then
             GuardaAfiliacion()
         ElseIf TabPageSeleccionada = TabSeleccionado.Familiares Then
@@ -1046,6 +1034,40 @@ Public Class FrmEmpleado
         End Try
     End Sub
 
+    Private Function EliminarEmpleado(secEmpleado As String) As Boolean
+        Try
+            ' Crear el request
+            Dim request As New EliminarEmpleadoRequest(CInt(secEmpleado))
+
+            ' Ejecutar el procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarEmpleado", request.ToJObject())
+
+            ' IMPORTANTE: Reutilizamos la misma clase DynamicDeleteResponse
+            Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                ' Log opcional
+                Console.WriteLine($"Empleado eliminado: {response.RegistrosEliminados} registros afectados en total")
+                Return True
+
+            ElseIf response.EsAdvertencia Then
+                ' El empleado no existe
+                HDevExpre.MensagedeError(response.Mensaje)
+                Return False
+
+            Else ' Es Error
+                ' Puede ser porque tiene contratos u otro error
+                HDevExpre.MensagedeError(response.Mensaje)
+                Return False
+            End If
+
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "EliminarEmpleado")
+            Return False
+        End Try
+    End Function
+
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
         Try
             If TabPageSeleccionada = TabSeleccionado.DatosBasicos Then
@@ -1054,7 +1076,7 @@ Public Class FrmEmpleado
                         HDevExpre.MensagedeError("Este empleado ya tiene un contrato asignado y no puede ser eliminado!")
                     Else
                         If HDevExpre.MsgSamit("Seguro que desea eliminar este empleado?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, "Delete from RelFami where empleado ='" + Sec + "';Delete from Empleados_Educacion where Empleado ='" + Sec + "'; Delete from Empleados_HistoriaLaboral where Empleado ='" + Sec + "';Delete from Empleados_RegFot where IdEmpleado ='" + Sec + "';Delete from EntesTercero where Empleado ='" + Sec + "';Delete from Empleados where Sec ='" + Sec + "';") > 0 Then
+                            If EliminarEmpleado(Sec) Then
                                 LimpiarCampos()
                             Else
                                 HDevExpre.MensagedeError("Error al eiminar el empleado!")
@@ -1339,7 +1361,7 @@ Public Class FrmEmpleado
     ''' <param name="codEmpleado">Secuencial en la tabla Empleado por la relación, NO Num documento</param>
     ''' <remarks></remarks>
     Public Sub LlenaGrillaExpLaboral(codEmpleado As String)
-        Dim sql As String = String.Format("SELECT * FROM Empleados_HistoriaLaboral EP WHERE EP.Empleado={0} ", codEmpleado)
+        Dim sql As String = String.Format("SELECT *, Sec as SecIngreso FROM Empleados_HistoriaLaboral EP WHERE EP.Empleado={0} ", codEmpleado)
         Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
         gcExpLaboral.DataSource = dt
         sql = String.Format("SELECT * FROM Empleados_RegFot WHERE IdEmpleado={0} AND Tipo={1}", Me.Sec,
@@ -1401,6 +1423,7 @@ Public Class FrmEmpleado
 
             ' 1) Mapear controles al modelo
             Dim hist As New Empleados_HistoriaLaboral() With {
+                .Sec = Me.secRegistroExpLab,
             .Empleado = idEmpleado,
             .Empresa = txtEmpresaExpLab.ValordelControl,
             .Cargo = txtCargoExpLab.ValordelControl,
@@ -1413,8 +1436,8 @@ Public Class FrmEmpleado
 
 
             Dim svc As New ServiceEmpleados()
-            Dim resp As JArray = svc.GuardaExperienciaLaboral(hist)
-            If resp Is Nothing OrElse resp.Count = 0 Then
+            Dim resp As DynamicUpsertResponseDto = svc.GuardaExperienciaLaboral(hist)
+            If resp Is Nothing OrElse resp.ErrorCount > 0 Then
                 HDevExpre.MensagedeError("Error al guardar experiencia laboral.")
                 Return
             End If
@@ -1430,8 +1453,10 @@ Public Class FrmEmpleado
                 secTipo = CInt(gvExpLaboral.GetFocusedRowCellValue("SecIngreso"))
             End If
 
+            'SMT_EjcutarComandoSql(ObjetoApiNomina, "Delete from Empleados_RegFot where IdEmpleado=" & idEmpleado & " and SecTipo=" & secTipo & " and tipo=" + CInt(HEmpleado.TiposDeImagenes.ExperienciaLaboral), 0)
+
             ' 3) Enviar imágenes asociadas
-            If svc.GuardaImagenesEmpleado(grupoImgsExpLaboral, idEmpleado, HEmpleado.TiposDeImagenes.ExperienciaLaboral, secTipo) Then
+            If svc.GuardaImagenesEmpleado(grupoImgsExpLaboral, idEmpleado, HEmpleado.TiposDeImagenes.ExperienciaLaboral, secTipo, 0) Then
                 HDevExpre.mensajeExitoso("Información guardada exitosamente.")
                 LlenaGrillaExpLaboral(idEmpleado)
                 CargaImagenesEmpleado()
@@ -1478,15 +1503,28 @@ Public Class FrmEmpleado
 
     Private Function EliminaExpLaboral(idRegExpLaboral As String, idEmp As String) As Boolean
         Try
-            Dim sql = String.Format("DELETE FROM Empleados_HistoriaLaboral WHERE SecIngreso={0} ", idRegExpLaboral)
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                sql = String.Format("DELETE  FROM Empleados_RegFot WHERE IdEmpleado={0} AND Tipo={1} AND SecTipo={2}",
-                                   idEmp, Convert.ToInt16(HEmpleado.TiposDeImagenes.Estduios), idRegExpLaboral)
-                If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) = 0 Then
-                    '
-                End If
+            Dim request As New EliminarExperienciaLaboralRequest(CInt(idRegExpLaboral), CInt(idEmp))
+
+            ' Ejecutar el procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarExperienciaLaboral", request.ToJObject())
+
+            ' IMPORTANTE: Reutilizamos la misma clase DynamicDeleteResponse
+            Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                ' Log opcional
+                Console.WriteLine($"Experiencia laboral eliminada: {response.RegistrosEliminados} registros afectados")
                 Return True
-            Else : Return False
+
+            ElseIf response.EsAdvertencia Then
+                ' El registro no existe, pero no es un error crítico
+                HDevExpre.MensagedeError(response.Mensaje)
+                Return False
+
+            Else ' Es Error
+                HDevExpre.msgError(Nothing, response.Mensaje, "EliminaExpLaboral")
+                Return False
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "EliminaExpLaboral")
@@ -1906,7 +1944,11 @@ Public Class FrmEmpleado
         txtComentario.Text = AsignarCampo(Fila, "Comentario")
         txtBanco.ValordelControl = AsignarCampo(Fila, "codBanco")
         txtNumCuenta.ValordelControl = AsignarCampo(Fila, "NumCuenta")
-        rgbEmpRetiradoEntidad.SelectedIndex = AsignarCampo(Fila, "TipoCuenta")
+        rgbEmpRetiradoEntidad.SelectedIndex = rgbEmpRetiradoEntidad.SelectedIndex = If(
+    TryCast(AsignarCampo(Fila, "TipoCuenta"), String) = "No Contiene Nada",
+    0,
+    CInt(AsignarCampo(Fila, "TipoCuenta"))
+)
         pcbFotografiaEmpleado.Image = img
         NumDocumento = txtDocEmpleado.Text()
         LlenaGrillaExpLaboral(Fila("Sec").ToString)
@@ -2293,8 +2335,8 @@ Public Class FrmEmpleado
 
     Private Sub LlenaGrillaInfAcademica(idEmp As String)
         Try
-            Dim sql As String = String.Format("SELECT EE.Sec,EE.Empleado,NE.Sec,NE.NomNivel,EE.FechaGrado,  " &
-                                            " EE.TipoTiempo,EE.Duracion, PF.Sec, PF.NomProfesion, EE.NombreInstitucion, ee.MatriculaProfesional," &
+            Dim sql As String = String.Format("SELECT EE.Sec as SecIngreso,EE.Empleado,NE.Sec as IdNivel,NE.NomNivel,EE.FechaGrado,  " &
+                                            " EE.TipoTiempo,EE.Duracion, PF.Sec as IdProfesion, PF.NomProfesion, EE.NombreInstitucion, ee.MatriculaProfesional," &
                                             " MN.IdMunicipio, MN.NombreMunicipio, NE.EsFormal" &
                                             " FROM Empleados_Educacion EE " &
                                             " INNER JOIN CAT_NivelEducativo NE ON NE.Sec=EE.NivelEstudio " &
@@ -2361,16 +2403,30 @@ Public Class FrmEmpleado
 
     Private Function EliminaInfAcademica(idRegInfAcademica As String, idEmp As String) As Boolean
         Try
-            Dim sql = String.Format("DELETE FROM Empleados_Educacion WHERE SecIngreso={0}", idRegInfAcademica)
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                sql = String.Format("DELETE  FROM Empleados_RegFot WHERE IdEmpleado={0} AND Tipo={1} AND SecTipo={2}",
-                                    idEmp, Convert.ToInt16(HEmpleado.TiposDeImagenes.Estduios), idRegInfAcademica)
-                If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) = 0 Then
-                    '
-                End If
+
+            Dim request As New EliminarInformacionAcademicaRequest(CInt(idRegInfAcademica), CInt(idEmp))
+
+            ' Ejecutar el procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarInformacionAcademica", request.ToJObject())
+
+            ' IMPORTANTE: Reutilizamos la misma clase DynamicDeleteResponse
+            Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                ' Log opcional
+                Console.WriteLine($"Información académica eliminada: {response.RegistrosEliminados} registros afectados")
                 Return True
+
+            ElseIf response.EsAdvertencia Then
+                ' El registro no existe, pero no es un error crítico
+                HDevExpre.MensagedeError(response.Mensaje)
+                Return False
+
+            Else ' Es Error
+                HDevExpre.msgError(Nothing, response.Mensaje, "EliminaInfAcademica")
+                Return False
             End If
-            Return True
 
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "EliminaInfAcademica")
@@ -2396,7 +2452,7 @@ Public Class FrmEmpleado
     End Sub
     Private Sub lkeNivelEducativo_EditValueChanged(sender As Object, e As EventArgs) Handles lkeNivelEducativo.EditValueChanged
         Try
-            Dim sql As String = String.Format("SELECT IdProfesion AS Codigo,NomProfesion AS Descripcion FROM CAT_Profesiones WHERE IdNivelEducativo={0}", lkeNivelEducativo.EditValue.ToString)
+            Dim sql As String = String.Format("SELECT Sec AS Codigo,NomProfesion AS Descripcion FROM CAT_Profesiones WHERE IdNivelEducativo={0}", lkeNivelEducativo.EditValue.ToString)
             Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
             If dt.Rows.Count > 0 Then
                 lkeTituloObtenido.Properties.DataSource = dt
@@ -2463,25 +2519,27 @@ Public Class FrmEmpleado
             If Not ValidaCamposInfAcademica() Then
                 Return
             End If
-
+            If secRegInfAcademica = "" Then
+                secRegInfAcademica = "0"
+            End If
             ' 2) Mapear controles al modelo
             Dim edu As New Empleados_Educacion With {
-            .Sec = If(ActualizandoEstudios, CType(secRegInfAcademica, Integer?), Nothing),
+            .Sec = CType(secRegInfAcademica, Integer),
             .Empleado = Me.Sec,
             .NivelEstudio = lkeNivelEducativo.EditValue?.ToString(),
             .FechaGrado = dteFechaGrado.DateTime,
             .Duracion = ndDuracion.EditValue.ToString(),
             .TipoTiempo = cbxTipoTiempo.SelectedIndex.ToString(),
-            .IdTituloObtenido = lkeTituloObtenido.EditValue?.ToString(),
+            .IdTituloObtenido = lkeTituloObtenido.EditValue.ToString(),
             .NombreInstitucion = txtInstitucionObtTitulo.ValordelControl,
-            .MatriculaProfesional = If(String.IsNullOrWhiteSpace(txtMatriculaProfesional.ValordelControl), Nothing, txtMatriculaProfesional.ValordelControl),
-            .LugarTitulo = lkeMuniObtTitulo.EditValue?.ToString()
+            .MatriculaProfesional = txtMatriculaProfesional.ValordelControl,
+            .LugarTitulo = lkeMuniObtTitulo.EditValue.ToString()
         }
 
             ' 3) Llamar al servicio
             Dim svc As New ServiceEmpleados()
-            Dim respuesta As JArray = svc.GuardaInfAcademica(edu)
-            If respuesta Is Nothing OrElse respuesta.Count = 0 Then
+            Dim respuesta As DynamicUpsertResponseDto = svc.GuardaInfAcademica(edu)
+            If respuesta Is Nothing OrElse respuesta.ErrorCount > 0 Then
                 HDevExpre.MensagedeError("Error al guardar información académica.")
                 Return
             End If
@@ -2489,14 +2547,16 @@ Public Class FrmEmpleado
             ' 4) Determinar SecIngreso real
             Dim secTipo As Integer
             If Not ActualizandoEstudios Then
-                Dim sql = $"SELECT MAX(SecIngreso) FROM Empleados_Educacion WHERE Empleado={Me.Sec}"
+                Dim sql = $"SELECT MAX(Sec) FROM Empleados_Educacion WHERE Empleado={Me.Sec}"
                 secTipo = CInt(SMT_AbrirTabla(ObjetoApiNomina, sql).Rows(0)(0))
             Else
                 secTipo = secRegInfAcademica
             End If
 
+            'SMT_EjcutarComandoSql(ObjetoApiNomina, "Delete from Empleados_RegFot where IdEmpleado=" & idEmpleado & " and SecTipo=" & secTipo & " and tipo=" & CInt(HEmpleado.TiposDeImagenes.Estduios), 0)
+
             ' 5) Guardar imágenes asociadas
-            If svc.GuardaImagenesEmpleado(grupoImgsInfAcademica, Me.Sec, HEmpleado.TiposDeImagenes.Estduios, secTipo) Then
+            If svc.GuardaImagenesEmpleado(grupoImgsInfAcademica, Me.Sec, HEmpleado.TiposDeImagenes.Estduios, secTipo, 0) Then
                 HDevExpre.mensajeExitoso("Información académica guardada correctamente.")
                 LlenaGrillaInfAcademica(Me.Sec)
                 CargaImagenesEmpleado()
@@ -2732,7 +2792,7 @@ Public Class FrmEmpleado
         Try
             Dim row As DataRow
             Dim copyDt As DataTable
-            Dim sql As String = String.Format("SELECT FM.Sec,FM.TipoIdentificacion,FM.Identificacion, " &
+            Dim sql As String = String.Format("SELECT FM.Sec as SecIngreso,FM.TipoIdentificacion,FM.Identificacion, " &
                                             " RF.parentesco AS IdParentesco,PT.NomParentesco, FM.Nombre,FM.FechaNacimiento," &
                                             " FM.Ocupacion, FM.EmpresaWk, FM.CargoActual, FM.Telefonos," &
                                             " FM.Celular, FM.Direccion, FM.Ciudad, MN.NombreMunicipio" &
@@ -2849,6 +2909,9 @@ Public Class FrmEmpleado
 
             ' Instanciar el servicio
             Dim svc As New ServiceEmpleados()
+            If Me.SecRegFamiliar = "" Then
+                Me.SecRegFamiliar = "0"
+            End If
 
             ' ————————————————————————
             ' 2) Crear y enviar el registro 'Familiares'
@@ -2867,8 +2930,8 @@ Public Class FrmEmpleado
             .Direccion = dirEmp,
             .Ciudad = muni
         }
-            Dim resFam As JArray = svc.UpsertFamiliar(fam)
-            If resFam Is Nothing OrElse resFam.Count = 0 Then
+            Dim resFam As DynamicUpsertResponseDto = svc.UpsertFamiliar(fam)
+            If resFam Is Nothing OrElse resFam.ErrorCount > 0 Then
                 HDevExpre.MensagedeError("Error al guardar datos de familiar.")
                 Return
             End If
@@ -2876,21 +2939,27 @@ Public Class FrmEmpleado
             ' ————————————————————————
             ' 3) Determinar SecIngreso real
             ' ————————————————————————
-            Dim secFam As Integer = If(ActualizandoFamiliares,
-                                   Me.SecRegFamiliar,
-                                   CInt(resFam(0)!SecIngreso))
+            Dim secFam As Integer
+            If Not ActualizandoFamiliares Then
+                Dim sql = $"SELECT MAX(Sec) FROM Familiares"
+                secFam = CInt(SMT_AbrirTabla(ObjetoApiNomina, sql).Rows(0)(0))
+            Else
+                secFam = Me.SecRegFamiliar
+            End If
 
             ' ————————————————————————
             ' 4) Crear y enviar la relación 'RelFami'
+
             ' ————————————————————————
+            SMT_EjcutarComandoSql(ObjetoApiNomina, "Delete from RelFami where empleado=" & Me.Sec & " and familiar=" & secFam.ToString(), 0)
             Dim rel As New RelFami With {
             .Sec = Nothing,          ' o tu variable SecRel si ya la tienes
             .empleado = Me.Sec,
             .familiar = secFam,
             .parentesco = lkeParentescoFamiliar.EditValue.ToString()
         }
-            Dim resRel As JArray = svc.UpsertRelFamiliar(rel)
-            If resRel Is Nothing OrElse resRel.Count = 0 Then
+            Dim resRel As DynamicUpsertResponseDto = svc.UpsertRelFamiliar(rel)
+            If resRel Is Nothing OrElse resRel.ErrorCount > 0 Then
                 HDevExpre.MensagedeError("Error al guardar la relación empleado-familiar.")
                 Return
             End If
@@ -2965,19 +3034,30 @@ Public Class FrmEmpleado
     End Sub
     Private Function EliminaFamiliar(SecRegistro As String, IdEmp As String) As Boolean
         Try
-            Dim sql = String.Format("DELETE FROM RelFami WHERE empleado={0} AND familiar={1} ", IdEmp, SecRegistro)
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                sql = (String.Format("DELETE FROM Familiares WHERE SecIngreso={0} ", SecRegistro))
-                If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                    sql = String.Format("DELETE  FROM Empleados_RegFot WHERE IdEmpleado={0} AND Tipo={1} AND SecTipo={2}",
-                                       IdEmp, Convert.ToInt16(HEmpleado.TiposDeImagenes.Familiares), SecRegistro)
-                    If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) = 0 Then
-                        '
-                    End If
-                    Return True
-                Else : Return False
-                End If
+            Dim request As New EliminarFamiliarRequest(CInt(SecRegistro), CInt(IdEmp))
+
+            ' Ejecutar el procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarFamiliar", request.ToJObject())
+
+            ' IMPORTANTE: Reutilizamos la misma clase DynamicDeleteResponse
+            Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                ' Log opcional
+                Console.WriteLine($"Familiar eliminado: {response.RegistrosEliminados} registros afectados")
+                Return True
+
+            ElseIf response.EsAdvertencia Then
+                ' El familiar no existe, pero no es un error crítico
+                HDevExpre.MensagedeError(response.Mensaje)
+                Return False
+
+            Else ' Es Error
+                HDevExpre.msgError(Nothing, response.Mensaje, "EliminaFamiliar")
+                Return False
             End If
+
             Return True
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "EliminaExpLaboral")
@@ -3139,20 +3219,10 @@ Public Class FrmEmpleado
                 Return
             End If
 
-            ' 4) Comprobar que no haya otra del mismo tipo activa
-            Dim tipoEnte As Integer = 0
-            Dim dtTipoEnte As DataTable = SMT_AbrirTabla(ObjetoApiNomina,
-                                                    $"SELECT TipoEnte FROM EntesSSAP WHERE Sec = {txtEntidad.ValordelControl}")
-            If dtTipoEnte.Rows.Count > 0 Then tipoEnte = CInt(dtTipoEnte.Rows(0)(0))
-            filas = dt.Select($"Retirado = 'NO' AND TipoEnte = {tipoEnte}")
-            If filas.Length > 0 AndAlso Not ActualizandoAfiliaciones Then
-                HDevExpre.MensagedeError("Ya se encuentra registrada una entidad del mismo tipo y activa!")
-                Return
-            End If
 
             ' 5) Construir modelo de afiliación
             Dim af As New EntesTercero With {
-            .Sec = If(ActualizandoAfiliaciones, CType(Me.SecRegAfiliacion, Integer?), Nothing),
+            .Sec = If(ActualizandoAfiliaciones, CType(Me.SecRegAfiliacion, Integer?), 0),
             .Empleado = Me.idEmpleado,
             .FechaRegistro = dteFechaRegistroEmpEntidad.DateTime,
             .FechaRetiro = FechaRetiroDate,
@@ -3162,8 +3232,8 @@ Public Class FrmEmpleado
         }
 
             Dim svc As New ServiceEmpleados()
-            Dim resp As JArray = svc.GuardaAfiliacion(af)
-            If resp Is Nothing OrElse resp.Count = 0 Then
+            Dim resp As DynamicUpsertResponseDto = svc.GuardaAfiliacion(af)
+            If resp Is Nothing OrElse resp.ErrorCount > 0 Then
                 HDevExpre.MensagedeError("Error al guardar la afiliación.")
                 Return
             End If
@@ -3177,12 +3247,16 @@ Public Class FrmEmpleado
             Else
                 secTipo = Me.SecRegAfiliacion
             End If
+            Dim sql = "Delete from Empleados_RegFot where IdEmpleado=" & idEmpleado &
+                    " and SecTipo=" & secTipo &
+                    " and tipo=" & CInt(HEmpleado.TiposDeImagenes.Afiliaciones)
+            SMT_EjcutarComandoSql(ObjetoApiNomina, sql, 0)
 
             ' 7) Guardar imágenes de afiliación
             If svc.GuardaImagenesEmpleado(grupoImgsAfiliaciones,
                                       idEmpleado,
                                       HEmpleado.TiposDeImagenes.Afiliaciones,
-                                      secTipo) Then
+                                      secTipo, 0) Then
                 CargaImagenesEmpleado()
             End If
 
@@ -3234,12 +3308,26 @@ Public Class FrmEmpleado
             HDevExpre.msgError(ex, ex.Message, "CargarDatosAfiliacion")
         End Try
     End Sub
+
     Private Function EliminarAfiliacion(idRegAfiliacion As String) As Boolean
         Try
-            Dim sql = String.Format("DELETE FROM EntesTercero WHERE Sec={0} ", idRegAfiliacion)
-            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
+            Dim request As New DynamicDeleteRequest With {
+            .Tabla = "EntesTercero",
+            .Codigo = CInt(idRegAfiliacion)
+        }
+            ' Ejecutar el procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_DynamicDelete", request.ToJObject())
+            Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
                 Return True
-            Else : Return False
+
+            ElseIf response.EsAdvertencia Then
+                Return False
+
+            Else ' Es Error
+                Return False
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "EliminarAfiliacion")
@@ -3359,9 +3447,8 @@ Public Class FrmEmpleado
     Private Sub txtTipoEntidad_Leave(sender As Object, e As EventArgs) Handles txtTipoEntidad.Leave
         Try
             If txtTipoEntidad.ValordelControl <> "" Then
-                txtEntidad.ConsultaSQL = String.Format("SELECT EN.Sec AS Codigo, EN.NombreEntidad AS Descripcion FROM  EntesSSAP EN WHERE EN.Estado='A' AND TipoEnte ={1}",
+                txtEntidad.ConsultaSQL = String.Format("SELECT EN.Sec AS Codigo, EN.NombreEntidad AS Descripcion FROM  EntesSSAP EN WHERE EN.Estado='A' AND TipoEnte ={0}",
                                                        txtTipoEntidad.ValordelControl)
-                txtEntidad.RefrescarDatos()
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "txtTipoEntidad_Leave")

@@ -152,23 +152,47 @@ Select '3' As Codigo, 'Laboral' As Descripcion")
     End Sub
     Private Function GuardaDatos(fechaini As DateTime, fechafin As DateTime, cantidad As String, TipoDes As String, NomTipo As String) As Boolean
         Try
-            Dim GenSql As New SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
-            GenSql.PasoConexionTabla(ObjetoApiNomina, "DescripVarPer")
-            GenSql.PasoValores("FechaHoraInicio", fechaini.ToString("dd/MM/yyyy HH:mm:ss"), SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("FechaHoraFin", fechafin.ToString("dd/MM/yyyy HH:mm:ss"), SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("Cantidad", cantidad, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            GenSql.PasoValores("CodVarP", CodVar, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+            ' Crear request
+            Dim request As New UpsertDescripVarPerRequest() With {
+            .Sec = 0, ' Siempre inserción nueva
+            .FechaHoraInicio = fechaini,
+            .FechaHoraFin = fechafin,
+            .Cantidad = CInt(cantidad),
+            .CodVarP = CInt(CodVar),
+            .Usuario = ObjetosNomina.Datos.Smt_Usuario,
+            .Terminal = Environment.MachineName
+        }
+
+            ' Solo agregar si es tipo Incapacidad
             If Tipo = "Incapacidad" Then
-                GenSql.PasoValores("TipoDesc", TipoDes, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-                GenSql.PasoValores("NomTipo", NomTipo, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
+                request.TipoDesc = TipoDes
+                request.NomTipo = NomTipo
             End If
 
-            Dim SecDetalles = SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (Sec),0)+1 AS Codigo FROM  DescripVarPer").Rows(0)(0).ToString
-            GenSql.PasoValores("Sec", SecDetalles, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Insercion, "") Then
+            ' Ejecutar procedimiento almacenado
+            Dim resultado = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_UpsertDescripVarPer", request.ToJObject())
+
+            ' Parsear respuesta
+            Dim response = resultado.ToObject(Of UpsertDescripVarPerResponse)()
+
+            ' Validar respuesta
+            If response.EsExitoso Then
+                ' Opcionalmente, usar datos de la respuesta
+                If response.DetalleVariable IsNot Nothing Then
+                    Console.WriteLine($"Detalle guardado con Sec: {response.DetalleVariable.Sec}")
+                    Console.WriteLine($"Total acumulado: {response.DetalleVariable.TotalAcumulado}")
+                End If
                 Return True
-            Else : Return False
+            Else
+                ' Manejar error
+                If response.CodigoError.HasValue Then
+                    HDevExpre.MensagedeError($"Error SQL {response.CodigoError}: {response.Mensaje}")
+                Else
+                    HDevExpre.MensagedeError(response.Mensaje)
+                End If
+                Return False
             End If
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "Guardando Detalles")
             Return False
@@ -176,9 +200,17 @@ Select '3' As Codigo, 'Laboral' As Descripcion")
     End Function
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         If ValidaCampos() Then
-            If GuardaDatos(Convert.ToDateTime(dteFechaIni.EditValue), Convert.ToDateTime(dteFechaFin.EditValue), txtCantidad.ValordelControl, txtTipoIncapacidad.ValordelControl, txtTipoIncapacidad.DescripciondelControl) Then
+            If GuardaDatos(
+            Convert.ToDateTime(dteFechaIni.EditValue),
+            Convert.ToDateTime(dteFechaFin.EditValue),
+            txtCantidad.ValordelControl,
+            txtTipoIncapacidad.ValordelControl,
+            txtTipoIncapacidad.DescripciondelControl
+        ) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LlenaGrillaDetalles()
+
+                ' Limpiar campos
                 txtTipoIncapacidad.ValordelControl = ""
                 txtCantidad.ValordelControl = "0"
                 dteFechaFin.Text = ""

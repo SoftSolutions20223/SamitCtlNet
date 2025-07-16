@@ -20,6 +20,6 @@ Public Class Empleados_HistoriaLaboral
     Public Property Direccion As String
     <SqlColumn(Nombre:="JefeInmediato", TipoDato:=SqlType.VarChar, LargoColumna:=50)>
     Public Property JefeInmediato As String
-    <SqlColumn(Nombre:="ImgDocumento", TipoDato:=SqlType.Image)>
-    Public Property ImgDocumento As Byte()
+    <SqlColumn(Nombre:="ImgDocumento", TipoDato:=SqlType.NVarChar)>
+    Public Property ImgDocumento As String
 End Class

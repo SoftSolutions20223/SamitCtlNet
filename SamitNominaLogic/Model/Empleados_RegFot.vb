@@ -10,7 +10,7 @@ Public Class Empleados_RegFot
     Public Property Item As Integer
 
     <Required>
-    Public Property Tipo As Byte
+    Public Property Tipo As Integer
 
     <Required>
     Public Property SecTipo As Integer

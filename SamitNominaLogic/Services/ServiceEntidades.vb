@@ -23,7 +23,7 @@ Public Class ServiceEntidades
         End If
     End Function
 
-    Public Function UpsertEntidad(Entidades As EntesSSAP) As JArray
+    Public Function UpsertEntidad(Entidades As EntesSSAP) As DynamicUpsertResponseDto
         Dim Peticion As New ParametrosApi()
 
         Dim fila As New JObject
@@ -32,14 +32,16 @@ Public Class ServiceEntidades
         fila("TipoEnte") = Entidades.TipoEnte
         fila("Nit") = Entidades.Nit
         fila("Estado") = Entidades.Estado
+        fila("CuentaPasivo") = Entidades.CuentaPasivo
+
 
         Dim datos As New JArray()
         datos.Add(fila)
 
         ' Hacer la petición con el JArray como segundo parámetro
-        Peticion.PostParametros("Entidades", datos)
+        Dim res = Peticion.PostParametros("EntesSSAP", datos)
 
-        Return datos
+        Return res
     End Function
 
     Public Function EliminarEntidad(Entidades As EntesSSAP) As JArray

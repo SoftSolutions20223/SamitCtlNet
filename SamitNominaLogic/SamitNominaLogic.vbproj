@@ -99,9 +99,16 @@
     <Compile Include="DTos\DescuentoNominaDTO.vb" />
     <Compile Include="DTos\DetalleVariableDTO.vb" />
     <Compile Include="DTos\DetalleVariableGeneralDto.vb" />
+    <Compile Include="DTos\DetalleVarPDTO.vb" />
+    <Compile Include="DTos\DynamicDeleteRequest.vb" />
+    <Compile Include="DTos\DynamicDeleteResponse.vb" />
     <Compile Include="DTos\DynamicUpsertResponseDto.vb" />
     <Compile Include="DTos\EliminarBorradorNominaRequest.vb" />
     <Compile Include="DTos\EliminarBorradorNominaResponse.vb" />
+    <Compile Include="DTos\EliminarEmpleadoRequest.vb" />
+    <Compile Include="DTos\EliminarExperienciaLaboralRequest.vb" />
+    <Compile Include="DTos\EliminarFamiliarRequest.vb" />
+    <Compile Include="DTos\EliminarInformacionAcademicaRequest.vb" />
     <Compile Include="DTos\EliminarNominaResponse.vb" />
     <Compile Include="DTos\GuardarBorradorNominaRequest.vb" />
     <Compile Include="DTos\GuardarBorradorNominaResponse.vb" />
@@ -117,6 +124,8 @@
     <Compile Include="DTos\UpsertConceptoNominaResponse.vb" />
     <Compile Include="DTos\UpsertContratoRequest.vb" />
     <Compile Include="DTos\UpsertContratoResponse.vb" />
+    <Compile Include="DTos\UpsertDescripVarPerRequest.vb" />
+    <Compile Include="DTos\UpsertDescripVarPerResponse.vb" />
     <Compile Include="DTos\UpsertErrorDto.vb" />
     <Compile Include="DTos\UpsertLiquidacionNominaRequest.vb" />
     <Compile Include="DTos\UpsertLiquidacionNominaResponse.vb" />

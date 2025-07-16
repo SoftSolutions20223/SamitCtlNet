@@ -116,8 +116,8 @@ Public Class ServiceEmpleados
     ''' </summary>
     Public Function GuardaImagenesEmpleado(grupoImagenes As GalleryItemGroup,
                                           IdEmpleado As Integer,
-                                          Tipo As Byte,
-                                          SecTipo As Integer) As Boolean
+                                          Tipo As Integer,
+                                          SecTipo As Integer, Sec As Integer) As Boolean
         If grupoImagenes.Items.Count = 0 Then Return True
 
         Dim fotos As New List(Of Empleados_RegFot)
@@ -130,6 +130,7 @@ Public Class ServiceEmpleados
             End Using
 
             fotos.Add(New Empleados_RegFot With {
+                .Sec = Sec,
                 .IdEmpleado = IdEmpleado,
                 .Item = CShort(i + 1),
                 .Tipo = Tipo,
@@ -150,16 +151,14 @@ Public Class ServiceEmpleados
     Public Function UpsertFotosEmpleado(fotos As IEnumerable(Of Empleados_RegFot)) As JArray
         Dim datos As New JArray()
         For Each f In fotos
-            Dim obj As New JObject From {
-                {"IdEmpleado", f.IdEmpleado},
-                {"Item", f.Item},
-                {"Tipo", f.Tipo},
-                {"SecTipo", f.SecTipo},
-                {"Foto", f.Foto},
-                {"Predeterminada", If(f.Predeterminada, JToken.FromObject(f.Predeterminada), JValue.CreateNull())},
-                {"Descripción", If(f.Descripcion, "")}
-            }
-            datos.Add(obj)
+            Dim fila As New JObject
+            fila("IdEmpleado") = f.IdEmpleado 
+                fila("Item") = f.Item
+            fila("Tipo") = f.Tipo
+            fila("SecTipo") = f.SecTipo
+            fila("Foto") = f.Foto
+
+            datos.Add(fila)
         Next
 
         Dim peticion As New ParametrosApi()
@@ -167,46 +166,8 @@ Public Class ServiceEmpleados
         Return datos
     End Function
 
-    ''' <summary>
-    ''' Elimina (marca como eliminado) imágenes de un empleado.
-    ''' </summary>
-    Public Function EliminarFotosEmpleado(IdEmpleado As Integer,
-                                          Tipo As Byte,
-                                          SecTipo As Integer) As JArray
-        Dim obj As New JObject From {
-            {"IdEmpleado", IdEmpleado},
-            {"Tipo", Tipo},
-            {"SecTipo", SecTipo},
-            {"Eliminado", 1}
-        }
-        Dim datos As New JArray() From {obj}
 
-        Dim peticion As New ParametrosApi()
-        'peticion.DeleteParametros("Empleados_RegFot", datos)
-        Return datos
-    End Function
 
-    ''' <summary>
-    ''' Marca un empleado como eliminado.
-    ''' </summary>
-    Public Function EliminarEmpleado(emp As Empleados) As JArray
-        ListaErrores.Clear()
-        If emp.Sec <= 0 Then
-            ListaErrores.Add("No se puede eliminar: Sec inválido.")
-            Return Nothing
-        End If
-
-        Dim fila As New JObject From {
-            {"Sec", emp.Sec},
-            {"Eliminado", 1}
-        }
-        Dim datos As New JArray()
-        datos.Add(fila)
-
-        Dim peticion As New ParametrosApi()
-        'peticion.DeleteParametros("Empleados", datos)
-        Return datos
-    End Function
 
     ''' <summary>
     ''' Inserta o actualiza una sola imagen de empleado.
@@ -224,15 +185,14 @@ Public Class ServiceEmpleados
         End Using
 
         ' Construir JObject
-        Dim obj As New JObject From {
-            {"IdEmpleado", IdEmpleado},
-            {"Tipo", Tipo},
-            {"SecTipo", SecTipo},
-            {"Foto", b64},
-            {"Predeterminada", If(Predeterminada, 1, 0)}
-        }
-        Dim datos As New JArray() From {obj}
+        Dim fila As New JObject
+        fila("IdEmpleado") = IdEmpleado 
+            fila("Tipo") = Tipo
+        fila("SecTipo") = SecTipo
+        fila("Foto") = b64
+        fila("Predeterminada") = If(Predeterminada, 1, 0)
 
+        Dim datos As New JArray()
         ' Enviar a API
         Dim peticion As New ParametrosApi()
         peticion.PostParametros("Empleados_RegFot", datos)
@@ -243,46 +203,48 @@ Public Class ServiceEmpleados
     ''' <summary>
     ''' Inserta o actualiza la experiencia laboral de un empleado.
     ''' </summary>
-    Public Function GuardaExperienciaLaboral(hist As Empleados_HistoriaLaboral) As JArray
+    Public Function GuardaExperienciaLaboral(hist As Empleados_HistoriaLaboral) As DynamicUpsertResponseDto
         ' Construir JObject con los campos de experiencia laboral
-        Dim fila As New JObject From {
-            {"Empleado", hist.Empleado},
-            {"Empresa", hist.Empresa},
-            {"Cargo", hist.Cargo},
-            {"FechaIngreso", If(hist.FechaIngreso.HasValue, hist.FechaIngreso.Value.ToString("yyyy-MM-ddTHH:mm:ss"), CType(Nothing, Object))},
-            {"FechaRetiro", If(hist.FechaRetiro.HasValue, hist.FechaRetiro.Value.ToString("yyyy-MM-ddTHH:mm:ss"), CType(Nothing, Object))},
-            {"TelEmpresa", hist.TelEmpresa},
-            {"Direccion", hist.Direccion},
-            {"JefeInmediato", hist.JefeInmediato},
-            {"Sec", hist.Sec}
-        }
+        Dim fila As New JObject
+        fila("Empleado") = hist.Empleado
+        fila("Empresa") = hist.Empresa
+        fila("Cargo") = hist.Cargo
+        fila("FechaIngreso") = hist.FechaIngreso.Value.ToString("yyyy-MM-ddTHH:mm:ss")
+        fila("FechaRetiro") = hist.FechaRetiro.Value.ToString("yyyy-MM-ddTHH:mm:ss")
+        fila("TelEmpresa") = hist.TelEmpresa
+        fila("Direccion") = hist.Direccion
+        fila("JefeInmediato") = hist.JefeInmediato
+        fila("Sec") = hist.Sec
 
-        Dim datos As New JArray() From {fila}
+
+        Dim datos As New JArray()
+        datos.Add(fila)
         Dim peticion As New ParametrosApi()
-        peticion.PostParametros("Empleados_HistoriaLaboral", datos)
-        Return datos
+        Dim res = peticion.PostParametros("Empleados_HistoriaLaboral", datos)
+        Return res
     End Function
 
     ''' <summary>
     ''' Inserta o actualiza la información académica de un empleado.
     ''' </summary>
-    Public Function GuardaInfAcademica(edu As Empleados_Educacion) As JArray
-        Dim fila As New JObject From {
-            {"Sec", edu.Sec},
-            {"Empleado", edu.Empleado},
-            {"NivelEstudio", edu.NivelEstudio},
-            {"FechaGrado", edu.FechaGrado.ToString("yyyy-MM-ddTHH:mm:ss")},
-            {"Duracion", edu.Duracion},
-            {"TipoTiempo", edu.TipoTiempo},
-            {"IdTituloObtenido", edu.IdTituloObtenido},
-            {"NombreInstitucion", edu.NombreInstitucion},
-            {"MatriculaProfesional", edu.MatriculaProfesional},
-            {"LugarTitulo", edu.LugarTitulo}
-        }
-        Dim datos As New JArray() From {fila}
+    Public Function GuardaInfAcademica(edu As Empleados_Educacion) As DynamicUpsertResponseDto
+        Dim fila As New JObject
+        fila("Sec") = edu.Sec
+        fila("Empleado") = edu.Empleado
+        fila("NivelEstudio") = edu.NivelEstudio
+        fila("FechaGrado") = edu.FechaGrado.ToString("yyyy-MM-ddTHH:mm:ss")
+        fila("Duracion") = edu.Duracion
+        fila("TipoTiempo") = edu.TipoTiempo
+        fila("IdTituloObtenido") = edu.IdTituloObtenido
+        fila("NombreInstitucion") = edu.NombreInstitucion
+        fila("MatriculaProfesional") = edu.MatriculaProfesional
+        fila("LugarTitulo") = edu.LugarTitulo
+
+        Dim datos As New JArray()
+        datos.Add(fila)
         Dim peticion As New ParametrosApi()
-        peticion.PostParametros("Empleados_Educacion", datos)
-        Return datos
+        Dim res = peticion.PostParametros("Empleados_Educacion", datos)
+        Return res
     End Function
 
     ''' <summary>
@@ -291,51 +253,62 @@ Public Class ServiceEmpleados
     ''' Nombre, FechaNacimiento, Ocupacion, EmpresaWk, CargoActual,
     ''' Telefonos, Celular, Direccion, Ciudad.
     ''' </summary>
-    Public Function UpsertFamiliar(fam As Familiares) As JArray
-        Dim filaFam As New JObject From {
-            {"Sec", fam.Sec},
-            {"TipoIdentificacion", fam.TipoIdentificacion}, {"Identificacion", fam.Identificacion},
-            {"Nombre", fam.Nombre}, {"FechaNacimiento", If(fam.FechaNacimiento.HasValue, fam.FechaNacimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss"), Nothing)},
-            {"Ocupacion", fam.Ocupacion}, {"EmpresaWk", fam.EmpresaWk}, {"CargoActual", fam.CargoActual},
-            {"Telefonos", fam.Telefonos}, {"Celular", fam.Celular}, {"Direccion", fam.Direccion}, {"Ciudad", fam.Ciudad}
-        }
-        Dim datosFam As New JArray() From {filaFam}
+    Public Function UpsertFamiliar(fam As Familiares) As DynamicUpsertResponseDto
+        Dim fila As New JObject
+        fila("Sec") = fam.Sec
+        fila("TipoIdentificacion") = fam.TipoIdentificacion
+        fila("Identificacion") = fam.Identificacion
+        fila("Nombre") = fam.Nombre
+        fila("FechaNacimiento") = If(fam.FechaNacimiento.HasValue, fam.FechaNacimiento.Value.ToString("yyyy-MM-ddTHH:mm:ss"), Nothing)
+        fila("Ocupacion") = fam.Ocupacion
+        fila("EmpresaWk") = fam.EmpresaWk
+        fila("CargoActual") = fam.CargoActual
+        fila("Telefonos") = fam.Telefonos
+        fila("Celular") = fam.Celular
+        fila("Direccion") = fam.Direccion
+        fila("Ciudad") = fam.Ciudad
+        Dim datosFam As New JArray()
+        datosFam.Add(fila)
         Dim peticion As New ParametrosApi()
-        peticion.PostParametros("Familiares", datosFam)
-        Return datosFam
+        Dim res = peticion.PostParametros("Familiares", datosFam)
+        Return res
     End Function
 
     ''' <summary>
     ''' Inserta o actualiza la relación entre empleado y familiar en RelFami.
     ''' Campos de RelFami: empleado, familiar, parentesco.
     ''' </summary>
-    Public Function UpsertRelFamiliar(relfam As RelFami) As JArray
-        Dim rel As New JObject From {
-            {"empleado", relfam.empleado}, {"familiar", relfam.familiar}, {"parentesco", relfam.parentesco}, {"Sec", relfam.Sec}
-        }
-        Dim datosRel As New JArray() From {rel}
+    Public Function UpsertRelFamiliar(relfam As RelFami) As DynamicUpsertResponseDto
+        Dim fila As New JObject
+        fila("empleado") = relfam.empleado
+        fila("familiar") = relfam.familiar
+        fila("parentesco") = relfam.parentesco
+        fila("Sec") = relfam.Sec
+        Dim datosRel As New JArray()
+        datosRel.Add(fila)
         Dim peticion As New ParametrosApi()
-        peticion.PostParametros("RelFami", datosRel)
-        Return datosRel
+        Dim res = peticion.PostParametros("RelFami", datosRel)
+        Return res
     End Function
 
     ''' <summary>
     ''' Inserta o actualiza la afiliación de seguridad social de un empleado.
     ''' Campos de EntesTercero: Sec, Empleado, FechaRegistro, FechaRetiro, Retirado, CausadeRetiro, SecEntesSSAP.
     ''' </summary>
-    Public Function GuardaAfiliacion(af As EntesTercero) As JArray
-        Dim fila As New JObject From {
-            {"Sec", af.Sec},
-            {"Empleado", af.Empleado},
-            {"FechaRegistro", af.FechaRegistro.ToString("yyyy-MM-ddTHH:mm:ss")},
-            {"FechaRetiro", If(af.FechaRetiro.HasValue, af.FechaRetiro.Value.ToString("yyyy-MM-ddTHH:mm:ss"), CType(Nothing, Object))},
-            {"Retirado", af.Retirado},
-            {"CausadeRetiro", af.CausadeRetiro},
-            {"SecEntesSSAP", af.SecEntesSSAP}
-        }
-        Dim datos As New JArray() From {fila}
+    Public Function GuardaAfiliacion(af As EntesTercero) As DynamicUpsertResponseDto
+        Dim fila As New JObject
+        fila("Sec") = af.Sec
+        fila("Empleado") = af.Empleado
+        fila("FechaRegistro") = af.FechaRegistro.ToString("yyyy-MM-ddTHH:mm:ss")
+        fila("FechaRetiro") = If(af.FechaRetiro.HasValue, af.FechaRetiro.Value.ToString("yyyy-MM-dd"), "1900-01-01")
+        fila("Retirado") = af.Retirado
+        fila("CausadeRetiro") = af.CausadeRetiro
+        fila("SecEntesSSAP") = af.SecEntesSSAP
+
+        Dim datos As New JArray()
+        datos.Add(fila)
         Dim peticion As New ParametrosApi()
-        peticion.PostParametros("EntesTercero", datos)
-        Return datos
+        Dim res = peticion.PostParametros("EntesTercero", datos)
+        Return res
     End Function
 End Class

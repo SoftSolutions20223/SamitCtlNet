@@ -583,18 +583,20 @@ CtlErr:
     End Sub
     Public Function Consultar(SQL As String, Optional esSubConsulta As Boolean = False, Optional ApiConsultas As Boolean = True) As DataTable
         If ApiConsultas Then
-            Dim paramsDefinition = New With {
-                .sql = SQL
-            }
-            Dim url = $"/Api/Parametros.asmx/SqlGet"
-            Dim resApi = ObjetoApiNomina.ApiPOST(Of DataTable)(url, paramsDefinition)
-            If Not IsNothing(resApi.ObjetoRes) Then
-                If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
-                    resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
-                    resApi.ObjetoRes.Rows.Clear()
+            If SQL IsNot Nothing Then
+                Dim paramsDefinition = New With {
+    .sql = SQL
+}
+                Dim url = $"/Api/Parametros.asmx/SqlGet"
+                Dim resApi = ObjetoApiNomina.ApiPOST(Of DataTable)(url, paramsDefinition)
+                If Not IsNothing(resApi.ObjetoRes) Then
+                    If resApi.ObjetoRes.Columns.Contains("NoContieneDatos") Then
+                        resApi.ObjetoRes.Columns.Remove("NoContieneDatos")
+                        resApi.ObjetoRes.Rows.Clear()
+                    End If
                 End If
+                Return resApi.ObjetoRes
             End If
-            Return resApi.ObjetoRes
         Else
             Dim Conec As SqlConnection
             If _ConexSAMIT = ConexionSAMIT.ConexModulo Then

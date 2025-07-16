@@ -125,6 +125,7 @@
     <Compile Include="Database\DatabaseObjectsNomina.vb" />
     <Compile Include="Database\Helpers\FuncionesSql.vb" />
     <Compile Include="Helpers\ParametrosNomina.vb" />
+    <Compile Include="Helpers\ScriptBdNomina.vb" />
     <Compile Include="Helpers\XmlSerializerHelper.vb" />
     <Compile Include="Model\Asig_ValoresExentos.vb" />
     <Compile Include="Model\CAT_Bancos.vb" />

@@ -8,8 +8,8 @@ Public Class Empleados_RegFot
     Public Property IdEmpleado As Integer
     <SqlColumn(Nombre:="Item", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False)>
     Public Property Item As Integer
-    <SqlColumn(Nombre:="Tipo", LlavePrimaria:=True, TipoDato:=SqlType.TinyInt, AceptaNull:=False)>
-    Public Property Tipo As Byte
+    <SqlColumn(Nombre:="Tipo", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False)>
+    Public Property Tipo As Integer
     <SqlColumn(Nombre:="SecTipo", LlavePrimaria:=True, TipoDato:=SqlType.Int, AceptaNull:=False)>
     Public Property SecTipo As Integer
     <SqlColumn(Nombre:="Foto", TipoDato:=SqlType.NVarChar)>

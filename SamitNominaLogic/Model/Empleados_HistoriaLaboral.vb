@@ -27,6 +27,6 @@ Public Class Empleados_HistoriaLaboral
     <MaxLength(50)>
     Public Property JefeInmediato As String
 
-    Public Property ImgDocumento As Byte()
+    Public Property ImgDocumento As String
 
 End Class

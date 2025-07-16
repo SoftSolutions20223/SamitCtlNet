@@ -32,7 +32,7 @@ Public Class FrmAggEntidad
     Private Sub AcomodaForm()
         Try
 
-            txtTipoEntidad.ConsultaSQL = String.Format("SELECT CodTipoEnte AS Codigo, NomTipoEnte AS Descripcion FROM {0}..ZenumTipoEntes")
+            txtTipoEntidad.ConsultaSQL = String.Format("SELECT CodTipoEnte AS Codigo, NomTipoEnte AS Descripcion FROM ZenumTipoEntes")
             txtCtaPasivo.ConsultaSQL = "SELECT CodCuenta AS Codigo, NomCuenta AS Descripcion " &
                                        " FROM CT_PlandeCuentas WHERE EsdeMovimiento=1 AND Estado='V'"
 
@@ -52,7 +52,6 @@ Public Class FrmAggEntidad
 
             HDevExpre.CreaColumnasG(gvEntidades, "Sec", "Sec", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 0, 0)
             HDevExpre.CreaColumnasG(gvEntidades, "TipoEnte", "TipoEnte", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 0, 0)
-            HDevExpre.CreaColumnasG(gvEntidades, "CodEnte", "CodEnte", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 0, 0)
             HDevExpre.CreaColumnasG(gvEntidades, "Nit", "Nit. ", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 20, gbxPrincipal.Width)
             HDevExpre.CreaColumnasG(gvEntidades, "NombreEntidad", "Nombre", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 40, gbxPrincipal.Width)
             HDevExpre.CreaColumnasG(gvEntidades, "Estado", "Activo", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 18, gbxPrincipal.Width)
@@ -67,7 +66,7 @@ Public Class FrmAggEntidad
 
     Private Sub LlenaGrilla()
         Try
-            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, "SELECT Sec,TipoEnte,CodEnte,Nit,NombreEntidad, CAST(CASE WHEN Estado='A' THEN 'Si' " +
+            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, "SELECT Sec,TipoEnte,Sec,Nit,NombreEntidad, CAST(CASE WHEN Estado='A' THEN 'Si' " +
                                                  " WHEN Estado='I' THEN 'No' END AS VARCHAR) AS Estado,CuentaPasivo FROM EntesSSAP ")
             gcEntidades.DataSource = dt
         Catch ex As Exception
@@ -100,20 +99,22 @@ Public Class FrmAggEntidad
         End If
     End Function
 
-    Private Function GuardarEntidad(Sec As Integer, TipoEnte As Integer, CodEnte As Integer, nit As String, NombreEntidad As String,
-                                    Estado As String, CuentaPasivo As String, Actualizando As Boolean) As Boolean
+    Private Function GuardarEntidad(TipoEnte As Integer, CodEnte As Integer, nit As String, NombreEntidad As String,
+                                    Estado As String, CuentaPasivo As String) As Boolean
         Try
             Entidades = New EntesSSAP
-            Entidades.NombreEntidad = txtNombre.ValordelControl
-            Entidades.Sec = Sec
-            Entidades.Nit = txtNit.ValordelControl
-            Entidades.TipoEnte = CInt(txtTipoEntidad.ValordelControl)
+            Entidades.NombreEntidad = NombreEntidad
+            Entidades.Sec = CodEnte
+            Entidades.Nit = nit
+            Entidades.TipoEnte = TipoEnte
+            Entidades.CuentaPasivo = CuentaPasivo
+            Entidades.Estado = Estado
             Dim RegEntidades As New ServiceEntidades
-            Dim registro As JArray
+            Dim registro As DynamicUpsertResponseDto
             If RegEntidades.ValidarCampos(Entidades) Then
                 registro = RegEntidades.UpsertEntidad(Entidades)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception
@@ -157,26 +158,12 @@ Public Class FrmAggEntidad
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         Try
             If ValidaCampos() Then
-                Dim sec, codEnte As Integer
+                Dim codEnte As Integer
                 Dim vig As Char = "I"c
-                Dim sql As String = "SELECT ISNULL( MAX (Sec),0)+1 AS Codigo FROM  EntesSSAP"
-                Dim dt As DataTable = SMT_AbrirRecordSet(ObjetoApiNomina, sql)
-                If dt.Rows.Count = 0 Then
-                    HDevExpre.MensagedeError("Lo sentimos, ha ocurrido un error, por favor vuelva a intentarlo.")
-                    Exit Sub
-                End If
-                sec = CInt(dt.Rows(0)(0))
-                sql = "SELECT ISNULL( MAX (CodEnte),0)+1 AS Codigo FROM  EntesSSAP WHERE TipoEnte=" + txtTipoEntidad.ValordelControl
-                dt = SMT_AbrirRecordSet(ObjetoApiNomina, sql)
-                If dt.Rows.Count = 0 Then
-                    HDevExpre.MensagedeError("Lo sentimos, ha ocurrido un error, por favor vuelva a intentarlo.")
-                    Exit Sub
-                End If
-                codEnte = CInt(dt.Rows(0)(0))
+                codEnte = CInt(secReg)
                 If grbVigente.SelectedIndex = 1 Then vig = "A"c
-                If EstaActualizando Then sec = secReg
-                If GuardarEntidad(sec, CInt(txtTipoEntidad.ValordelControl), codEnte, txtNit.ValordelControl,
-                                  txtNombre.ValordelControl, vig.ToString, txtCtaPasivo.ValordelControl, EstaActualizando) Then
+                If GuardarEntidad(CInt(txtTipoEntidad.ValordelControl), codEnte, txtNit.ValordelControl,
+                                  txtNombre.ValordelControl, vig.ToString, txtCtaPasivo.ValordelControl) Then
                     LlenaGrilla()
                     If EstaActualizando Then HDevExpre.mensajeExitoso("Información actualizada correctamente!") Else HDevExpre.mensajeExitoso("Información guardada correctamente!")
                     LimpiarCampos()
@@ -240,19 +227,9 @@ Public Class FrmAggEntidad
         LimpiarCampos()
     End Sub
 
-    Private Sub txtNombre_Leave(sender As Object, e As EventArgs) Handles txtNombre.Leave
-
-    End Sub
-
-    Private Sub grbVigente_Click(sender As Object, e As EventArgs) Handles grbVigente.Click
-
-    End Sub
-
     Private Sub btnSalir_KeyPress(sender As Object, e As KeyPressEventArgs) Handles btnSalir.KeyPress, btnLimpiar.KeyPress, btnGuardar.KeyPress, btnEliminar.KeyPress
         HDevExpre.AtrasConScape(e)
     End Sub
 
-    Private Sub txtCtaPasivo_Load(sender As Object, e As EventArgs) Handles txtCtaPasivo.Load
 
-    End Sub
 End Class
