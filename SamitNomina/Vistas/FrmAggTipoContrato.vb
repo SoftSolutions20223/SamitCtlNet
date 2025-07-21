@@ -291,22 +291,40 @@ Public Class FrmAggTipoContrato
         End Try
     End Sub
     Private Sub EliminaTipoContrato(idCodTipoCont As String)
-        If Not Actualizando Or secReg = 0 Then
-            HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
-            Exit Sub
-        End If
-        If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombreTipoContrato.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-            TipoContratos = New CAT_TipoContratos
-            TipoContratos.Sec = secReg
+        Try
+            If Not Actualizando Or secReg = 0 Then
+                HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
+                Exit Sub
+            End If
 
-            Dim RegTipoContrato As New ServiceTipoContrato
-            Dim registro As JArray
-            registro = RegTipoContrato.EliminarTipoContrato(TipoContratos)
-            LimpiarCampos()
-            LlenaGrillaTipoContratos()
-        Else
-            HDevExpre.MensagedeError("Error al eiminar el tipo de contrato!")
-        End If
+            If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombreTipoContrato.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+                ' Crear el request usando EliminarTipoContratoRequest
+                Dim request As New EliminarTipoContratoRequest(CInt(idCodTipoCont))
+
+                ' Ejecutar el procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarTipoContrato", request.ToJObject())
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    ' Éxito - limpiar y recargar
+                    LimpiarCampos()
+                    LlenaGrillaTipoContratos()
+                    HDevExpre.mensajeExitoso("Tipo de contrato eliminado correctamente!.")
+
+                ElseIf response.EsAdvertencia Then
+                    ' Advertencia (no existe o no seleccionado)
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                Else ' Es Error
+                    ' Error (asociado a contratos u otro problema)
+                    HDevExpre.MensagedeError(response.Mensaje)
+                End If
+            End If
+
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "EliminaTipoContrato")
+        End Try
     End Sub
 #End Region
 

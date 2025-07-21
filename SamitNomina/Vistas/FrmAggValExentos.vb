@@ -78,9 +78,8 @@ Public Class FrmAggValExentos
                 TipoVal = "F"
             End If
             Dim sec As Integer = 0
-            If Actualizando Then sec = secReg
-            If GuardaDatos(sec, SecValorExento, txtNombre.ValordelControl, grbVigente.SelectedIndex.ToString(), TipoVal,
-                       Actualizando) Then
+            If SecValorExento = "" Then SecValorExento = "0"
+            If GuardaDatos(SecValorExento, txtNombre.ValordelControl, grbVigente.SelectedIndex.ToString(), TipoVal) Then
                 HDevExpre.mensajeExitoso("Información Guardada exitosamente")
                 LlenaGrillaValorExentos()
                 LimpiarCampos()
@@ -202,18 +201,19 @@ Public Class FrmAggValExentos
         gcValorExento.DataSource = dt
         txtNombre.Focus()
     End Sub
-    Private Function GuardaDatos(Sec As Integer, Sec_ValorExento As String, Nom_ValorExento As String, Vigente As String, TipoValor As String, EstaActualizando As Boolean) As Boolean
+    Private Function GuardaDatos(Sec_ValorExento As String, Nom_ValorExento As String, Vigente As String, TipoValor As String) As Boolean
         Try
             ValExento = New ValoresExentos
-            ValExento.Nom = txtNombre.ValordelControl
-            ValExento.Sec = Sec
-            ValExento.Vigente = grbVigente.SelectedIndex.ToString()
+            ValExento.Nom = Nom_ValorExento
+            ValExento.Sec = Sec_ValorExento
+            ValExento.Vigente = Vigente
+            ValExento.TipoValor = TipoValor
             Dim RegValExento As New ServiceValExentos
-            Dim registro As JArray
+            Dim registro As DynamicUpsertResponseDto
             If RegValExento.ValidarCampos(ValExento) Then
                 registro = RegValExento.UpsertValExento(ValExento)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception
@@ -243,20 +243,35 @@ Public Class FrmAggValExentos
         End Try
     End Sub
     Private Sub EliminaValorExento(Sec_ValorExento As String)
-        If Not Actualizando Or secReg = 0 Then
-            HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
+        If Not Actualizando Or SecValorExento = "0" Then
+            HDevExpre.MensagedeError("No ha cargado ningun valor exento para ser eliminado.")
             Exit Sub
         End If
         If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar el item seleccionado [{0}]", txtNombre.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-            ValExento = New ValoresExentos
-            ValExento.Sec = secReg
+            If ExisteDato("Asig_ValoresExentos", "ValorExento ='" + SecValorExento + "'", ObjetoApiNomina) Then
+                HDevExpre.MensagedeError("Este valor exento ya ha sido asignado!")
+            Else
+                Dim request As New DynamicDeleteRequest With {
+                            .Tabla = "ValoresExentos",
+                            .Codigo = CInt(SecValorExento)
+                        }
+                ' Ejecutar el procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_DynamicDelete", request.ToJObject())
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
 
-            Dim RegValExento As New ServiceValExentos
-            Dim registro As JArray
-            registro = RegValExento.EliminarValExento(ValExento)
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    HDevExpre.mensajeExitoso("Valor exento eliminado correctamente!")
 
-            LimpiarCampos()
-            LlenaGrillaValorExentos()
+                    LimpiarCampos()
+                    LlenaGrillaValorExentos()
+                ElseIf response.EsAdvertencia Then
+                    HDevExpre.MensagedeError("Error al eiminar la ValorExento!")
+                Else ' Es Error
+                    HDevExpre.MensagedeError("Error al eiminar la ValorExento!")
+                End If
+            End If
+
         Else
             HDevExpre.MensagedeError("Error al eiminar la ValorExento!")
         End If
@@ -307,14 +322,6 @@ Public Class FrmAggValExentos
     Private Sub grbVigente_Click(sender As Object, e As EventArgs) Handles grbVigente.Click
         FrmPrincipal.MensajeDeAyuda.Caption = "Estado del Valor Exento. (ENTER)=Avanzar;(ESC,ARB)=Atras"
         FrmPrincipal.MensajeDeAyuda.Refresh()
-    End Sub
-
-    Private Sub txtNombreValorExento_Leave(sender As Object, e As EventArgs) Handles txtNombre.Leave
-        'If grbVigente.Focus Then
-        '    Dim send As New Object
-        '    Dim evento As New EventArgs
-        '    grbVigente_Click(send, evento)
-        'End If
     End Sub
 
     Private Sub btnSalir_KeyPress(sender As Object, e As KeyPressEventArgs) Handles btnSalir.KeyPress, btnLimpiar.KeyPress, btnGuardar.KeyPress, btnEliminar.KeyPress

@@ -204,18 +204,33 @@ Public Class FrmAggEntidad
                 HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
                 Exit Sub
             End If
+
             If HDevExpre.MsgSamit("Seguro que desea eliminar la entidad seleccionada?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                Entidades = New EntesSSAP
-                Entidades.Sec = secReg
+                ' Crear el request usando EliminarEntidadSSAPRequest
+                Dim request As New EliminarEntidadSSAPRequest(secReg)
 
-                Dim RegEntidades As New ServiceEntidades
-                Dim registro As JArray
-                registro = RegEntidades.EliminarEntidad(Entidades)
-                LimpiarCampos()
-                LlenaGrilla()
+                ' Ejecutar el procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarEntidadSSAP", request.ToJObject())
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    ' Éxito - limpiar y recargar
+                    LimpiarCampos()
+                    LlenaGrilla()
+
+                ElseIf response.EsAdvertencia Then
+                    ' Advertencia (no existe o no seleccionado)
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                Else ' Es Error
+                    ' Error (asociado a empleados u otro problema)
+                    HDevExpre.MensagedeError(response.Mensaje)
+                End If
             End If
-        Catch ex As Exception
 
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
         End Try
     End Sub
 

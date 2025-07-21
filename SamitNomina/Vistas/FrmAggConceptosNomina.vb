@@ -561,22 +561,38 @@ Public Class FrmAggConceptosNomina
     End Sub
     Private Sub EliminaConceptos(Sec As String)
         Try
-            If Not Actualizando Or secReg = 0 Then
-                HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
+            ' Verificar primero si es predeterminado localmente
+            If EsPredeterminado Then
+                HDevExpre.MensagedeError("Lo sentimos, los conceptos predeterminados no pueden ser eliminados.")
                 Exit Sub
             End If
-            If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombre.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                ConceptosNominas = New ConceptosNomina
-                ConceptosNominas.Sec = secReg
 
-                Dim RegConceptoNomina As New ServiceConceptosNominas
-                Dim registro As JArray
-                registro = RegConceptoNomina.EliminarConceptosNominas(ConceptosNominas)
-                LimpiarCampos()
-                LlenaGrillaConceptos()
-            Else
-                HDevExpre.MensagedeError("Error al eiminar el concepto!")
+            ' Confirmar con el usuario
+            If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombre.ValordelControl),
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+
+                ' Crear el request
+                Dim request As New EliminarConceptoNominaRequest(CInt(Sec), True) ' False porque ya validamos las fórmulas
+
+                ' Ejecutar procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarConceptoNomina", request.ToJObject())
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                ' Procesar respuesta
+                If response IsNot Nothing Then
+                    If response.EsExitoso Then
+                        LimpiarCampos()
+                        LlenaGrillaConceptos()
+                        ' Mensaje opcional
+                        HDevExpre.mensajeExitoso($"Concepto eliminado. {response.RegistrosEliminados} registros afectados.")
+                    Else
+                        HDevExpre.MensagedeError(response.Mensaje)
+                    End If
+                Else
+                    HDevExpre.MensagedeError("Error al procesar la respuesta del servidor")
+                End If
             End If
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "EliminaConceptos")
         End Try

@@ -80,6 +80,9 @@
     <Compile Include="Controllers\LoginController.vb" />
     <Compile Include="DTos\AnularLiquidacionRequest.vb" />
     <Compile Include="DTos\AnularLiquidacionResponse.vb" />
+    <Compile Include="DTos\AsignarNominaContratoResponse.vb" />
+    <Compile Include="DTos\AsignarNominasContratosMasivoRequest.vb" />
+    <Compile Include="DTos\AsignarNominasContratosMasivoResponse.vb" />
     <Compile Include="DTos\CargoAsignacionDto.vb" />
     <Compile Include="DTos\CargoAsignacionResponseDto.vb" />
     <Compile Include="DTos\CargoFuncionDto.vb" />
@@ -103,20 +106,32 @@
     <Compile Include="DTos\DynamicDeleteRequest.vb" />
     <Compile Include="DTos\DynamicDeleteResponse.vb" />
     <Compile Include="DTos\DynamicUpsertResponseDto.vb" />
+    <Compile Include="DTos\EliminarBancoRequest.vb" />
     <Compile Include="DTos\EliminarBorradorNominaRequest.vb" />
     <Compile Include="DTos\EliminarBorradorNominaResponse.vb" />
+    <Compile Include="DTos\EliminarCargoRequest.vb" />
+    <Compile Include="DTos\EliminarConceptoNominaRequest.vb" />
+    <Compile Include="DTos\EliminarConceptoPersonalRequest.vb" />
+    <Compile Include="DTos\EliminarDescuentoContratoRequest.vb" />
     <Compile Include="DTos\EliminarEmpleadoRequest.vb" />
+    <Compile Include="DTos\EliminarEntidadSSAPRequest.vb" />
     <Compile Include="DTos\EliminarExperienciaLaboralRequest.vb" />
     <Compile Include="DTos\EliminarFamiliarRequest.vb" />
+    <Compile Include="DTos\EliminarFuncionRequest.vb" />
     <Compile Include="DTos\EliminarInformacionAcademicaRequest.vb" />
     <Compile Include="DTos\EliminarNominaResponse.vb" />
+    <Compile Include="DTos\EliminarPlantillaRequest.vb" />
+    <Compile Include="DTos\EliminarTipoContratoRequest.vb" />
     <Compile Include="DTos\GuardarBorradorNominaRequest.vb" />
     <Compile Include="DTos\GuardarBorradorNominaResponse.vb" />
     <Compile Include="DTos\LiquidarNominaRequest.vb" />
     <Compile Include="DTos\LiquidarNominaResponse.vb" />
+    <Compile Include="DTos\ModificarAsignacionesMasivoRequest.vb" />
+    <Compile Include="DTos\ModificarAsignacionesMasivoResponse.vb" />
     <Compile Include="DTos\NominaResponseDto.vb" />
     <Compile Include="DTos\PlantillaResponseDto.vb" />
     <Compile Include="DTos\ProvisionConfiguradaDto.vb" />
+    <Compile Include="DTos\Public Class AsignarNominaContratoRequest.vb" />
     <Compile Include="DTos\TipoContratoResponseDto.vb" />
     <Compile Include="DTos\UpsertCargoRequest.vb" />
     <Compile Include="DTos\UpsertCargoResponse.vb" />
@@ -236,6 +251,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Services\ServiceAsig_ValoresExentos.vb" />
     <Compile Include="Services\ServiceBancos.vb" />
     <Compile Include="Services\ServiceBases.vb" />
     <Compile Include="Services\ServiceCargos.vb" />

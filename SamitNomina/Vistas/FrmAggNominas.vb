@@ -303,16 +303,12 @@ Public Class FrmAggNominas
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             If dt.Rows.Count > 0 Then
                 dt.Columns.Add("NomOficina", GetType(String))
-                Dim Oficina As Integer = Datos.Seguridad.DatosDeLaEmpresa.OficinaIngreso.NumOficina
-                Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
-                sql = "SELECT NumOficina,NomOficina FROM Oficinas WHERE Estado='V' AND NumEmpresa=" &
-                       Empresa.ToString
-                Dim dt2 As DataTable = SMT_AbrirTabla(SMTConex, sql)
+                Dim dt2 As DataTable = ObjetosNomina.Oficinas
                 If dt2.Rows.Count > 0 Then
                     For incre As Integer = 0 To dt2.Rows.Count - 1
                         For incre2 As Integer = 0 To dt.Rows.Count - 1
-                            If CByte(dt.Rows(incre2)("Oficina")) = CByte(dt2.Rows(incre)("NumOficina")) Then
-                                dt.Rows(incre2)("NomOficina") = dt2.Rows(incre)("NomOficina")
+                            If CByte(dt.Rows(incre2)("Oficina")) = CByte(dt2.Rows(incre)("Codigo")) Then
+                                dt.Rows(incre2)("NomOficina") = dt2.Rows(incre)("Descripcion")
                             End If
                         Next
                     Next

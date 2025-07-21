@@ -3,6 +3,7 @@ Imports DevExpress.XtraGrid.Views.Grid
 Imports DevExpress.XtraGrid.Columns
 Imports DevExpress.XtraEditors.Repository
 Imports System.Data.SqlClient
+Imports SamitNominaLogic
 
 Public Class FrmModAsinaciones
 
@@ -20,11 +21,14 @@ Public Class FrmModAsinaciones
     End Property
     Private Sub AsignaScriptAcontroles()
         Try
+            Dim consultas() = {"SELECT Sec AS Codigo,Denominacion As Descripcion FROM  cargos",
+                "SELECT Sec AS Codigo,NomDependencia As Descripcion FROM  Dependencias where Vigente = 1"
+            }
+            Dim datos = SMT_GetDataset(ObjetoApiNomina, consultas)
 
-            txtCargos.ConsultaSQL = String.Format("SELECT SecCargo AS Codigo,Denominacion As Descripcion FROM  cargos")
-            txtDependencia.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomDependencia As Descripcion FROM  Dependencias where Vigente = 1")
-            Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
-            txtOficina.ConsultaSQL = String.Format("SELECT NumOficina AS Codigo,NomOficina As Descripcion FROM SEGURIDAD..Oficinas WHERE Estado='V' AND NumEmpresa={0}", Empresa.ToString)
+            txtCargos.DatosDefecto = datos.Tables(0)
+            txtDependencia.DatosDefecto = datos.Tables(1)
+            txtOficina.DatosDefecto = ObjetosNomina.Oficinas
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
         End Try
@@ -120,7 +124,7 @@ Public Class FrmModAsinaciones
             Dim sql As String = "Select E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
             " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple," +
             " C.CodContrato as CodContrato,C.IdContrato as IdContrato,C.Asignacion as Asignacion,C.Asignacion as Valor From Contratos C " +
-            " INNER JOIN Empleados E ON E.IdEmpleado = C.Empleado INNER JOIN Contrato_Cargos CC ON C.CargoActual = CC.SecCargos " + Parametros
+            " INNER JOIN Empleados E ON E.Sec = C.Empleado INNER JOIN Contrato_Cargos CC ON C.CargoActual = CC.Cargo And CC.Contrato=C.IdContrato " + Parametros
 
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             gcAsignaciones.DataSource = dt
@@ -133,10 +137,10 @@ Public Class FrmModAsinaciones
     Private Sub LlenaGrillaAsignacionesCargos()
         Try
             Dim dt As New DataTable
-            Dim sql As String = "Select Consul.Fecha,CA.Asignacion As Asignacion,CA.Asignacion As Valor, C.SecCargo as SecCargo, C.CodCargo as CodCargo, " +
+            Dim sql As String = "Select Consul.Fecha,CA.Asignacion As Asignacion,CA.Asignacion As Valor, C.Sec as SecCargo, C.CodCargo as CodCargo, " +
 "C.Denominacion as Denominacion From " +
 " cargos C Inner join (Select Max(Fecha) As Fecha,Cargo as Cargo " +
-" From Cargo_Asignaciones Group by Cargo) as Consul  ON Consul.Cargo = C.SecCargo " +
+" From Cargo_Asignaciones Group by Cargo) as Consul  ON Consul.Cargo = C.Sec " +
 " INNER JOIN Cargo_Asignaciones CA ON Consul.Cargo = CA.Cargo And Consul.Fecha = CA.Fecha "
 
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
@@ -149,6 +153,7 @@ Public Class FrmModAsinaciones
 
     Private Sub AsignaMsgAcontroles()
         Try
+
             txtOficina.MensajedeAyuda = "Seleccione la oficina como parámetro de busqueda.  (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
             txtDependencia.MensajedeAyuda = "Seleccione la dependencia como parámetro de busqueda.  (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
             txtCargos.MensajedeAyuda = "Seleccione el cargo como parámetro de busqueda.  (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras, (F5,DER)=Buscar"
@@ -192,79 +197,88 @@ Public Class FrmModAsinaciones
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         Try
             Dim Tbla As DataTable = CType(gcAsignaciones.DataSource, DataTable)
-            If Tbla Is Nothing Then
-                HDevExpre.MensagedeError("No se han encontrado registros!..")
-            Else
-                If Tbla.Rows.Count > 0 Then
-                    For incre As Integer = 0 To Tbla.Rows.Count - 1
-                        Dim Valor As Decimal = CDec(Tbla.Rows(incre)("Asignacion"))
-                        If Valor < 0 Then
-                            HDevExpre.MensagedeError("Se han encontrado valores negativos en la tabla, por favor verificar!..")
-                            Exit Sub
-                        End If
-                        If grbTipoMod.SelectedIndex = 0 Then
-                            Dim fecha As DateTime
-                            If Not GuardaDatos(Tbla.Rows(incre)("IdContrato").ToString, Tbla.Rows(incre)("Asignacion").ToString, "", fecha) Then
-                                Exit Sub
-                            End If
-                        Else
-                            If Not GuardaDatos("", Tbla.Rows(incre)("Asignacion").ToString, Tbla.Rows(incre)("SecCargo").ToString, CDate(Tbla.Rows(incre)("Fecha"))) Then
-                                Exit Sub
-                            End If
-                        End If
 
-                    Next
-                    HDevExpre.mensajeExitoso("Datos guardados exitosamente!..")
-                    AsignaScriptAcontroles()
-                    LimpiarCampos()
-                Else
-                    HDevExpre.MensagedeError("No se han encontrado registros!..")
+            If Tbla Is Nothing OrElse Tbla.Rows.Count = 0 Then
+                HDevExpre.MensagedeError("No se han encontrado registros!..")
+                Exit Sub
+            End If
+
+            ' Validar valores negativos primero
+            For Each row As DataRow In Tbla.Rows
+                Dim valor As Decimal = CDec(row("Asignacion"))
+                If valor < 0 Then
+                    HDevExpre.MensagedeError("Se han encontrado valores negativos en la tabla, por favor verificar!..")
+                    Exit Sub
                 End If
+            Next
+
+            ' Crear el request según el tipo de modificación
+            Dim request As New ModificarAsignacionesMasivoRequest(grbTipoMod.SelectedIndex)
+
+            ' Agregar todas las modificaciones
+            For Each row As DataRow In Tbla.Rows
+                Dim asignacion As Decimal = CDec(row("Asignacion"))
+
+                If grbTipoMod.SelectedIndex = 0 Then
+                    ' Por contrato
+                    Dim idContrato As String = row("IdContrato")?.ToString()
+                    If Not String.IsNullOrEmpty(idContrato) Then
+                        request.AgregarModificacionContrato(idContrato, asignacion)
+                    End If
+                Else
+                    ' Por cargo
+                    Dim secCargo As Integer = 0
+                    Dim fecha As DateTime = DateTime.MinValue
+
+                    If Integer.TryParse(row("SecCargo")?.ToString(), secCargo) AndAlso
+                   DateTime.TryParse(row("Fecha")?.ToString(), fecha) Then
+                        request.AgregarModificacionCargo(secCargo, asignacion, fecha)
+                    End If
+                End If
+            Next
+
+            ' Validar que hay modificaciones para procesar
+            If request.Modificaciones.Count = 0 Then
+                HDevExpre.MensagedeError("No hay modificaciones válidas para procesar")
+                Exit Sub
+            End If
+
+            ' Ejecutar procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina,
+                                           "SP_ModificarAsignacionesMasivo",
+                                           request.ToJObject())
+            Dim response = resp.ToObject(Of ModificarAsignacionesMasivoResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                HDevExpre.mensajeExitoso(response.Mensaje)
+                AsignaScriptAcontroles()
+                LimpiarCampos()
+            Else
+                ' Mostrar detalles de errores
+                Dim mensajeDetalle As New System.Text.StringBuilder()
+                mensajeDetalle.AppendLine(response.Mensaje)
+
+                If response.Detalles IsNot Nothing AndAlso response.Detalles.Any(Function(d) d.Estado = "ERROR") Then
+                    mensajeDetalle.AppendLine()
+                    mensajeDetalle.AppendLine("Detalles de errores:")
+
+                    For Each detalle In response.Detalles.Where(Function(d) d.Estado = "ERROR")
+                        If grbTipoMod.SelectedIndex = 0 Then
+                            mensajeDetalle.AppendLine($"- Contrato {detalle.IdContrato}: {detalle.Mensaje}")
+                        Else
+                            mensajeDetalle.AppendLine($"- Cargo {detalle.SecCargo} ({detalle.Fecha:dd/MM/yyyy}): {detalle.Mensaje}")
+                        End If
+                    Next
+                End If
+
+                HDevExpre.MensagedeError(mensajeDetalle.ToString())
             End If
 
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "btnGuardar_Click")
         End Try
     End Sub
-
-    Private Function GuardaDatos(Contrato As String, Asignacion As String, Cargo As String, fecha As DateTime) As Boolean
-        Try
-            Dim GenSql As New SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
-            Dim GenSql2 As New SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
-            Dim Tab As String = ""
-            If grbTipoMod.SelectedIndex = 0 Then
-                GenSql.PasoConexionTabla(ObjetoApiNomina, "Contratos")
-                GenSql.PasoValores("Asignacion", Asignacion, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            Else
-                GenSql.PasoConexionTabla(ObjetoApiNomina, "Contratos")
-                GenSql2.PasoConexionTabla(ObjetoApiNomina, "Cargo_Asignaciones")
-                GenSql.PasoValores("Asignacion", Asignacion, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-                GenSql2.PasoValores("Asignacion", Asignacion, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            End If
-            If grbTipoMod.SelectedIndex = 0 Then
-                If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Actualizacion, String.Format("IdContrato={0}", Contrato)) Then
-                    Return True
-                Else : Return False
-                End If
-            Else
-                If GenSql2.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Actualizacion, String.Format("Cargo={0} And Fecha='{1:dd/MM/yyyy}'", Cargo, fecha)) Then
-                    Dim sql As String = "UPDATE C SET C.Asignacion=@nom From Contratos C INNER JOIN Contrato_Cargos CC ON C.CargoActual = CC.SecCargos Where C.UsaAsginaCargo=1 And CC.Cargo =" + Cargo
-                    'Dim cmd As SqlCommand = New SqlCommand(sql, ObjetoApiNomina)
-                    'cmd.Parameters.AddWithValue("@nom", Asignacion)
-                    'Dim cant As Integer = cmd.ExecuteNonQuery()
-                    'If cant < 0 Then
-                    '    Return False
-                    'Else
-                    '    Return True
-                    'End If
-                Else : Return False
-                End If
-            End If
-
-        Catch ex As Exception
-            Return False
-        End Try
-    End Function
 
     Private Sub FrmNominasContratos_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
         LimpiarCampos()

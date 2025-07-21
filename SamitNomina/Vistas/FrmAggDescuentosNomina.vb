@@ -481,30 +481,22 @@ Public Class FrmAggDescuentosNomina
         Else
 
             If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar este descuento al contrato [{0}]", Cod_Contrato), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                If ExisteDato("NominaLiquidaConceptos", "SecConceptoP2=" + Sec_DescuentoNomina, ObjetoApiNomina) Then
-                    HDevExpre.MensagedeError("Este descuento se esta aplicando a una liquidacion de periodos, por lo tanto no puede ser eliminado!..")
-                    Exit Sub
-                End If
+                ' Crear el request usando el DTO
+                Dim request As New EliminarDescuentoContratoRequest(CInt(Sec_DescuentoNomina))
 
-                If ExisteDato("NominaLiquidadaConceptos", "SecConceptoP2=" + Sec_DescuentoNomina, ObjetoApiNomina) Then
-                    HDevExpre.MensagedeError("Este descuento ya ha sido aplicado en una liquidacion, no puede ser eliminado!..")
-                    Exit Sub
-                End If
+                ' Ejecutar procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarDescuentoContrato", request.ToJObject())
 
-                If ExisteDato("NominaLiquidaExtraordinariaConceptos", "SecConceptoP2=" + Sec_DescuentoNomina, ObjetoApiNomina) Then
-                    HDevExpre.MensagedeError("Este descuento ya ha sido aplicado en una liquidacion, no puede ser eliminado!..")
-                    Exit Sub
-                End If
+                ' Procesar respuesta usando DynamicDeleteResponse existente
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
 
-                If ExisteDato("NominaLiquidaSemestresConceptos", "SecConceptoP2=" + Sec_DescuentoNomina, ObjetoApiNomina) Then
-                    HDevExpre.MensagedeError("Este descuento ya ha sido aplicado en una liquidacion, no puede ser eliminado!..")
-                    Exit Sub
-                End If
-
-                If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("DELETE FROM ConceptosP_Contratos WHERE Sec={0}", Sec_DescuentoNomina)) > 0 Then
+                If response.EsExitoso Then
+                    HDevExpre.mensajeExitoso("Descuento eliminado correctamente!")
                     LimpiarCampos()
+                    LlenaGrillaDescuentos()
+                    ' Mensaje de éxito implícito en LimpiarCampos
                 Else
-                    HDevExpre.MensagedeError("Error al eiminar el descuento!")
+                    HDevExpre.MensagedeError(response.Mensaje)
                 End If
             End If
         End If

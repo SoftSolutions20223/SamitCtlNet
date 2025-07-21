@@ -215,22 +215,40 @@ Public Class FrmAggFunciones
         End Try
     End Sub
     Private Sub EliminaFunciones(Sec_Funcion As String)
-        If Not Actualizando Or secReg = 0 Then
-            HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
-            Exit Sub
-        End If
-        If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar el item seleccionado [{0}]", txtNombreFunciones.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-            Funcion = New Funciones
-            Funcion.Sec = secReg
+        Try
+            If Not Actualizando Or secReg = 0 Then
+                HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
+                Exit Sub
+            End If
 
-            Dim RegFunciones As New ServiceFunciones
-            Dim registro As JArray
-            registro = RegFunciones.EliminarFunciones(Funcion)
-            LimpiarCampos()
-            LlenaGrillaDependencias()
-        Else
-            HDevExpre.MensagedeError("Error al eiminar la Función!")
-        End If
+            If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar el item seleccionado [{0}]", txtNombreFunciones.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+                ' Crear el request usando EliminarFuncionRequest
+                Dim request As New EliminarFuncionRequest(CInt(Sec_Funcion))
+
+                ' Ejecutar el procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarFuncion", request.ToJObject())
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    ' Éxito - limpiar y recargar
+                    LimpiarCampos()
+                    LlenaGrillaDependencias()
+                    HDevExpre.mensajeExitoso(response.Mensaje)
+
+                ElseIf response.EsAdvertencia Then
+                    ' Advertencia (no existe o no seleccionado)
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                Else ' Es Error
+                    ' Error (asociado a cargos u otro problema)
+                    HDevExpre.MensagedeError(response.Mensaje)
+                End If
+            End If
+
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "EliminaFunciones")
+        End Try
     End Sub
 #End Region
 

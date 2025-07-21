@@ -392,24 +392,41 @@ Public Class FrmAggConceptosContratos
             HDevExpre.msgError(ex, ex.Message, "Cargar datos de los Conceptos")
         End Try
     End Sub
+
     Private Sub EliminaConceptos(SecVar As String)
         Try
-            If Not Actualizando Or secReg = 0 Then
-                HDevExpre.MensagedeError("No ha cargado ninguna entidad para ser eliminada.")
-                Exit Sub
-            End If
+            ' Primero mostrar el mensaje de confirmación con el nombre del concepto
             If HDevExpre.MsgSamit(String.Format("Seguro que desea eliminar item seleccionado [{0}]", txtNombre.ValordelControl), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                ConceptosContratos = New ConceptosPersonales
-                ConceptosContratos.Sec = secReg
 
-                Dim RegConceptoContrato As New ServiceConceptoContratos
-                Dim registro As JArray
-                registro = RegConceptoContrato.EliminarConceptosContratos(ConceptosContratos)
-                LimpiarCampos()
-                LlenaGrillaConceptos()
-            Else
-                HDevExpre.MensagedeError("Error al eiminar el concepto!")
+                ' Crear el request para el procedimiento almacenado
+                Dim request As New EliminarConceptoPersonalRequest(CInt(SecVar))
+
+                ' Ejecutar el procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarConceptoPersonal", request.ToJObject())
+
+                ' Mapear la respuesta usando el DTO DynamicDeleteResponse
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                ' Procesar respuesta según el estado
+                If response.EsExitoso Then
+                    ' Éxito: El concepto fue eliminado
+                    LimpiarCampos()
+                    LlenaGrillaConceptos()
+                    ' Opcionalmente mostrar mensaje de éxito (si es el comportamiento deseado)
+                    HDevExpre.mensajeExitoso(response.Mensaje)
+
+                ElseIf response.EsAdvertencia Then
+                    ' Advertencia: El concepto no se puede eliminar por estar asociado
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                Else ' Es Error
+                    ' Error: Problema al ejecutar la eliminación
+                    HDevExpre.MensagedeError("Error al eliminar el concepto!")
+                    ' Log del error técnico
+                    Console.WriteLine($"Error al eliminar concepto: {response.Mensaje}")
+                End If
             End If
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "EliminaConceptos")
         End Try

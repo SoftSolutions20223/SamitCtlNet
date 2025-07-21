@@ -264,48 +264,41 @@ Public Class FrmCargo
     End Sub
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
-
-        ' Using trans As New TransactionScope
         Try
             If ActualizandoDatosBasicos Then
-                If ExisteDato("Contrato_Cargos", String.Format("Cargo='{0}'", Sec_Cargo), ObjetoApiNomina) Then
-                    MensajedeError("Este Cargo ya se encuentra relacionado con un contrato y no es posible eliminar")
-                    Exit Sub
-                Else
-                    If HDevExpre.MsgSamit("Seguro que desea eliminar este cargo con todas sus funciones y asignaciones?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        Dim sql = ""
-                        If ExisteDato("Cargo_Funciones", " Cargo=" + Sec_Cargo, ObjetoApiNomina) Then
-                            sql = "DELETE FROM Cargo_Funciones WHERE Cargo=" + Sec_Cargo
-                            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
-                                Exit Sub
-                            End If
-                        End If
-                        If ExisteDato("Cargo_Asignaciones", " Cargo=" + Sec_Cargo, ObjetoApiNomina) Then
-                            sql = "DELETE FROM Cargo_Asignaciones WHERE Cargo=" + Sec_Cargo
-                            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
-                                Exit Sub
-                            End If
-                        End If
-                        sql = "DELETE FROM cargos WHERE Sec=" + Sec_Cargo
-                        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
-                            Exit Sub
-                        End If
+                If HDevExpre.MsgSamit("Seguro que desea eliminar este cargo con todas sus funciones y asignaciones?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+                    ' Crear el request usando EliminarCargoRequest
+                    Dim request As New EliminarCargoRequest(CInt(Sec_Cargo))
+
+                    ' Ejecutar el procedimiento almacenado
+                    Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarCargo", request.ToJObject())
+                    Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                    ' Procesar respuesta
+                    If response.EsExitoso Then
+                        ' Éxito - limpiar y recargar
+                        LimpiarTodosCampos()
+                        LlenaGrillaCargos()
+                        LlenaGrillaAsignacionesCargo(Sec_Cargo)
+                        LlenaGrillaFuncionesCargo(Me.Cod_Cargo)
+                        HDevExpre.mensajeExitoso("Datos eliminados exitosamente!..")
+
+                    ElseIf response.EsAdvertencia Then
+                        ' Advertencia (no existe o no seleccionado)
+                        MensajedeError(response.Mensaje)
+
+                    Else ' Es Error
+                        ' Error (asociado a contratos u otro problema)
+                        MensajedeError(response.Mensaje)
                     End If
                 End If
             Else
                 MensajedeError("Seleccione el Cargo a eliminar")
-                Exit Sub
             End If
-            'trans.Complete()
-            LimpiarTodosCampos()
-            LlenaGrillaCargos()
-            LlenaGrillaAsignacionesCargo(Sec_Cargo)
-            LlenaGrillaFuncionesCargo(Me.Cod_Cargo)
-            HDevExpre.mensajeExitoso("Datos eliminados exitosamente!..")
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
         End Try
-        '  End Using
     End Sub
     Private Sub btnSalir_Click(sender As Object, e As EventArgs) Handles btnSalir.Click
         Me.Close()

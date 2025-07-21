@@ -10,7 +10,7 @@ Public Class Asig_ValoresExentos
 
     Public Property ValorExento As Integer?
 
-    Public Property Certificado As Byte()
+    Public Property Certificado As String
 
     Public Property Vigente As Boolean?
 

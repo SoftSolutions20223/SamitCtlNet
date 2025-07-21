@@ -435,10 +435,10 @@ Partial Class FrmEmpleado
         Me.Panel2.Controls.Add(Me.txtDistritoMil)
         Me.Panel2.Controls.Add(Me.gbxImgFotoEmpleado)
         Me.Panel2.Controls.Add(Me.txtNumLibreta)
-        Me.Panel2.Location = New System.Drawing.Point(542, 2)
+        Me.Panel2.Location = New System.Drawing.Point(531, 2)
         Me.Panel2.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(546, 558)
+        Me.Panel2.Size = New System.Drawing.Size(557, 558)
         Me.Panel2.TabIndex = 79
         '
         'txtClaseLicencia
@@ -462,11 +462,11 @@ Partial Class FrmEmpleado
         Me.txtClaseLicencia.FormatoNumero = Nothing
         Me.txtClaseLicencia.ListaColumnas = Nothing
         Me.txtClaseLicencia.Location = New System.Drawing.Point(0, 388)
-        Me.txtClaseLicencia.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtClaseLicencia.Margin = New System.Windows.Forms.Padding(5)
         Me.txtClaseLicencia.MaximoAncho = 0
         Me.txtClaseLicencia.MensajedeAyuda = Nothing
         Me.txtClaseLicencia.Name = "txtClaseLicencia"
-        Me.txtClaseLicencia.Size = New System.Drawing.Size(551, 37)
+        Me.txtClaseLicencia.Size = New System.Drawing.Size(555, 37)
         Me.txtClaseLicencia.SoloLectura = False
         Me.txtClaseLicencia.SoloNumeros = False
         Me.txtClaseLicencia.TabIndex = 4
@@ -520,7 +520,7 @@ Partial Class FrmEmpleado
         Me.lkeClaseLibreta.Properties.NullText = "Seleccione..."
         Me.lkeClaseLibreta.Properties.ShowFooter = False
         Me.lkeClaseLibreta.Properties.ShowHeader = False
-        Me.lkeClaseLibreta.Size = New System.Drawing.Size(133, 24)
+        Me.lkeClaseLibreta.Size = New System.Drawing.Size(140, 24)
         Me.lkeClaseLibreta.TabIndex = 6
         '
         'txtNumLicencia
@@ -538,11 +538,11 @@ Partial Class FrmEmpleado
         Me.txtNumLicencia.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtNumLicencia.FormatoNumero = Nothing
         Me.txtNumLicencia.Location = New System.Drawing.Point(0, 353)
-        Me.txtNumLicencia.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtNumLicencia.Margin = New System.Windows.Forms.Padding(5)
         Me.txtNumLicencia.MaximoAncho = 0
         Me.txtNumLicencia.MensajedeAyuda = Nothing
         Me.txtNumLicencia.Name = "txtNumLicencia"
-        Me.txtNumLicencia.Size = New System.Drawing.Size(551, 37)
+        Me.txtNumLicencia.Size = New System.Drawing.Size(562, 37)
         Me.txtNumLicencia.SoloLectura = False
         Me.txtNumLicencia.SoloNumeros = False
         Me.txtNumLicencia.TabIndex = 3
@@ -582,7 +582,7 @@ Partial Class FrmEmpleado
         Me.txtComentario.Name = "txtComentario"
         Me.txtComentario.Properties.Appearance.Font = New System.Drawing.Font("Tahoma", 9.25!)
         Me.txtComentario.Properties.Appearance.Options.UseFont = True
-        Me.txtComentario.Size = New System.Drawing.Size(403, 52)
+        Me.txtComentario.Size = New System.Drawing.Size(414, 52)
         Me.txtComentario.TabIndex = 8
         '
         'BarManagerMenu
@@ -659,7 +659,7 @@ Partial Class FrmEmpleado
         Me.lcExpDocNacEmpleado.OptionsFocus.EnableAutoTabOrder = False
         Me.lcExpDocNacEmpleado.OptionsView.UseDefaultDragAndDropRendering = False
         Me.lcExpDocNacEmpleado.Root = Me.lcgExpDocNacEmpleado
-        Me.lcExpDocNacEmpleado.Size = New System.Drawing.Size(554, 156)
+        Me.lcExpDocNacEmpleado.Size = New System.Drawing.Size(565, 156)
         Me.lcExpDocNacEmpleado.TabIndex = 2
         Me.lcExpDocNacEmpleado.Text = "LayoutControl2"
         '
@@ -677,11 +677,11 @@ Partial Class FrmEmpleado
         Me.gbxLugarNacimiento.Controls.Add(Me.lkeDepNacimiento)
         Me.gbxLugarNacimiento.Controls.Add(Me.lblFechaNac)
         Me.gbxLugarNacimiento.Controls.Add(Me.dteFechaNacimiento)
-        Me.gbxLugarNacimiento.Location = New System.Drawing.Point(279, 2)
+        Me.gbxLugarNacimiento.Location = New System.Drawing.Point(284, 2)
         Me.gbxLugarNacimiento.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.gbxLugarNacimiento.Name = "gbxLugarNacimiento"
-        Me.gbxLugarNacimiento.Padding = New System.Windows.Forms.Padding(6, 6, 6, 6)
-        Me.gbxLugarNacimiento.Size = New System.Drawing.Size(273, 152)
+        Me.gbxLugarNacimiento.Padding = New System.Windows.Forms.Padding(6)
+        Me.gbxLugarNacimiento.Size = New System.Drawing.Size(279, 152)
         Me.gbxLugarNacimiento.TabIndex = 2
         Me.gbxLugarNacimiento.Text = "Lugar de Nacimiento"
         '
@@ -709,7 +709,7 @@ Partial Class FrmEmpleado
         Me.lkePaisNacimiento.Properties.NullText = "Seleccione..."
         Me.lkePaisNacimiento.Properties.ShowFooter = False
         Me.lkePaisNacimiento.Properties.ShowHeader = False
-        Me.lkePaisNacimiento.Size = New System.Drawing.Size(130, 24)
+        Me.lkePaisNacimiento.Size = New System.Drawing.Size(136, 24)
         Me.lkePaisNacimiento.TabIndex = 33
         '
         'lblMuniNac
@@ -751,7 +751,7 @@ Partial Class FrmEmpleado
         Me.lkeMuniNacimiento.Properties.NullText = "Seleccione..."
         Me.lkeMuniNacimiento.Properties.ShowFooter = False
         Me.lkeMuniNacimiento.Properties.ShowHeader = False
-        Me.lkeMuniNacimiento.Size = New System.Drawing.Size(130, 24)
+        Me.lkeMuniNacimiento.Size = New System.Drawing.Size(136, 24)
         Me.lkeMuniNacimiento.TabIndex = 35
         '
         'lblPaisNac
@@ -808,7 +808,7 @@ Partial Class FrmEmpleado
         Me.lkeDepNacimiento.Properties.NullText = "Seleccione..."
         Me.lkeDepNacimiento.Properties.ShowFooter = False
         Me.lkeDepNacimiento.Properties.ShowHeader = False
-        Me.lkeDepNacimiento.Size = New System.Drawing.Size(130, 24)
+        Me.lkeDepNacimiento.Size = New System.Drawing.Size(136, 24)
         Me.lkeDepNacimiento.TabIndex = 34
         '
         'lblFechaNac
@@ -840,7 +840,7 @@ Partial Class FrmEmpleado
         Me.dteFechaNacimiento.Properties.AppearanceDropDown.Options.UseFont = True
         Me.dteFechaNacimiento.Properties.Buttons.AddRange(New DevExpress.XtraEditors.Controls.EditorButton() {New DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)})
         Me.dteFechaNacimiento.Properties.CalendarTimeProperties.Buttons.AddRange(New DevExpress.XtraEditors.Controls.EditorButton() {New DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)})
-        Me.dteFechaNacimiento.Size = New System.Drawing.Size(130, 24)
+        Me.dteFechaNacimiento.Size = New System.Drawing.Size(136, 24)
         Me.dteFechaNacimiento.TabIndex = 36
         '
         'gbxExpDocumento
@@ -860,8 +860,8 @@ Partial Class FrmEmpleado
         Me.gbxExpDocumento.Location = New System.Drawing.Point(2, 2)
         Me.gbxExpDocumento.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.gbxExpDocumento.Name = "gbxExpDocumento"
-        Me.gbxExpDocumento.Padding = New System.Windows.Forms.Padding(6, 6, 6, 6)
-        Me.gbxExpDocumento.Size = New System.Drawing.Size(273, 152)
+        Me.gbxExpDocumento.Padding = New System.Windows.Forms.Padding(6)
+        Me.gbxExpDocumento.Size = New System.Drawing.Size(278, 152)
         Me.gbxExpDocumento.TabIndex = 1
         Me.gbxExpDocumento.Text = "Expedición de Documento"
         '
@@ -894,7 +894,7 @@ Partial Class FrmEmpleado
         Me.dteFechaExpDocumento.Properties.AppearanceDropDown.Options.UseFont = True
         Me.dteFechaExpDocumento.Properties.Buttons.AddRange(New DevExpress.XtraEditors.Controls.EditorButton() {New DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)})
         Me.dteFechaExpDocumento.Properties.CalendarTimeProperties.Buttons.AddRange(New DevExpress.XtraEditors.Controls.EditorButton() {New DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)})
-        Me.dteFechaExpDocumento.Size = New System.Drawing.Size(127, 24)
+        Me.dteFechaExpDocumento.Size = New System.Drawing.Size(132, 24)
         Me.dteFechaExpDocumento.TabIndex = 12
         '
         'lkePaisExpDocumento
@@ -921,7 +921,7 @@ Partial Class FrmEmpleado
         Me.lkePaisExpDocumento.Properties.NullText = "Seleccione..."
         Me.lkePaisExpDocumento.Properties.ShowFooter = False
         Me.lkePaisExpDocumento.Properties.ShowHeader = False
-        Me.lkePaisExpDocumento.Size = New System.Drawing.Size(127, 24)
+        Me.lkePaisExpDocumento.Size = New System.Drawing.Size(132, 24)
         Me.lkePaisExpDocumento.TabIndex = 9
         '
         'lblMuniExpDoc
@@ -963,7 +963,7 @@ Partial Class FrmEmpleado
         Me.lkeMuniExpDocumento.Properties.NullText = "Seleccione..."
         Me.lkeMuniExpDocumento.Properties.ShowFooter = False
         Me.lkeMuniExpDocumento.Properties.ShowHeader = False
-        Me.lkeMuniExpDocumento.Size = New System.Drawing.Size(127, 24)
+        Me.lkeMuniExpDocumento.Size = New System.Drawing.Size(132, 24)
         Me.lkeMuniExpDocumento.TabIndex = 11
         '
         'lblPaisExpDoc
@@ -1020,7 +1020,7 @@ Partial Class FrmEmpleado
         Me.lkeDepExpDocumento.Properties.NullText = "Seleccione..."
         Me.lkeDepExpDocumento.Properties.ShowFooter = False
         Me.lkeDepExpDocumento.Properties.ShowHeader = False
-        Me.lkeDepExpDocumento.Size = New System.Drawing.Size(127, 24)
+        Me.lkeDepExpDocumento.Size = New System.Drawing.Size(132, 24)
         Me.lkeDepExpDocumento.TabIndex = 10
         '
         'lcgExpDocNacEmpleado
@@ -1030,7 +1030,7 @@ Partial Class FrmEmpleado
         Me.lcgExpDocNacEmpleado.Items.AddRange(New DevExpress.XtraLayout.BaseLayoutItem() {Me.lciExpDocEmp, Me.lciLugarNacEmp})
         Me.lcgExpDocNacEmpleado.Name = "lcgExpDocNacEmpleado"
         Me.lcgExpDocNacEmpleado.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lcgExpDocNacEmpleado.Size = New System.Drawing.Size(554, 156)
+        Me.lcgExpDocNacEmpleado.Size = New System.Drawing.Size(565, 156)
         Me.lcgExpDocNacEmpleado.TextVisible = False
         '
         'lciExpDocEmp
@@ -1038,16 +1038,16 @@ Partial Class FrmEmpleado
         Me.lciExpDocEmp.Control = Me.gbxExpDocumento
         Me.lciExpDocEmp.Location = New System.Drawing.Point(0, 0)
         Me.lciExpDocEmp.Name = "lciExpDocEmp"
-        Me.lciExpDocEmp.Size = New System.Drawing.Size(277, 156)
+        Me.lciExpDocEmp.Size = New System.Drawing.Size(282, 156)
         Me.lciExpDocEmp.TextSize = New System.Drawing.Size(0, 0)
         Me.lciExpDocEmp.TextVisible = False
         '
         'lciLugarNacEmp
         '
         Me.lciLugarNacEmp.Control = Me.gbxLugarNacimiento
-        Me.lciLugarNacEmp.Location = New System.Drawing.Point(277, 0)
+        Me.lciLugarNacEmp.Location = New System.Drawing.Point(282, 0)
         Me.lciLugarNacEmp.Name = "lciLugarNacEmp"
-        Me.lciLugarNacEmp.Size = New System.Drawing.Size(277, 156)
+        Me.lciLugarNacEmp.Size = New System.Drawing.Size(283, 156)
         Me.lciLugarNacEmp.TextSize = New System.Drawing.Size(0, 0)
         Me.lciLugarNacEmp.TextVisible = False
         '
@@ -1068,8 +1068,8 @@ Partial Class FrmEmpleado
         Me.gbxLugarResidencia.Location = New System.Drawing.Point(3, 4)
         Me.gbxLugarResidencia.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.gbxLugarResidencia.Name = "gbxLugarResidencia"
-        Me.gbxLugarResidencia.Padding = New System.Windows.Forms.Padding(6, 6, 6, 6)
-        Me.gbxLugarResidencia.Size = New System.Drawing.Size(384, 186)
+        Me.gbxLugarResidencia.Padding = New System.Windows.Forms.Padding(6)
+        Me.gbxLugarResidencia.Size = New System.Drawing.Size(395, 186)
         Me.gbxLugarResidencia.TabIndex = 1
         Me.gbxLugarResidencia.Text = "Lugar de Residencia"
         '
@@ -1097,7 +1097,7 @@ Partial Class FrmEmpleado
         Me.lkePaisResidencia.Properties.NullText = "Seleccione..."
         Me.lkePaisResidencia.Properties.ShowFooter = False
         Me.lkePaisResidencia.Properties.ShowHeader = False
-        Me.lkePaisResidencia.Size = New System.Drawing.Size(225, 24)
+        Me.lkePaisResidencia.Size = New System.Drawing.Size(236, 24)
         Me.lkePaisResidencia.TabIndex = 4
         '
         'lblMuniResidencia
@@ -1139,7 +1139,7 @@ Partial Class FrmEmpleado
         Me.lkeMuniResidencia.Properties.NullText = "Seleccione..."
         Me.lkeMuniResidencia.Properties.ShowFooter = False
         Me.lkeMuniResidencia.Properties.ShowHeader = False
-        Me.lkeMuniResidencia.Size = New System.Drawing.Size(225, 24)
+        Me.lkeMuniResidencia.Size = New System.Drawing.Size(236, 24)
         Me.lkeMuniResidencia.TabIndex = 6
         '
         'lkeDepResidencia
@@ -1166,7 +1166,7 @@ Partial Class FrmEmpleado
         Me.lkeDepResidencia.Properties.NullText = "Seleccione..."
         Me.lkeDepResidencia.Properties.ShowFooter = False
         Me.lkeDepResidencia.Properties.ShowHeader = False
-        Me.lkeDepResidencia.Size = New System.Drawing.Size(225, 24)
+        Me.lkeDepResidencia.Size = New System.Drawing.Size(236, 24)
         Me.lkeDepResidencia.TabIndex = 5
         '
         'lblPaisResidencia
@@ -1214,11 +1214,11 @@ Partial Class FrmEmpleado
         Me.txtDireccion.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtDireccion.FormatoNumero = Nothing
         Me.txtDireccion.Location = New System.Drawing.Point(2, 153)
-        Me.txtDireccion.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtDireccion.Margin = New System.Windows.Forms.Padding(5)
         Me.txtDireccion.MaximoAncho = 0
         Me.txtDireccion.MensajedeAyuda = ""
         Me.txtDireccion.Name = "txtDireccion"
-        Me.txtDireccion.Size = New System.Drawing.Size(377, 37)
+        Me.txtDireccion.Size = New System.Drawing.Size(388, 37)
         Me.txtDireccion.SoloLectura = False
         Me.txtDireccion.SoloNumeros = False
         Me.txtDireccion.TabIndex = 8
@@ -1247,11 +1247,11 @@ Partial Class FrmEmpleado
         Me.txtBarrio.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtBarrio.FormatoNumero = Nothing
         Me.txtBarrio.Location = New System.Drawing.Point(2, 121)
-        Me.txtBarrio.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtBarrio.Margin = New System.Windows.Forms.Padding(5)
         Me.txtBarrio.MaximoAncho = 0
         Me.txtBarrio.MensajedeAyuda = ""
         Me.txtBarrio.Name = "txtBarrio"
-        Me.txtBarrio.Size = New System.Drawing.Size(377, 37)
+        Me.txtBarrio.Size = New System.Drawing.Size(388, 37)
         Me.txtBarrio.SoloLectura = False
         Me.txtBarrio.SoloNumeros = False
         Me.txtBarrio.TabIndex = 7
@@ -1279,11 +1279,11 @@ Partial Class FrmEmpleado
         Me.txtDistritoMil.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtDistritoMil.FormatoNumero = Nothing
         Me.txtDistritoMil.Location = New System.Drawing.Point(0, 457)
-        Me.txtDistritoMil.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtDistritoMil.Margin = New System.Windows.Forms.Padding(5)
         Me.txtDistritoMil.MaximoAncho = 0
         Me.txtDistritoMil.MensajedeAyuda = Nothing
         Me.txtDistritoMil.Name = "txtDistritoMil"
-        Me.txtDistritoMil.Size = New System.Drawing.Size(550, 37)
+        Me.txtDistritoMil.Size = New System.Drawing.Size(561, 37)
         Me.txtDistritoMil.SoloLectura = False
         Me.txtDistritoMil.SoloNumeros = False
         Me.txtDistritoMil.TabIndex = 7
@@ -1305,7 +1305,7 @@ Partial Class FrmEmpleado
         Me.gbxImgFotoEmpleado.AppearanceCaption.Options.UseTextOptions = True
         Me.gbxImgFotoEmpleado.AppearanceCaption.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center
         Me.gbxImgFotoEmpleado.Controls.Add(Me.pcbFotografiaEmpleado)
-        Me.gbxImgFotoEmpleado.Location = New System.Drawing.Point(392, 2)
+        Me.gbxImgFotoEmpleado.Location = New System.Drawing.Point(403, 2)
         Me.gbxImgFotoEmpleado.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.gbxImgFotoEmpleado.Name = "gbxImgFotoEmpleado"
         Me.gbxImgFotoEmpleado.Size = New System.Drawing.Size(161, 187)
@@ -1338,7 +1338,7 @@ Partial Class FrmEmpleado
         Me.txtNumLibreta.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtNumLibreta.FormatoNumero = Nothing
         Me.txtNumLibreta.Location = New System.Drawing.Point(0, 425)
-        Me.txtNumLibreta.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtNumLibreta.Margin = New System.Windows.Forms.Padding(5)
         Me.txtNumLibreta.MaximoAncho = 0
         Me.txtNumLibreta.MensajedeAyuda = Nothing
         Me.txtNumLibreta.Name = "txtNumLibreta"
@@ -1366,7 +1366,7 @@ Partial Class FrmEmpleado
         Me.Panel3.Location = New System.Drawing.Point(2, 2)
         Me.Panel3.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Panel3.Name = "Panel3"
-        Me.Panel3.Size = New System.Drawing.Size(536, 48)
+        Me.Panel3.Size = New System.Drawing.Size(525, 48)
         Me.Panel3.TabIndex = 1
         '
         'lblDocEmpleado
@@ -1452,7 +1452,7 @@ Partial Class FrmEmpleado
         Me.Panel1.Location = New System.Drawing.Point(2, 54)
         Me.Panel1.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(536, 507)
+        Me.Panel1.Size = New System.Drawing.Size(525, 507)
         Me.Panel1.TabIndex = 78
         '
         'lcDatos
@@ -1473,7 +1473,7 @@ Partial Class FrmEmpleado
         Me.lcDatos.Name = "lcDatos"
         Me.lcDatos.OptionsView.UseDefaultDragAndDropRendering = False
         Me.lcDatos.Root = Me.lcgDatos
-        Me.lcDatos.Size = New System.Drawing.Size(539, 151)
+        Me.lcDatos.Size = New System.Drawing.Size(528, 151)
         Me.lcDatos.TabIndex = 2
         Me.lcDatos.Text = "LayoutControl1"
         '
@@ -1488,11 +1488,11 @@ Partial Class FrmEmpleado
         Me.txtPrimerNombre.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtPrimerNombre.FormatoNumero = Nothing
         Me.txtPrimerNombre.Location = New System.Drawing.Point(0, 0)
-        Me.txtPrimerNombre.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtPrimerNombre.Margin = New System.Windows.Forms.Padding(5)
         Me.txtPrimerNombre.MaximoAncho = 0
         Me.txtPrimerNombre.MensajedeAyuda = ""
         Me.txtPrimerNombre.Name = "txtPrimerNombre"
-        Me.txtPrimerNombre.Size = New System.Drawing.Size(269, 37)
+        Me.txtPrimerNombre.Size = New System.Drawing.Size(264, 37)
         Me.txtPrimerNombre.SoloLectura = False
         Me.txtPrimerNombre.SoloNumeros = False
         Me.txtPrimerNombre.TabIndex = 1
@@ -1516,12 +1516,12 @@ Partial Class FrmEmpleado
         Me.txtSegNombre.EsObligatorio = False
         Me.txtSegNombre.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtSegNombre.FormatoNumero = Nothing
-        Me.txtSegNombre.Location = New System.Drawing.Point(269, 0)
-        Me.txtSegNombre.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtSegNombre.Location = New System.Drawing.Point(264, 0)
+        Me.txtSegNombre.Margin = New System.Windows.Forms.Padding(5)
         Me.txtSegNombre.MaximoAncho = 0
         Me.txtSegNombre.MensajedeAyuda = ""
         Me.txtSegNombre.Name = "txtSegNombre"
-        Me.txtSegNombre.Size = New System.Drawing.Size(270, 37)
+        Me.txtSegNombre.Size = New System.Drawing.Size(264, 37)
         Me.txtSegNombre.SoloLectura = False
         Me.txtSegNombre.SoloNumeros = False
         Me.txtSegNombre.TabIndex = 2
@@ -1546,11 +1546,11 @@ Partial Class FrmEmpleado
         Me.txtPrimerApell.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtPrimerApell.FormatoNumero = Nothing
         Me.txtPrimerApell.Location = New System.Drawing.Point(0, 37)
-        Me.txtPrimerApell.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtPrimerApell.Margin = New System.Windows.Forms.Padding(5)
         Me.txtPrimerApell.MaximoAncho = 0
         Me.txtPrimerApell.MensajedeAyuda = ""
         Me.txtPrimerApell.Name = "txtPrimerApell"
-        Me.txtPrimerApell.Size = New System.Drawing.Size(269, 37)
+        Me.txtPrimerApell.Size = New System.Drawing.Size(264, 37)
         Me.txtPrimerApell.SoloLectura = False
         Me.txtPrimerApell.SoloNumeros = False
         Me.txtPrimerApell.TabIndex = 3
@@ -1574,12 +1574,12 @@ Partial Class FrmEmpleado
         Me.txtSegApell.EsObligatorio = False
         Me.txtSegApell.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtSegApell.FormatoNumero = Nothing
-        Me.txtSegApell.Location = New System.Drawing.Point(269, 37)
-        Me.txtSegApell.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtSegApell.Location = New System.Drawing.Point(264, 37)
+        Me.txtSegApell.Margin = New System.Windows.Forms.Padding(5)
         Me.txtSegApell.MaximoAncho = 0
         Me.txtSegApell.MensajedeAyuda = ""
         Me.txtSegApell.Name = "txtSegApell"
-        Me.txtSegApell.Size = New System.Drawing.Size(270, 37)
+        Me.txtSegApell.Size = New System.Drawing.Size(264, 37)
         Me.txtSegApell.SoloLectura = False
         Me.txtSegApell.SoloNumeros = False
         Me.txtSegApell.TabIndex = 4
@@ -1604,11 +1604,11 @@ Partial Class FrmEmpleado
         Me.txtTel1.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtTel1.FormatoNumero = Nothing
         Me.txtTel1.Location = New System.Drawing.Point(0, 74)
-        Me.txtTel1.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtTel1.Margin = New System.Windows.Forms.Padding(5)
         Me.txtTel1.MaximoAncho = 0
         Me.txtTel1.MensajedeAyuda = ""
         Me.txtTel1.Name = "txtTel1"
-        Me.txtTel1.Size = New System.Drawing.Size(269, 37)
+        Me.txtTel1.Size = New System.Drawing.Size(264, 37)
         Me.txtTel1.SoloLectura = False
         Me.txtTel1.SoloNumeros = False
         Me.txtTel1.TabIndex = 5
@@ -1632,12 +1632,12 @@ Partial Class FrmEmpleado
         Me.txtTel2.EsObligatorio = False
         Me.txtTel2.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtTel2.FormatoNumero = Nothing
-        Me.txtTel2.Location = New System.Drawing.Point(269, 74)
-        Me.txtTel2.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtTel2.Location = New System.Drawing.Point(264, 74)
+        Me.txtTel2.Margin = New System.Windows.Forms.Padding(5)
         Me.txtTel2.MaximoAncho = 0
         Me.txtTel2.MensajedeAyuda = ""
         Me.txtTel2.Name = "txtTel2"
-        Me.txtTel2.Size = New System.Drawing.Size(270, 37)
+        Me.txtTel2.Size = New System.Drawing.Size(264, 37)
         Me.txtTel2.SoloLectura = False
         Me.txtTel2.SoloNumeros = False
         Me.txtTel2.TabIndex = 6
@@ -1662,11 +1662,11 @@ Partial Class FrmEmpleado
         Me.txtCelular.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtCelular.FormatoNumero = Nothing
         Me.txtCelular.Location = New System.Drawing.Point(0, 111)
-        Me.txtCelular.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtCelular.Margin = New System.Windows.Forms.Padding(5)
         Me.txtCelular.MaximoAncho = 0
         Me.txtCelular.MensajedeAyuda = ""
         Me.txtCelular.Name = "txtCelular"
-        Me.txtCelular.Size = New System.Drawing.Size(269, 40)
+        Me.txtCelular.Size = New System.Drawing.Size(264, 40)
         Me.txtCelular.SoloLectura = False
         Me.txtCelular.SoloNumeros = False
         Me.txtCelular.TabIndex = 7
@@ -1683,14 +1683,14 @@ Partial Class FrmEmpleado
         'ndPersonaAcargo
         '
         Me.ndPersonaAcargo.EditValue = New Decimal(New Integer() {0, 0, 0, 0})
-        Me.ndPersonaAcargo.Location = New System.Drawing.Point(406, 117)
+        Me.ndPersonaAcargo.Location = New System.Drawing.Point(398, 117)
         Me.ndPersonaAcargo.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.ndPersonaAcargo.Name = "ndPersonaAcargo"
         Me.ndPersonaAcargo.Properties.Appearance.Font = New System.Drawing.Font("Tahoma", 9.25!)
         Me.ndPersonaAcargo.Properties.Appearance.Options.UseFont = True
         Me.ndPersonaAcargo.Properties.Buttons.AddRange(New DevExpress.XtraEditors.Controls.EditorButton() {New DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)})
         Me.ndPersonaAcargo.Properties.EditFormat.FormatType = DevExpress.Utils.FormatType.Numeric
-        Me.ndPersonaAcargo.Size = New System.Drawing.Size(127, 24)
+        Me.ndPersonaAcargo.Size = New System.Drawing.Size(124, 24)
         Me.ndPersonaAcargo.StyleController = Me.lcDatos
         Me.ndPersonaAcargo.TabIndex = 8
         '
@@ -1701,11 +1701,11 @@ Partial Class FrmEmpleado
         Me.lblPersonasAcargo.Appearance.Options.UseTextOptions = True
         Me.lblPersonasAcargo.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far
         Me.lblPersonasAcargo.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.Vertical
-        Me.lblPersonasAcargo.Location = New System.Drawing.Point(271, 113)
+        Me.lblPersonasAcargo.Location = New System.Drawing.Point(266, 113)
         Me.lblPersonasAcargo.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.lblPersonasAcargo.Name = "lblPersonasAcargo"
         Me.lblPersonasAcargo.Padding = New System.Windows.Forms.Padding(2)
-        Me.lblPersonasAcargo.Size = New System.Drawing.Size(131, 22)
+        Me.lblPersonasAcargo.Size = New System.Drawing.Size(128, 36)
         Me.lblPersonasAcargo.StyleController = Me.lcDatos
         Me.lblPersonasAcargo.TabIndex = 51
         Me.lblPersonasAcargo.Text = "Personas a Cargo :"
@@ -1734,7 +1734,7 @@ Partial Class FrmEmpleado
         RowDefinition4.SizeType = System.Windows.Forms.SizeType.Absolute
         Me.lcgDatos.OptionsTableLayoutGroup.RowDefinitions.AddRange(New DevExpress.XtraLayout.RowDefinition() {RowDefinition1, RowDefinition2, RowDefinition3, RowDefinition4})
         Me.lcgDatos.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lcgDatos.Size = New System.Drawing.Size(539, 151)
+        Me.lcgDatos.Size = New System.Drawing.Size(528, 151)
         Me.lcgDatos.TextVisible = False
         '
         'lciTxtPnombre
@@ -1743,19 +1743,19 @@ Partial Class FrmEmpleado
         Me.lciTxtPnombre.Location = New System.Drawing.Point(0, 0)
         Me.lciTxtPnombre.Name = "lciTxtPnombre"
         Me.lciTxtPnombre.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciTxtPnombre.Size = New System.Drawing.Size(269, 37)
+        Me.lciTxtPnombre.Size = New System.Drawing.Size(264, 37)
         Me.lciTxtPnombre.TextSize = New System.Drawing.Size(0, 0)
         Me.lciTxtPnombre.TextVisible = False
         '
         'lciTxtSnombre
         '
         Me.lciTxtSnombre.Control = Me.txtSegNombre
-        Me.lciTxtSnombre.Location = New System.Drawing.Point(269, 0)
+        Me.lciTxtSnombre.Location = New System.Drawing.Point(264, 0)
         Me.lciTxtSnombre.Name = "lciTxtSnombre"
         Me.lciTxtSnombre.OptionsTableLayoutItem.ColumnIndex = 1
         Me.lciTxtSnombre.OptionsTableLayoutItem.ColumnSpan = 2
         Me.lciTxtSnombre.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciTxtSnombre.Size = New System.Drawing.Size(270, 37)
+        Me.lciTxtSnombre.Size = New System.Drawing.Size(264, 37)
         Me.lciTxtSnombre.TextSize = New System.Drawing.Size(0, 0)
         Me.lciTxtSnombre.TextVisible = False
         '
@@ -1766,20 +1766,20 @@ Partial Class FrmEmpleado
         Me.lciTxtPapellido.Name = "lciTxtPapellido"
         Me.lciTxtPapellido.OptionsTableLayoutItem.RowIndex = 1
         Me.lciTxtPapellido.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciTxtPapellido.Size = New System.Drawing.Size(269, 37)
+        Me.lciTxtPapellido.Size = New System.Drawing.Size(264, 37)
         Me.lciTxtPapellido.TextSize = New System.Drawing.Size(0, 0)
         Me.lciTxtPapellido.TextVisible = False
         '
         'lciSapellido
         '
         Me.lciSapellido.Control = Me.txtSegApell
-        Me.lciSapellido.Location = New System.Drawing.Point(269, 37)
+        Me.lciSapellido.Location = New System.Drawing.Point(264, 37)
         Me.lciSapellido.Name = "lciSapellido"
         Me.lciSapellido.OptionsTableLayoutItem.ColumnIndex = 1
         Me.lciSapellido.OptionsTableLayoutItem.ColumnSpan = 2
         Me.lciSapellido.OptionsTableLayoutItem.RowIndex = 1
         Me.lciSapellido.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciSapellido.Size = New System.Drawing.Size(270, 37)
+        Me.lciSapellido.Size = New System.Drawing.Size(264, 37)
         Me.lciSapellido.TextSize = New System.Drawing.Size(0, 0)
         Me.lciSapellido.TextVisible = False
         '
@@ -1790,20 +1790,20 @@ Partial Class FrmEmpleado
         Me.lciTxtTel1.Name = "lciTxtTel1"
         Me.lciTxtTel1.OptionsTableLayoutItem.RowIndex = 2
         Me.lciTxtTel1.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciTxtTel1.Size = New System.Drawing.Size(269, 37)
+        Me.lciTxtTel1.Size = New System.Drawing.Size(264, 37)
         Me.lciTxtTel1.TextSize = New System.Drawing.Size(0, 0)
         Me.lciTxtTel1.TextVisible = False
         '
         'lciTxtTel2
         '
         Me.lciTxtTel2.Control = Me.txtTel2
-        Me.lciTxtTel2.Location = New System.Drawing.Point(269, 74)
+        Me.lciTxtTel2.Location = New System.Drawing.Point(264, 74)
         Me.lciTxtTel2.Name = "lciTxtTel2"
         Me.lciTxtTel2.OptionsTableLayoutItem.ColumnIndex = 1
         Me.lciTxtTel2.OptionsTableLayoutItem.ColumnSpan = 2
         Me.lciTxtTel2.OptionsTableLayoutItem.RowIndex = 2
         Me.lciTxtTel2.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciTxtTel2.Size = New System.Drawing.Size(270, 37)
+        Me.lciTxtTel2.Size = New System.Drawing.Size(264, 37)
         Me.lciTxtTel2.TextSize = New System.Drawing.Size(0, 0)
         Me.lciTxtTel2.TextVisible = False
         '
@@ -1814,30 +1814,30 @@ Partial Class FrmEmpleado
         Me.lciTxtCel.Name = "lciTxtCel"
         Me.lciTxtCel.OptionsTableLayoutItem.RowIndex = 3
         Me.lciTxtCel.Padding = New DevExpress.XtraLayout.Utils.Padding(0, 0, 0, 0)
-        Me.lciTxtCel.Size = New System.Drawing.Size(269, 40)
+        Me.lciTxtCel.Size = New System.Drawing.Size(264, 40)
         Me.lciTxtCel.TextSize = New System.Drawing.Size(0, 0)
         Me.lciTxtCel.TextVisible = False
         '
         'lciNdPerAcargo
         '
         Me.lciNdPerAcargo.Control = Me.ndPersonaAcargo
-        Me.lciNdPerAcargo.Location = New System.Drawing.Point(404, 111)
+        Me.lciNdPerAcargo.Location = New System.Drawing.Point(396, 111)
         Me.lciNdPerAcargo.Name = "lciNdPerAcargo"
         Me.lciNdPerAcargo.OptionsTableLayoutItem.ColumnIndex = 2
         Me.lciNdPerAcargo.OptionsTableLayoutItem.RowIndex = 3
         Me.lciNdPerAcargo.Padding = New DevExpress.XtraLayout.Utils.Padding(2, 6, 6, 0)
-        Me.lciNdPerAcargo.Size = New System.Drawing.Size(135, 40)
+        Me.lciNdPerAcargo.Size = New System.Drawing.Size(132, 40)
         Me.lciNdPerAcargo.TextSize = New System.Drawing.Size(0, 0)
         Me.lciNdPerAcargo.TextVisible = False
         '
         'lciLblPersonasAcargo
         '
         Me.lciLblPersonasAcargo.Control = Me.lblPersonasAcargo
-        Me.lciLblPersonasAcargo.Location = New System.Drawing.Point(269, 111)
+        Me.lciLblPersonasAcargo.Location = New System.Drawing.Point(264, 111)
         Me.lciLblPersonasAcargo.Name = "lciLblPersonasAcargo"
         Me.lciLblPersonasAcargo.OptionsTableLayoutItem.ColumnIndex = 1
         Me.lciLblPersonasAcargo.OptionsTableLayoutItem.RowIndex = 3
-        Me.lciLblPersonasAcargo.Size = New System.Drawing.Size(135, 40)
+        Me.lciLblPersonasAcargo.Size = New System.Drawing.Size(132, 40)
         Me.lciLblPersonasAcargo.TextSize = New System.Drawing.Size(0, 0)
         Me.lciLblPersonasAcargo.TextVisible = False
         '
@@ -1845,7 +1845,7 @@ Partial Class FrmEmpleado
         '
         Me.grTipoCuenta.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.grTipoCuenta.EditValue = CType(0, Byte)
-        Me.grTipoCuenta.Location = New System.Drawing.Point(298, 335)
+        Me.grTipoCuenta.Location = New System.Drawing.Point(287, 335)
         Me.grTipoCuenta.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.grTipoCuenta.Name = "grTipoCuenta"
         Me.grTipoCuenta.Properties.Appearance.BackColor = System.Drawing.Color.Transparent
@@ -1856,7 +1856,7 @@ Partial Class FrmEmpleado
         Me.grTipoCuenta.Properties.Columns = 3
         Me.grTipoCuenta.Properties.GlyphAlignment = DevExpress.Utils.HorzAlignment.[Default]
         Me.grTipoCuenta.Properties.Items.AddRange(New DevExpress.XtraEditors.Controls.RadioGroupItem() {New DevExpress.XtraEditors.Controls.RadioGroupItem(CType(0, Byte), "N/A"), New DevExpress.XtraEditors.Controls.RadioGroupItem(CType(1, Byte), "Ahorro"), New DevExpress.XtraEditors.Controls.RadioGroupItem(CType(2, Byte), "Corriente")})
-        Me.grTipoCuenta.Size = New System.Drawing.Size(239, 32)
+        Me.grTipoCuenta.Size = New System.Drawing.Size(232, 32)
         Me.grTipoCuenta.TabIndex = 8
         '
         'txtTipoDoc
@@ -1880,11 +1880,11 @@ Partial Class FrmEmpleado
         Me.txtTipoDoc.FormatoNumero = Nothing
         Me.txtTipoDoc.ListaColumnas = Nothing
         Me.txtTipoDoc.Location = New System.Drawing.Point(3, 1)
-        Me.txtTipoDoc.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtTipoDoc.Margin = New System.Windows.Forms.Padding(5)
         Me.txtTipoDoc.MaximoAncho = 0
         Me.txtTipoDoc.MensajedeAyuda = Nothing
         Me.txtTipoDoc.Name = "txtTipoDoc"
-        Me.txtTipoDoc.Size = New System.Drawing.Size(539, 37)
+        Me.txtTipoDoc.Size = New System.Drawing.Size(528, 37)
         Me.txtTipoDoc.SoloLectura = False
         Me.txtTipoDoc.SoloNumeros = False
         Me.txtTipoDoc.TabIndex = 1
@@ -1920,11 +1920,11 @@ Partial Class FrmEmpleado
         Me.txtEstadoCivil.FormatoNumero = Nothing
         Me.txtEstadoCivil.ListaColumnas = Nothing
         Me.txtEstadoCivil.Location = New System.Drawing.Point(3, 443)
-        Me.txtEstadoCivil.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtEstadoCivil.Margin = New System.Windows.Forms.Padding(5)
         Me.txtEstadoCivil.MaximoAncho = 0
         Me.txtEstadoCivil.MensajedeAyuda = Nothing
         Me.txtEstadoCivil.Name = "txtEstadoCivil"
-        Me.txtEstadoCivil.Size = New System.Drawing.Size(537, 37)
+        Me.txtEstadoCivil.Size = New System.Drawing.Size(517, 37)
         Me.txtEstadoCivil.SoloLectura = False
         Me.txtEstadoCivil.SoloNumeros = False
         Me.txtEstadoCivil.TabIndex = 11
@@ -1953,11 +1953,11 @@ Partial Class FrmEmpleado
         Me.txtWebPage.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtWebPage.FormatoNumero = Nothing
         Me.txtWebPage.Location = New System.Drawing.Point(3, 190)
-        Me.txtWebPage.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtWebPage.Margin = New System.Windows.Forms.Padding(5)
         Me.txtWebPage.MaximoAncho = 0
         Me.txtWebPage.MensajedeAyuda = ""
         Me.txtWebPage.Name = "txtWebPage"
-        Me.txtWebPage.Size = New System.Drawing.Size(537, 37)
+        Me.txtWebPage.Size = New System.Drawing.Size(526, 37)
         Me.txtWebPage.SoloLectura = False
         Me.txtWebPage.SoloNumeros = False
         Me.txtWebPage.TabIndex = 3
@@ -1992,11 +1992,11 @@ Partial Class FrmEmpleado
         Me.txtProfesion.FormatoNumero = Nothing
         Me.txtProfesion.ListaColumnas = Nothing
         Me.txtProfesion.Location = New System.Drawing.Point(3, 404)
-        Me.txtProfesion.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtProfesion.Margin = New System.Windows.Forms.Padding(5)
         Me.txtProfesion.MaximoAncho = 0
         Me.txtProfesion.MensajedeAyuda = Nothing
         Me.txtProfesion.Name = "txtProfesion"
-        Me.txtProfesion.Size = New System.Drawing.Size(537, 37)
+        Me.txtProfesion.Size = New System.Drawing.Size(516, 37)
         Me.txtProfesion.SoloLectura = False
         Me.txtProfesion.SoloNumeros = False
         Me.txtProfesion.TabIndex = 10
@@ -2025,11 +2025,11 @@ Partial Class FrmEmpleado
         Me.txtEmail1.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtEmail1.FormatoNumero = Nothing
         Me.txtEmail1.Location = New System.Drawing.Point(3, 224)
-        Me.txtEmail1.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtEmail1.Margin = New System.Windows.Forms.Padding(5)
         Me.txtEmail1.MaximoAncho = 0
         Me.txtEmail1.MensajedeAyuda = ""
         Me.txtEmail1.Name = "txtEmail1"
-        Me.txtEmail1.Size = New System.Drawing.Size(537, 37)
+        Me.txtEmail1.Size = New System.Drawing.Size(526, 37)
         Me.txtEmail1.SoloLectura = False
         Me.txtEmail1.SoloNumeros = False
         Me.txtEmail1.TabIndex = 4
@@ -2057,11 +2057,11 @@ Partial Class FrmEmpleado
         Me.txtEmail2.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtEmail2.FormatoNumero = Nothing
         Me.txtEmail2.Location = New System.Drawing.Point(3, 260)
-        Me.txtEmail2.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtEmail2.Margin = New System.Windows.Forms.Padding(5)
         Me.txtEmail2.MaximoAncho = 0
         Me.txtEmail2.MensajedeAyuda = "Correo electrónico 2 del empleado. (ENTER,ABJ)=Avanzar;(ESC,ARB)=Atras"
         Me.txtEmail2.Name = "txtEmail2"
-        Me.txtEmail2.Size = New System.Drawing.Size(537, 37)
+        Me.txtEmail2.Size = New System.Drawing.Size(526, 37)
         Me.txtEmail2.SoloLectura = False
         Me.txtEmail2.SoloNumeros = False
         Me.txtEmail2.TabIndex = 5
@@ -2096,11 +2096,11 @@ Partial Class FrmEmpleado
         Me.txtGenero.FormatoNumero = Nothing
         Me.txtGenero.ListaColumnas = Nothing
         Me.txtGenero.Location = New System.Drawing.Point(3, 368)
-        Me.txtGenero.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtGenero.Margin = New System.Windows.Forms.Padding(5)
         Me.txtGenero.MaximoAncho = 0
         Me.txtGenero.MensajedeAyuda = Nothing
         Me.txtGenero.Name = "txtGenero"
-        Me.txtGenero.Size = New System.Drawing.Size(537, 37)
+        Me.txtGenero.Size = New System.Drawing.Size(516, 37)
         Me.txtGenero.SoloLectura = False
         Me.txtGenero.SoloNumeros = False
         Me.txtGenero.TabIndex = 9
@@ -2136,11 +2136,11 @@ Partial Class FrmEmpleado
         Me.txtBanco.FormatoNumero = Nothing
         Me.txtBanco.ListaColumnas = Nothing
         Me.txtBanco.Location = New System.Drawing.Point(3, 295)
-        Me.txtBanco.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtBanco.Margin = New System.Windows.Forms.Padding(5)
         Me.txtBanco.MaximoAncho = 0
         Me.txtBanco.MensajedeAyuda = Nothing
         Me.txtBanco.Name = "txtBanco"
-        Me.txtBanco.Size = New System.Drawing.Size(537, 37)
+        Me.txtBanco.Size = New System.Drawing.Size(517, 37)
         Me.txtBanco.SoloLectura = False
         Me.txtBanco.SoloNumeros = False
         Me.txtBanco.TabIndex = 6
@@ -2169,11 +2169,11 @@ Partial Class FrmEmpleado
         Me.txtNumCuenta.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtNumCuenta.FormatoNumero = Nothing
         Me.txtNumCuenta.Location = New System.Drawing.Point(3, 335)
-        Me.txtNumCuenta.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtNumCuenta.Margin = New System.Windows.Forms.Padding(5)
         Me.txtNumCuenta.MaximoAncho = 0
         Me.txtNumCuenta.MensajedeAyuda = ""
         Me.txtNumCuenta.Name = "txtNumCuenta"
-        Me.txtNumCuenta.Size = New System.Drawing.Size(287, 37)
+        Me.txtNumCuenta.Size = New System.Drawing.Size(276, 37)
         Me.txtNumCuenta.SoloLectura = False
         Me.txtNumCuenta.SoloNumeros = False
         Me.txtNumCuenta.TabIndex = 7
@@ -2204,7 +2204,7 @@ Partial Class FrmEmpleado
         Me.lciNumDocDVbtnBuscar.MaxSize = New System.Drawing.Size(0, 52)
         Me.lciNumDocDVbtnBuscar.MinSize = New System.Drawing.Size(121, 52)
         Me.lciNumDocDVbtnBuscar.Name = "lciNumDocDVbtnBuscar"
-        Me.lciNumDocDVbtnBuscar.Size = New System.Drawing.Size(540, 52)
+        Me.lciNumDocDVbtnBuscar.Size = New System.Drawing.Size(529, 52)
         Me.lciNumDocDVbtnBuscar.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom
         Me.lciNumDocDVbtnBuscar.TextSize = New System.Drawing.Size(0, 0)
         Me.lciNumDocDVbtnBuscar.TextVisible = False
@@ -2216,7 +2216,7 @@ Partial Class FrmEmpleado
         Me.lciDatosBasicosIzq.MaxSize = New System.Drawing.Size(0, 511)
         Me.lciDatosBasicosIzq.MinSize = New System.Drawing.Size(121, 511)
         Me.lciDatosBasicosIzq.Name = "lciDatosBasicosIzq"
-        Me.lciDatosBasicosIzq.Size = New System.Drawing.Size(540, 514)
+        Me.lciDatosBasicosIzq.Size = New System.Drawing.Size(529, 514)
         Me.lciDatosBasicosIzq.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom
         Me.lciDatosBasicosIzq.TextSize = New System.Drawing.Size(0, 0)
         Me.lciDatosBasicosIzq.TextVisible = False
@@ -2224,11 +2224,11 @@ Partial Class FrmEmpleado
         'lciDatsoBasicosDer
         '
         Me.lciDatsoBasicosDer.Control = Me.Panel2
-        Me.lciDatsoBasicosDer.Location = New System.Drawing.Point(540, 0)
+        Me.lciDatsoBasicosDer.Location = New System.Drawing.Point(529, 0)
         Me.lciDatsoBasicosDer.MaxSize = New System.Drawing.Size(0, 562)
         Me.lciDatsoBasicosDer.MinSize = New System.Drawing.Size(121, 562)
         Me.lciDatsoBasicosDer.Name = "lciDatsoBasicosDer"
-        Me.lciDatsoBasicosDer.Size = New System.Drawing.Size(550, 566)
+        Me.lciDatsoBasicosDer.Size = New System.Drawing.Size(561, 566)
         Me.lciDatsoBasicosDer.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom
         Me.lciDatsoBasicosDer.TextSize = New System.Drawing.Size(0, 0)
         Me.lciDatsoBasicosDer.TextVisible = False
@@ -2352,7 +2352,7 @@ Partial Class FrmEmpleado
         Me.txtEntidad.FormatoNumero = Nothing
         Me.txtEntidad.ListaColumnas = Nothing
         Me.txtEntidad.Location = New System.Drawing.Point(2, 69)
-        Me.txtEntidad.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtEntidad.Margin = New System.Windows.Forms.Padding(5)
         Me.txtEntidad.MaximoAncho = 0
         Me.txtEntidad.MensajedeAyuda = Nothing
         Me.txtEntidad.Name = "txtEntidad"
@@ -2390,7 +2390,7 @@ Partial Class FrmEmpleado
         Me.txtTipoEntidad.FormatoNumero = Nothing
         Me.txtTipoEntidad.ListaColumnas = Nothing
         Me.txtTipoEntidad.Location = New System.Drawing.Point(2, 31)
-        Me.txtTipoEntidad.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtTipoEntidad.Margin = New System.Windows.Forms.Padding(5)
         Me.txtTipoEntidad.MaximoAncho = 0
         Me.txtTipoEntidad.MensajedeAyuda = Nothing
         Me.txtTipoEntidad.Name = "txtTipoEntidad"
@@ -2655,7 +2655,7 @@ Partial Class FrmEmpleado
         Me.txtDirEmpTrabajaFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtDirEmpTrabajaFamiliar.FormatoNumero = Nothing
         Me.txtDirEmpTrabajaFamiliar.Location = New System.Drawing.Point(584, 63)
-        Me.txtDirEmpTrabajaFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtDirEmpTrabajaFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtDirEmpTrabajaFamiliar.MaximoAncho = 0
         Me.txtDirEmpTrabajaFamiliar.MensajedeAyuda = "Digite la dirección de la empresa en la cual labora el empleado. (ENTER,TAB,ABJ)=" &
     "Avanzar;(ARB,ESC)=Atras"
@@ -2688,7 +2688,7 @@ Partial Class FrmEmpleado
         Me.txtTelsEmpTrabajaFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtTelsEmpTrabajaFamiliar.FormatoNumero = Nothing
         Me.txtTelsEmpTrabajaFamiliar.Location = New System.Drawing.Point(584, 30)
-        Me.txtTelsEmpTrabajaFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtTelsEmpTrabajaFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtTelsEmpTrabajaFamiliar.MaximoAncho = 0
         Me.txtTelsEmpTrabajaFamiliar.MensajedeAyuda = "Digite los teléfonos de contacto de la empresa en la que labora el familiar. (ENT" &
     "ER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
@@ -2719,7 +2719,7 @@ Partial Class FrmEmpleado
         Me.txtCelFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtCelFamiliar.FormatoNumero = Nothing
         Me.txtCelFamiliar.Location = New System.Drawing.Point(28, 133)
-        Me.txtCelFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtCelFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtCelFamiliar.MaximoAncho = 0
         Me.txtCelFamiliar.MensajedeAyuda = "Digite el número de celular del Familiar. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras" &
     ""
@@ -2750,7 +2750,7 @@ Partial Class FrmEmpleado
         Me.txtCargoFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtCargoFamiliar.FormatoNumero = Nothing
         Me.txtCargoFamiliar.Location = New System.Drawing.Point(28, 199)
-        Me.txtCargoFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtCargoFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtCargoFamiliar.MaximoAncho = 0
         Me.txtCargoFamiliar.MensajedeAyuda = "Digite el cargo que desempeña el familiar en su trabajo. (ENTER,TAB,ABJ)=Avanzar;" &
     "(ARB,ESC)=Atras"
@@ -2781,7 +2781,7 @@ Partial Class FrmEmpleado
         Me.txtEmpresaTrabajaFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtEmpresaTrabajaFamiliar.FormatoNumero = Nothing
         Me.txtEmpresaTrabajaFamiliar.Location = New System.Drawing.Point(27, 167)
-        Me.txtEmpresaTrabajaFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtEmpresaTrabajaFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtEmpresaTrabajaFamiliar.MaximoAncho = 0
         Me.txtEmpresaTrabajaFamiliar.MensajedeAyuda = "Digite el nombre de la empresa en la que labora el familia. (ENTER,TAB,ABJ)=Avanz" &
     "ar;(ARB,ESC)=Atras"
@@ -2812,7 +2812,7 @@ Partial Class FrmEmpleado
         Me.txtOcupacionFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtOcupacionFamiliar.FormatoNumero = Nothing
         Me.txtOcupacionFamiliar.Location = New System.Drawing.Point(317, 134)
-        Me.txtOcupacionFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtOcupacionFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtOcupacionFamiliar.MaximoAncho = 0
         Me.txtOcupacionFamiliar.MensajedeAyuda = "Digite la ocupación del Familiar. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
         Me.txtOcupacionFamiliar.Name = "txtOcupacionFamiliar"
@@ -2932,7 +2932,7 @@ Partial Class FrmEmpleado
         Me.gbxUbicacionEmpTrabajaEmpleado.Location = New System.Drawing.Point(584, 107)
         Me.gbxUbicacionEmpTrabajaEmpleado.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.gbxUbicacionEmpTrabajaEmpleado.Name = "gbxUbicacionEmpTrabajaEmpleado"
-        Me.gbxUbicacionEmpTrabajaEmpleado.Padding = New System.Windows.Forms.Padding(6, 6, 6, 6)
+        Me.gbxUbicacionEmpTrabajaEmpleado.Padding = New System.Windows.Forms.Padding(6)
         Me.gbxUbicacionEmpTrabajaEmpleado.Size = New System.Drawing.Size(290, 123)
         Me.gbxUbicacionEmpTrabajaEmpleado.TabIndex = 70
         Me.gbxUbicacionEmpTrabajaEmpleado.Text = "Ubicación Empresa Labora"
@@ -3070,7 +3070,7 @@ Partial Class FrmEmpleado
         Me.txtDocFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtDocFamiliar.FormatoNumero = Nothing
         Me.txtDocFamiliar.Location = New System.Drawing.Point(313, 32)
-        Me.txtDocFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtDocFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtDocFamiliar.MaximoAncho = 0
         Me.txtDocFamiliar.MensajedeAyuda = "Digite el número de documento del Familiar. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atr" &
     "as"
@@ -3101,7 +3101,7 @@ Partial Class FrmEmpleado
         Me.txtNombreFamiliar.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtNombreFamiliar.FormatoNumero = Nothing
         Me.txtNombreFamiliar.Location = New System.Drawing.Point(28, 100)
-        Me.txtNombreFamiliar.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtNombreFamiliar.Margin = New System.Windows.Forms.Padding(5)
         Me.txtNombreFamiliar.MaximoAncho = 0
         Me.txtNombreFamiliar.MensajedeAyuda = "Digite el nombre completo del Familiar. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
         Me.txtNombreFamiliar.Name = "txtNombreFamiliar"
@@ -3136,7 +3136,7 @@ Partial Class FrmEmpleado
         Me.tpExpLaboral.Controls.Add(Me.gbxInfBasicaExpLab)
         Me.tpExpLaboral.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.tpExpLaboral.Name = "tpExpLaboral"
-        Me.tpExpLaboral.Padding = New System.Windows.Forms.Padding(6, 6, 6, 6)
+        Me.tpExpLaboral.Padding = New System.Windows.Forms.Padding(6)
         Me.tpExpLaboral.Size = New System.Drawing.Size(1090, 566)
         Me.tpExpLaboral.Text = "&Experiencia Laboral"
         '
@@ -3321,7 +3321,7 @@ Partial Class FrmEmpleado
         Me.txtEmpresaExpLab.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtEmpresaExpLab.FormatoNumero = Nothing
         Me.txtEmpresaExpLab.Location = New System.Drawing.Point(2, 32)
-        Me.txtEmpresaExpLab.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtEmpresaExpLab.Margin = New System.Windows.Forms.Padding(5)
         Me.txtEmpresaExpLab.MaximoAncho = 0
         Me.txtEmpresaExpLab.MensajedeAyuda = "Nombre de la empresa en la cual trabajó. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
         Me.txtEmpresaExpLab.Name = "txtEmpresaExpLab"
@@ -3352,7 +3352,7 @@ Partial Class FrmEmpleado
         Me.txtTelEmpExpLab.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtTelEmpExpLab.FormatoNumero = Nothing
         Me.txtTelEmpExpLab.Location = New System.Drawing.Point(593, 33)
-        Me.txtTelEmpExpLab.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtTelEmpExpLab.Margin = New System.Windows.Forms.Padding(5)
         Me.txtTelEmpExpLab.MaximoAncho = 0
         Me.txtTelEmpExpLab.MensajedeAyuda = "Teléfonos de la empresa donde trabajó. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
         Me.txtTelEmpExpLab.Name = "txtTelEmpExpLab"
@@ -3384,7 +3384,7 @@ Partial Class FrmEmpleado
         Me.txtCargoExpLab.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtCargoExpLab.FormatoNumero = Nothing
         Me.txtCargoExpLab.Location = New System.Drawing.Point(2, 65)
-        Me.txtCargoExpLab.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtCargoExpLab.Margin = New System.Windows.Forms.Padding(5)
         Me.txtCargoExpLab.MaximoAncho = 0
         Me.txtCargoExpLab.MensajedeAyuda = "Cargo que desempeño en la empresa. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
         Me.txtCargoExpLab.Name = "txtCargoExpLab"
@@ -3416,7 +3416,7 @@ Partial Class FrmEmpleado
         Me.txtJefeExplab.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtJefeExplab.FormatoNumero = Nothing
         Me.txtJefeExplab.Location = New System.Drawing.Point(3, 132)
-        Me.txtJefeExplab.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtJefeExplab.Margin = New System.Windows.Forms.Padding(5)
         Me.txtJefeExplab.MaximoAncho = 0
         Me.txtJefeExplab.MensajedeAyuda = "Nombre del Jefe Inmedito que tuvo en la empresa. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC" &
     ")=Atras"
@@ -3449,7 +3449,7 @@ Partial Class FrmEmpleado
         Me.txtDirEmpExpLab.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtDirEmpExpLab.FormatoNumero = Nothing
         Me.txtDirEmpExpLab.Location = New System.Drawing.Point(3, 98)
-        Me.txtDirEmpExpLab.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtDirEmpExpLab.Margin = New System.Windows.Forms.Padding(5)
         Me.txtDirEmpExpLab.MaximoAncho = 0
         Me.txtDirEmpExpLab.MensajedeAyuda = "Dirección de la empresa donde trabajó. (ENTER,TAB,ABJ)=Avanzar;(ARB,ESC)=Atras"
         Me.txtDirEmpExpLab.Name = "txtDirEmpExpLab"
@@ -3789,7 +3789,7 @@ Partial Class FrmEmpleado
         Me.gbxLugarObtTitulo.Location = New System.Drawing.Point(647, 33)
         Me.gbxLugarObtTitulo.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.gbxLugarObtTitulo.Name = "gbxLugarObtTitulo"
-        Me.gbxLugarObtTitulo.Padding = New System.Windows.Forms.Padding(6, 6, 6, 6)
+        Me.gbxLugarObtTitulo.Padding = New System.Windows.Forms.Padding(6)
         Me.gbxLugarObtTitulo.Size = New System.Drawing.Size(225, 153)
         Me.gbxLugarObtTitulo.TabIndex = 80
         Me.gbxLugarObtTitulo.Text = "Lugar donde Obtuvo Título"
@@ -3959,7 +3959,7 @@ Partial Class FrmEmpleado
         Me.txtInstitucionObtTitulo.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtInstitucionObtTitulo.FormatoNumero = Nothing
         Me.txtInstitucionObtTitulo.Location = New System.Drawing.Point(2, 124)
-        Me.txtInstitucionObtTitulo.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtInstitucionObtTitulo.Margin = New System.Windows.Forms.Padding(5)
         Me.txtInstitucionObtTitulo.MaximoAncho = 0
         Me.txtInstitucionObtTitulo.MensajedeAyuda = "Nombre de la institución en la cual realizó los estudios. (ENTER,TAB,ABJ)=Avanzar" &
     ";(ARB,ESC)=Atras"
@@ -3990,7 +3990,7 @@ Partial Class FrmEmpleado
         Me.txtMatriculaProfesional.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtMatriculaProfesional.FormatoNumero = Nothing
         Me.txtMatriculaProfesional.Location = New System.Drawing.Point(3, 159)
-        Me.txtMatriculaProfesional.Margin = New System.Windows.Forms.Padding(5, 5, 5, 5)
+        Me.txtMatriculaProfesional.Margin = New System.Windows.Forms.Padding(5)
         Me.txtMatriculaProfesional.MaximoAncho = 0
         Me.txtMatriculaProfesional.MensajedeAyuda = "Número de la matricula profesional, si el caso lo aplica. (ENTER,TAB,ABJ)=Avanzar" &
     ";(ARB,ESC)=Atras"

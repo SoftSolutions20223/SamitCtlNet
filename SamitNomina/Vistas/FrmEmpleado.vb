@@ -670,14 +670,25 @@ Public Class FrmEmpleado
 
     Private Sub AsignaSqlAcontroles()
         Try
-            txtTipoDoc.ConsultaSQL = String.Format("SELECT TD.TipoIdentificacion AS Codigo,TD.NomTipo AS Descripcion FROM  CAT_TiposId TD WHERE TD.UsaEmpleados=1 ")
-            txtGenero.ConsultaSQL = String.Format("SELECT GN.idgenero AS Codigo,GN.nomgenero AS Descripcion FROM  CAT_Genero GN ")
-            txtProfesion.ConsultaSQL = String.Format("SELECT PF.Sec AS Codigo, PF.NomProfesion AS Descripcion FROM  CAT_Profesiones PF WHERE PF.Vigente=1")
-            txtEstadoCivil.ConsultaSQL = String.Format("SELECT EC.Sec AS Codigo, EC.NomEstado AS Descripcion FROM  CAT_EstadoCivil EC WHERE  EC.Vigente=1")
-            'txtClaseLibreta.ConsultaSQL = String.Format("SELECT CL.IdClase AS Codigo, CL.NomClaseLib AS Descripcion FROM  CAT_ClaseLibreta CL WHERE CL.Vigente=1")
-            txtBanco.ConsultaSQL = String.Format("SELECT Sec AS Codigo, Nombre AS Descripcion FROM  CAT_Bancos WHERE Vigente = 1")
-            txtClaseLicencia.ConsultaSQL = String.Format("SELECT idClase AS Codigo, NomClase AS Descripcion FROM  CAT_ClaseLicencia WHERE Vigente = 1")
-            txtTipoEntidad.ConsultaSQL = String.Format("SELECT CodTipoEnte AS Codigo, NomTipoEnte AS Descripcion FROM  ZenumTipoEntes")
+            Dim consultas() As String = {
+                "Select TD.TipoIdentificacion As Codigo,TD.NomTipo As Descripcion FROM  CAT_TiposId TD WHERE TD.UsaEmpleados=1 ",
+                "Select GN.idgenero As Codigo,GN.nomgenero As Descripcion FROM  CAT_Genero GN ",
+                "Select PF.Sec As Codigo, PF.NomProfesion As Descripcion FROM  CAT_Profesiones PF WHERE PF.Vigente=1",
+                "Select EC.Sec As Codigo, EC.NomEstado As Descripcion FROM  CAT_EstadoCivil EC WHERE  EC.Vigente=1",
+                "Select Sec As Codigo, Nombre As Descripcion FROM  CAT_Bancos WHERE Vigente = 1",
+                "Select idClase As Codigo, NomClase As Descripcion FROM  CAT_ClaseLicencia WHERE Vigente = 1",
+                "Select CodTipoEnte As Codigo, NomTipoEnte As Descripcion FROM  ZenumTipoEntes"
+}
+
+            Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
+
+            txtTipoDoc.DatosDefecto = Datos.Tables(0)
+            txtGenero.DatosDefecto = Datos.Tables(1)
+            txtProfesion.DatosDefecto = Datos.Tables(2)
+            txtEstadoCivil.DatosDefecto = Datos.Tables(3)
+            txtBanco.DatosDefecto = Datos.Tables(4)
+            txtClaseLicencia.DatosDefecto = Datos.Tables(5)
+            txtTipoEntidad.DatosDefecto = Datos.Tables(6)
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaSqlAcontroles")
         End Try
@@ -780,7 +791,7 @@ Public Class FrmEmpleado
     Private Sub LlenaTodosLkes()
         Try
             'Llena lkedit Tipos de documento
-            Dim sql As String = "SELECT TD.TipoIdentificacion AS Codigo,TD.NomTipo AS Descripcion FROM CAT_TiposId TD WHERE TD.UsaEmpleados=1 "
+            Dim sql As String = "Select TD.TipoIdentificacion As Codigo,TD.NomTipo As Descripcion FROM CAT_TiposId TD WHERE TD.UsaEmpleados=1 "
             Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
             If dt.Rows.Count > 0 Then
                 'lkeTipoDoc.Properties.DataSource = dt
@@ -799,7 +810,7 @@ Public Class FrmEmpleado
                 If dt.Rows.Count < 10 Then lkeTipoDocFamiliar.Properties.DropDownRows = dt.Rows.Count
             End If
             ''Llena Lkedit GenerolkeParentescoFamiliar
-            'sql = "SELECT GN.idgenero AS Codigo,GN.nomgenero AS Descripcion FROM CAT_Genero GN "
+            'sql = "Select GN.idgenero As Codigo,GN.nomgenero As Descripcion FROM CAT_Genero GN "
             'dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             'If dt.Rows.Count > 0 Then
             '    lkeGenero.Properties.DataSource = dt
@@ -810,7 +821,7 @@ Public Class FrmEmpleado
             '    lkeGenero.ItemIndex = 0
             'End If
             ''Llena lkedit Profesión
-            'sql = "SELECT PF.IdProfesion AS Codigo, PF.NomProfesion AS Descripcion FROM CAT_Profesiones PF WHERE PF.Vigente=1"
+            'sql = "Select PF.IdProfesion As Codigo, PF.NomProfesion As Descripcion FROM CAT_Profesiones PF WHERE PF.Vigente=1"
             'dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             'If dt.Rows.Count > 0 Then
             '    lkeProfesion.Properties.DataSource = dt
@@ -821,7 +832,7 @@ Public Class FrmEmpleado
             '    lkeProfesion.ItemIndex = 0
             'End If
             ''Llena lkedit Estado Civil
-            'sql = "SELECT EC.IdEstado AS Codigo, EC.NomEstado AS Descripcion FROM CAT_EstadoCivil EC WHERE  EC.Vigente=1"
+            'sql = "Select EC.IdEstado As Codigo, EC.NomEstado As Descripcion FROM CAT_EstadoCivil EC WHERE  EC.Vigente=1"
             'dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             'If dt.Rows.Count > 0 Then
             '    lkeEstCivil.Properties.DataSource = dt
@@ -832,7 +843,7 @@ Public Class FrmEmpleado
             '    lkeEstCivil.ItemIndex = 0
             'End If
             ''Llena lkedit Clase de Libreta militar
-            sql = "SELECT CL.Sec AS Codigo, CL.NomClaseLib AS Descripcion FROM CAT_ClaseLibreta CL WHERE CL.Vigente=1"
+            sql = "Select CL.Sec As Codigo, CL.NomClaseLib As Descripcion FROM CAT_ClaseLibreta CL WHERE CL.Vigente=1"
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             If dt.Rows.Count > 0 Then
                 lkeClaseLibreta.Properties.DataSource = dt
@@ -844,7 +855,7 @@ Public Class FrmEmpleado
                 lkeClaseLibreta.Properties.DropDownRows = dt.Rows.Count
             End If
             'Llena Lkedit Pais de Nacimiento
-            sql = "SELECT PS.Sec AS Codigo, PS.NomPais AS Descripcion FROM G_Pais PS"
+            sql = "Select PS.Sec As Codigo, PS.NomPais As Descripcion FROM G_Pais PS"
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             Dim filas() As DataRow = dt.Select("Codigo = 169")
             If dt.Rows.Count > 0 Then
@@ -896,45 +907,45 @@ Public Class FrmEmpleado
 #End Region
 #Region "Llena los LookUpEdit de Departamento y Municipios Con eventos"
     Private Sub lkePaisNacimiento_EditValueChanged(sender As Object, e As EventArgs) Handles lkePaisNacimiento.EditValueChanged
-        Dim sql As String = String.Format("SELECT DP.Sec AS Codigo, DP.NomDpto AS Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
+        Dim sql As String = String.Format("Select DP.Sec As Codigo, DP.NomDpto As Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
                                           lkePaisNacimiento.EditValue)
         HDevExpre.LlenaLkeConDt(lkeDepNacimiento, sql, "Descripcion", "Codigo")
     End Sub
 
     Private Sub lkeDepNacimiento_EditValueChanged(sender As Object, e As EventArgs) Handles lkeDepNacimiento.EditValueChanged
-        Dim sql As String = String.Format("SELECT MN.IdMunicipio AS Codigo, MN.NombreMunicipio AS Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}", lkeDepNacimiento.EditValue)
+        Dim sql As String = String.Format("Select MN.IdMunicipio As Codigo, MN.NombreMunicipio As Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}", lkeDepNacimiento.EditValue)
         HDevExpre.LlenaLkeConDt(lkeMuniNacimiento, sql, "Descripcion", "Codigo")
     End Sub
 
     Private Sub lkePaisResidencia_EditValueChanged(sender As Object, e As EventArgs) Handles lkePaisResidencia.EditValueChanged
-        Dim sql As String = String.Format("SELECT DP.Sec AS Codigo, DP.NomDpto AS Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
+        Dim sql As String = String.Format("Select DP.Sec As Codigo, DP.NomDpto As Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
                                   lkePaisResidencia.EditValue)
         HDevExpre.LlenaLkeConDt(lkeDepResidencia, sql, "Descripcion", "Codigo")
     End Sub
 
     Private Sub lkeDepResidencia_EditValueChanged(sender As Object, e As EventArgs) Handles lkeDepResidencia.EditValueChanged
-        Dim sql As String = String.Format("SELECT MN.IdMunicipio AS Codigo, MN.NombreMunicipio AS Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}", lkeDepResidencia.EditValue)
+        Dim sql As String = String.Format("Select MN.IdMunicipio As Codigo, MN.NombreMunicipio As Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}", lkeDepResidencia.EditValue)
         HDevExpre.LlenaLkeConDt(lkeMuniResidencia, sql, "Descripcion", "Codigo")
     End Sub
 
     Private Sub lkePaisExpDocumento_EditValueChanged(sender As Object, e As EventArgs) Handles lkePaisExpDocumento.EditValueChanged
-        Dim sql As String = String.Format("SELECT DP.Sec AS Codigo, DP.NomDpto AS Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
+        Dim sql As String = String.Format("Select DP.Sec As Codigo, DP.NomDpto As Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
                                lkePaisExpDocumento.EditValue)
         HDevExpre.LlenaLkeConDt(lkeDepExpDocumento, sql, "Descripcion", "Codigo")
     End Sub
     Private Sub lkeDepExpDocumento_EditValueChanged(sender As Object, e As EventArgs) Handles lkeDepExpDocumento.EditValueChanged
-        Dim sql As String = String.Format("SELECT MN.IdMunicipio AS Codigo, MN.NombreMunicipio AS Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}", lkeDepExpDocumento.EditValue)
+        Dim sql As String = String.Format("Select MN.IdMunicipio As Codigo, MN.NombreMunicipio As Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}", lkeDepExpDocumento.EditValue)
         HDevExpre.LlenaLkeConDt(lkeMuniExpDocumento, sql, "Descripcion", "Codigo")
     End Sub
 
     Private Sub lkePaisEmpTrabajaFamiliar_EditValueChanged(sender As Object, e As EventArgs) Handles lkePaisEmpTrabajaFamiliar.EditValueChanged
-        Dim sql As String = String.Format("SELECT DP.Sec AS Codigo, DP.NomDpto AS Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
+        Dim sql As String = String.Format("Select DP.Sec As Codigo, DP.NomDpto As Descripcion FROM G_Departamento DP WHERE DP.Pais={0}",
                              lkePaisEmpTrabajaFamiliar.EditValue)
         HDevExpre.LlenaLkeConDt(lkeDepEmpTrabajaFamiliar, sql, "Descripcion", "Codigo")
     End Sub
 
     Private Sub lkeDepEmpTrabajaFamiliar_EditValueChanged(sender As Object, e As EventArgs) Handles lkeDepEmpTrabajaFamiliar.EditValueChanged
-        Dim sql As String = String.Format("SELECT MN.IdMunicipio AS Codigo, MN.NombreMunicipio AS Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}",
+        Dim sql As String = String.Format("Select MN.IdMunicipio As Codigo, MN.NombreMunicipio As Descripcion FROM G_Municipio MN WHERE MN.Departamento={0}",
                                           lkeDepEmpTrabajaFamiliar.EditValue)
         HDevExpre.LlenaLkeConDt(lkeMuniEmpTrabajaFamiliar, sql, "Descripcion", "Codigo")
     End Sub

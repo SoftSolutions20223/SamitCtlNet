@@ -10,8 +10,8 @@ Public Class Asig_ValoresExentos
     Public Property Valor As Decimal?
     <SqlColumn(Nombre:="ValorExento", TipoDato:=SqlType.Int)>
     Public Property ValorExento As Integer?
-    <SqlColumn(Nombre:="Certificado", TipoDato:=SqlType.Image)>
-    Public Property Certificado As Byte()
+    <SqlColumn(Nombre:="Certificado", TipoDato:=SqlType.NVarChar)>
+    Public Property Certificado As String
     <SqlColumn(Nombre:="Vigente", TipoDato:=SqlType.Bit)>
     Public Property Vigente As Boolean?
 End Class

@@ -210,47 +210,41 @@ Public Class FrmAggPlantillas
     End Sub
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
-        Dim guardo As Boolean = False
-        'Using trans As New TransactionScope
-
-        'connection1.Open()
-        SMT_EjcutarComandoSql(ObjetoApiNomina, "set dateformat dmy", 0)
         Try
             If ActualizandoDatosBasicos Then
-                If ExisteDato("Contratos", String.Format("Plantilla='{0}'", Sec_Plantillas), ObjetoApiNomina) Then
-                    HDevExpre.MensagedeError("Esta plantilla ya se encuentra asociada a un contrato y no es posible eliminar")
+                If HDevExpre.MsgSamit("Seguro que desea eliminar esta plantilla con todos sus conceptos?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.Cancel Then
                     Exit Sub
-                Else
-                    If HDevExpre.MsgSamit("Seguro que desea eliminar esta plantilla con todos sus conceptos?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                        Dim sql = ""
-                        If ExisteDato("ConceptosPlantillas", " Plantilla=" + Sec_Plantillas, ObjetoApiNomina) Then
-                            sql = "DELETE FROM ConceptosPlantillas WHERE Plantilla=" + Sec_Plantillas
-                            If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
-                                Exit Sub
-                            End If
-                        End If
-                        sql = "DELETE FROM Plantillas WHERE SecPlantilla=" + Sec_Plantillas
-                        If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) < 0 Then
-                            Exit Sub
-                        Else
-                            'trans.Complete()
-                            guardo = True
-                        End If
-                    End If
+                End If
+
+                ' Crear request para el procedimiento almacenado
+                Dim request As New EliminarPlantillaRequest(CInt(Sec_Plantillas))
+
+                ' Ejecutar el procedimiento almacenado usando SMT_EjecutaProcedimientos
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarPlantilla", request.ToJObject())
+
+                ' Usar DynamicDeleteResponse existente
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    LimpiarTodosCampos()
+                    HDevExpre.mensajeExitoso("Datos eliminados exitosamente!..")
+
+                    ' Refrescar grillas
+                    LlenaGrillaPlantillas()
+
+                ElseIf response.EsAdvertencia Then
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                Else ' Es Error
+                    HDevExpre.MensagedeError(response.Mensaje)
                 End If
             Else
                 MensajedeError("Seleccione la plantilla a eliminar")
-                Exit Sub
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
         End Try
-
-        'End Using
-        If guardo Then
-            LimpiarTodosCampos()
-            HDevExpre.mensajeExitoso("Datos eliminados exitosamente!..")
-        End If
     End Sub
     Private Sub btnSalir_Click(sender As Object, e As EventArgs) Handles btnSalir.Click
         Me.Close()

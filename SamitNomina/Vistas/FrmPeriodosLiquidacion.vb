@@ -173,17 +173,13 @@ Public Class FrmPeriodosLiquidacion
 
     Private Sub LlenaGrillaNominaLiquida()
         Try
-            Dim sql As String = "SELECT * FROM NominaLiquida Where Nomina=" + txtNomina.ValordelControl
-            dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-
-            If txtNomina.DescripciondelControl <> "No Se Encontraron Registros" And txtNomina.DescripciondelControl <> "" Then
-
+            If txtNomina.DescripciondelControl <> "No Se Encontraron Registros" And txtNomina.DescripciondelControl <> "" And txtNomina.ValordelControl <> "" Then
+                'Dim sql As String = "SELECT * FROM NominaLiquida Where Nomina=" + txtNomina.ValordelControl
+                'dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
+                'gcPeriodos.DataSource = dt
             Else
                 LimpiarCampos()
             End If
-
-            gcPeriodos.DataSource = dt
-
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "LlenaGrillaNominaLiquida")
         End Try

@@ -113,21 +113,15 @@ Public Class FrmContrato
 
     Private Sub AsignaScriptAcontroles()
         Try
-            txtEmpleado.ConsultaSQL = String.Format(" SELECT Identificacion AS Codigo,RTRIM(LTRIM(RTRIM(LTRIM(PNombre)) + ' ' + " +
+            Dim consultas() As String = {"SELECT Identificacion AS Codigo,RTRIM(LTRIM(RTRIM(LTRIM(PNombre)) + ' ' + " +
             " RTRIM(LTRIM(SNombre)) + ' ' +  RTRIM(LTRIM(PApellido)) + ' ' + " +
-            " RTRIM(LTRIM(SApellido)))) As Descripcion FROM  Empleados")
-
-            txtTipoContrato.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomTipo As Descripcion FROM  CAT_TipoContratos")
-
-            txtDependencia.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomDependencia As Descripcion FROM  Dependencias where Vigente = 1")
-
-            txtCargos.ConsultaSQL = String.Format("SELECT Sec AS Codigo,Denominacion As Descripcion FROM  cargos")
-
-            txtPlantillas.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomPlantilla As Descripcion FROM  Plantillas WHERE Vigente = 1")
-
-            txtPerfilCta.ConsultaSQL = String.Format("SELECT Sec AS Codigo,NomPerfilCta As Descripcion FROM  PerfilesCta WHERE Vigente = 1")
-
-            txtTipoTrabajador.ConsultaSQL = String.Format("Select '01' As Codigo, 'Dependiente' As Descripcion Union 
+            " RTRIM(LTRIM(SApellido)))) As Descripcion FROM  Empleados",
+            "SELECT Sec AS Codigo,NomTipo As Descripcion FROM  CAT_TipoContratos",
+            "SELECT Sec AS Codigo,NomDependencia As Descripcion FROM  Dependencias where Vigente = 1",
+            "SELECT Sec AS Codigo,Denominacion As Descripcion FROM  cargos",
+            "SELECT Sec AS Codigo,NomPlantilla As Descripcion FROM  Plantillas WHERE Vigente = 1",
+            "SELECT Sec AS Codigo,NomPerfilCta As Descripcion FROM  PerfilesCta WHERE Vigente = 1",
+            "Select '01' As Codigo, 'Dependiente' As Descripcion Union 
 Select '02' As Codigo, 'Servicio domestico' As Descripcion Union 
 Select '04' As Codigo, 'Madre comunitaria' As Descripcion Union 
 Select '12' As Codigo, 'Aprendices del Sena en etapa lectiva' As Descripcion Union 
@@ -142,12 +136,29 @@ Select '47' As Codigo, 'Trabajador dependiente de entidad beneficiaria del siste
 Select '51' As Codigo, 'Trabajador de tiempo parcial' As Descripcion Union 
 Select '54' As Codigo, 'Pre pensionado de entidad en liquidación.' As Descripcion Union 
 Select '56' As Codigo, 'Pre pensionado con aporte voluntario a salud' As Descripcion Union 
-Select '58' As Codigo, 'Estudiantes de prácticas laborales en el sector público' As Descripcion ")
+Select '58' As Codigo, 'Estudiantes de prácticas laborales en el sector público' As Descripcion ",
+"SELECT Sec AS Codigo,Nom_CentroCosto As Descripcion FROM  CT_CentroCostos WHERE Estado='1'"
+}
+
+            Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
 
 
-            Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
+            txtEmpleado.DatosDefecto = Datos.Tables(0)
+
+            txtTipoContrato.DatosDefecto = Datos.Tables(1)
+
+            txtDependencia.DatosDefecto = Datos.Tables(2)
+
+            txtCargos.DatosDefecto = Datos.Tables(3)
+
+            txtPlantillas.DatosDefecto = Datos.Tables(4)
+
+            txtPerfilCta.DatosDefecto = Datos.Tables(5)
+
+            txtTipoTrabajador.DatosDefecto = Datos.Tables(6)
+
             txtOficina.DatosDefecto = ObjetosNomina.Oficinas
-            txtCentroCostos.ConsultaSQL = String.Format("SELECT Sec AS Codigo,Nom_CentroCosto As Descripcion FROM  CT_CentroCostos WHERE Estado='1'")
+            txtCentroCostos.DatosDefecto = Datos.Tables(7)
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
         End Try
@@ -371,56 +382,26 @@ Select '58' As Codigo, 'Estudiantes de prácticas laborales en el sector públic
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
 
-
-        'Using trans As New TransactionScope
         Try
-            Dim sql As String = "Select Consul.Sec,Consul.Tipo From( " +
-                                               "   Select NLC.Sec As Sec, 'P' As Tipo From NominaLiquidaContratos NLC INNER JOIN NominaLiquida NL ON NLC.NominaLiquida = NL.Sec Where NL.EsBorrador=1 And NLC.Contrato =" + CodContrato + " Union " +
-                                                 " Select NLC.Sec As Sec, 'E' As Tipo From NominaLiquidaExtraordinariaContratos NLC INNER JOIN NominaLiquidaExtraordinaria NL ON NLC.NominaLiquidaExtraordinaria = NL.Sec Where NL.EsBorrador=1 And NLC.Contrato =" + CodContrato + " Union " +
-                                                "  Select NLC.Sec As Sec, 'C' As Tipo From ContratosLiquidados_Contratos NLC INNER JOIN ContratosLiquidados NL ON NLC.NominaLiquida = NL.Sec Where NL.EsBorrador=1 And NLC.Contrato =" + CodContrato + " " +
-") as Consul "
-            Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
-            If dt.Rows.Count > 0 Then
-                HDevExpre.MensagedeError("Este contrato tiene liquidaciones pendientes, no puede ser eliminado")
-                Exit Sub
-            End If
-
-            sql = "Select Consul.Sec,Consul.Tipo From( " +
-                                               "   Select NLC.Sec As Sec, 'P' As Tipo From NominaLiquidadaContratos NLC INNER JOIN NominaLiquidada NL ON NLC.NominaLiquidada = NL.Sec Where NLC.Contrato =" + CodContrato + " Union " +
-                                                " Select NLC.Sec As Sec, 'S' As Tipo From NominaLiquidaSemestresContratos NLC INNER JOIN NominaLiquidaSemestres NL ON NLC.NominaLiquidaSemestres = NL.Sec Where NLC.Contrato =" + CodContrato + " Union " +
-            " Select NLC.Sec As Sec, 'E' As Tipo From NominaLiquidaExtraordinariaContratos NLC INNER JOIN NominaLiquidaExtraordinaria NL ON NLC.NominaLiquidaExtraordinaria = NL.Sec Where NL.EsBorrador=0 And NLC.Contrato =" + CodContrato + " Union " +
-                                                "  Select NLC.Sec As Sec, 'C' As Tipo From ContratosLiquidados_Contratos NLC INNER JOIN ContratosLiquidados NL ON NLC.NominaLiquida = NL.Sec Where NL.EsBorrador=0 And NLC.Contrato =" + CodContrato + " " +
-") as Consul "
-            dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-            If dt.Rows.Count > 0 Then
-                HDevExpre.MensagedeError("Este contrato ya tiene liquidaciones, no puede ser eliminado")
-                Exit Sub
-            End If
 
             If HDevExpre.MsgSamit("Seguro que desea este contrato con todos sus cargos y centros de costo?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                If ExisteDato("Contratos_CentroCostos", String.Format("Contrato='{0}'", CodContrato), ObjetoApiNomina) Then
-                    sql = String.Format("DELETE FROM Contratos_CentroCostos WHERE Contrato={0}", CodContrato)
-                    If Not SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                        Exit Sub
-                    End If
-                End If
+                Dim request As New Newtonsoft.Json.Linq.JObject()
+                request("CodContrato") = CodContrato
 
-                If ExisteDato("Contrato_Cargos", String.Format("Contrato='{0}'", CodContrato), ObjetoApiNomina) Then
-                    ModCargoActual(CodContrato)
-                    sql = String.Format("DELETE FROM Contrato_Cargos WHERE Contrato={0}", CodContrato)
-                    If Not SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                        Exit Sub
-                    End If
-                End If
+                ' Ejecutar procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarContrato", request)
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
 
-                sql = String.Format("DELETE FROM Contratos WHERE CodContrato={0}", CodContrato)
-                If Not SMT_EjcutarComandoSqlBool(ObjetoApiNomina, sql) > 0 Then
-                    Exit Sub
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    HDevExpre.mensajeExitoso(response.Mensaje)
+                    ' Refrescar UI
+                    LimpiarTodosCampos()
+                    LlenaGrillaCargosCon(CodContrato)
+                    LlenaGrillaCentrosCostos(CodContrato)
+                Else
+                    HDevExpre.MensagedeError(response.Mensaje)
                 End If
-
-                HDevExpre.mensajeExitoso("Información eliminada exitosamente!")
-                LimpiarTodosCampos()
-                txtEmpleado.Focus()
             End If
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")

@@ -14,9 +14,8 @@ Public Class FrmPlantaCargos
         btnEliminar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Eliminar)
         btnSalir.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.SalirCuadroConX)
         btnLimpiar.Image = HDevExpre.Imagen_boton16X16(HDevExpre.ImagenesSamit16X16.Limpiar)
-        txtOficina.ConsultaSQL = String.Format("SELECT DISTINCT OO.NumOficina AS Codigo, OO.NomOficina AS Descripcion FROM SEGURIDAD..Oficinas OO " +
-                                   " INNER JOIN  NominaLiquidada NL ON OO.NumOficina = NL.OfiNomina AND OO.NumEmpresa = {1}", Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa)
-        txtCargos.ConsultaSQL = String.Format("SELECT SecCargo AS Codigo,Denominacion As Descripcion FROM  cargos")
+        txtOficina.DatosDefecto = ObjetosNomina.Oficinas
+        txtCargos.ConsultaSQL = String.Format("SELECT Sec AS Codigo,Denominacion As Descripcion FROM cargos")
         CreaGrilla()
         LlenaGrilla()
         txtOficina.Focus()
@@ -29,6 +28,7 @@ Public Class FrmPlantaCargos
     Private Sub CreaGrilla()
         Try
             gvPlantaCargos.Columns.Clear()
+            HDevExpre.CreaColumnasG(gvPlantaCargos, "Sec", "Sec", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 0, 0)
             HDevExpre.CreaColumnasG(gvPlantaCargos, "IdCargo", "IdCargo", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 0, 0)
             HDevExpre.CreaColumnasG(gvPlantaCargos, "IdOficina", "IdOficina", False, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 0, 0)
             HDevExpre.CreaColumnasG(gvPlantaCargos, "NomOficina", "Oficina", True, False, "", Color.FromArgb(&HCC, &HFF, &HCC), False, False, 80, gcPlantaCargos.Width)
@@ -42,33 +42,50 @@ Public Class FrmPlantaCargos
         End Try
     End Sub
 
+    Private Sub gvPlantaCargos_DoubleClick(sender As Object, e As EventArgs) Handles gvPlantaCargos.DoubleClick
+        Try
+            Dim fila As String = HDevExpre.ValidaDobleClicSobreFila(gvPlantaCargos)
+            If fila <> "" Then
+                CargarDatos(CInt(fila))
+            End If
+        Catch ex As Exception
+
+        End Try
+    End Sub
+
     Private Sub LlenaGrilla()
         Try
-            Dim sql As String = "SELECT PC.Oficina AS IdOficina, OO.NomOficina, PC.Cargo AS IdCargo, " +
-            " CG.Denominacion AS nomCargo, PC.NumCargos FROM PlantadeCargos PC" +
-            " INNER JOIN cargos CG ON PC.Cargo = CG.SecCargo" +
-            " INNER JOIN SEGURIDAD..Oficinas OO ON PC.Oficina = OO.NumOficina" +
-            " WHERE OO.NumEmpresa =" & Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
+            Dim sql As String = "SELECT PC.Sec, PC.Oficina AS IdOficina, PC.Cargo AS IdCargo,  CG.Denominacion AS nomCargo, PC.NumCargos FROM PlantadeCargos PC INNER JOIN cargos CG ON PC.Cargo = CG.Sec "
             Dim dt As DataTable = SMT_AbrirTabla(ObjetoApiNomina, sql)
+            dt.Columns.Add("NomOficina", GetType(String))
+            If dt.Rows.Count > 0 Then
+                For Each fila As DataRow In dt.Rows
+                    For Each filaOfi As DataRow In ObjetosNomina.Oficinas.Rows
+                        If fila("IdOficina").ToString() = filaOfi("Codigo").ToString() Then
+                            fila("NomOficina") = filaOfi("Descripcion")
+                        End If
+                    Next
+                Next
+            End If
             gcPlantaCargos.DataSource = dt
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "LlenaGrilla")
         End Try
     End Sub
 
-    Private Function GuardaRegistro(Sec As Integer, Oficina As Integer, Cargo As Integer, NumCargos As Integer, Actualizando As Boolean) As Boolean
+    Private Function GuardaRegistro(Sec As Integer, Oficina As Integer, Cargo As Integer, NumCargos As Integer) As Boolean
         Try
             PlantaCargo = New PlantadeCargos
-            PlantaCargo.Oficina = CInt(txtOficina.ValordelControl)
+            PlantaCargo.Oficina = Oficina
             PlantaCargo.Sec = Sec
-            PlantaCargo.Cargo = CInt(txtCargos.ValordelControl)
-            PlantaCargo.NumCargos = CInt(ndCantidad.EditValue)
+            PlantaCargo.Cargo = Cargo
+            PlantaCargo.NumCargos = NumCargos
             Dim RegPlantaCargo As New ServicePlantaCargos
-            Dim registro As JArray
+            Dim registro As DynamicUpsertResponseDto
             If RegPlantaCargo.ValidarCampos(PlantaCargo) Then
                 registro = RegPlantaCargo.UpsertPlantaCargos(PlantaCargo)
             End If
-            If registro.Count > 0 Then
+            If registro.ErrorCount < 1 Then
                 Return True
             End If
         Catch ex As Exception
@@ -93,6 +110,7 @@ Public Class FrmPlantaCargos
     Private Sub CargarDatos(numFila As Integer)
         Try
             If numFila < 0 Then Exit Sub
+            secReg = CInt(gvPlantaCargos.GetDataRow(numFila)("Sec").ToString())
             txtOficina.ValordelControl = gvPlantaCargos.GetDataRow(numFila)("IdOficina").ToString
             txtCargos.ValordelControl = gvPlantaCargos.GetDataRow(numFila)("IdCargo").ToString
             ndCantidad.EditValue = CInt(gvPlantaCargos.GetDataRow(numFila)("NumCargos"))
@@ -151,7 +169,7 @@ Public Class FrmPlantaCargos
         If ValidaCampos() Then
             Dim sec As Integer = 0
             If estaActualizando Then sec = secReg
-            If GuardaRegistro(sec, CInt(txtOficina.ValordelControl), CInt(txtCargos.ValordelControl), CInt(ndCantidad.EditValue), estaActualizando) Then
+            If GuardaRegistro(sec, CInt(txtOficina.ValordelControl), CInt(txtCargos.ValordelControl), CInt(ndCantidad.EditValue)) Then
                 If estaActualizando Then
                     HDevExpre.mensajeExitoso("Información actualizada correctamente.")
                 Else : HDevExpre.mensajeExitoso("Información insertada correctamente.")

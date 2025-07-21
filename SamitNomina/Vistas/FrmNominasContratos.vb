@@ -31,12 +31,15 @@ Public Class FrmNominasContratos
     End Property
     Private Sub AsignaScriptAcontroles()
         Try
-
-            txtNominas.ConsultaSQL = String.Format("SELECT SecNomina AS Codigo,NomNomina As Descripcion FROM  Nominas")
-
-            txtContratos.ConsultaSQL = String.Format("Select C.IdContrato As Codigo,'Cc:'+CONVERT(VARCHAR,E.Identificacion) +'    Empleado:'+RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
+            Dim consultas() = {"SELECT Sec AS Codigo,NomNomina As Descripcion FROM  Nominas",
+                "Select C.IdContrato As Codigo,'Cc:'+CONVERT(VARCHAR,E.Identificacion) +'    Empleado:'+RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
 " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As Descripcion " +
-" From  Contratos C INNER JOIN  Empleados E ON C.Empleado = E.IdEmpleado WHERE C.Nomina is Null Or C.Nomina=0")
+" From  Contratos C INNER JOIN  Empleados E ON C.Empleado = E.Sec WHERE C.Nomina is Null Or C.Nomina=0"
+                }
+            Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
+            txtNominas.DatosDefecto = Datos.Tables(0)
+
+            txtContratos.DatosDefecto = Datos.Tables(1)
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
         End Try
@@ -111,45 +114,20 @@ Public Class FrmNominasContratos
 
     Private Sub LlenaGrillaNominasContratos()
         Try
-            Dim dt As New DataTable
-            Dim sql As String = "Select E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
- " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple,N.SecNomina As SecNomina," +
- " N.NomNomina As NomNomina,C.CodContrato as CodContrato,C.IdContrato as IdContrato From Contratos C INNER JOIN Empleados E ON E.IdEmpleado = C.Empleado " +
-   " INNER Join" +
-" Nominas N ON C.Nomina = N.SecNomina Where N.SecNomina = '" + txtNominas.ValordelControl + "'"
-            'And" +
-            '" C.CodContrato Not In (" +
-            '" Select Consul.Contrato From (" +
-            '" Select NLC.Contrato As Contrato" +'
-            '" From NominaLiquidaContratos NLC " +
-            '" Inner Join NominaLiquida NL ON NLC.NominaLiquida = NL.Sec Where NL.EsBorrador =1  " +
-            '" Group by NLC.Contrato" +
-            '" Union" +
-            '" Select NLC.Contrato As Contrato" +
-            '" From NominaLiquidaExtraordinariaContratos NLC " +
-            '" Inner Join NominaLiquidaExtraordinaria NL ON NLC.NominaLiquidaExtraordinaria = NL.Sec Where NL.EsBorrador =1  " +
-            '" Group by NLC.Contrato" +
-            '" union" +
-            '" Select NLC.Contrato As Contrato" +
-            '" From ContratosLiquidados_Contratos NLC " +
-            '" Inner Join ContratosLiquidados NL ON NLC.NominaLiquida = NL.Sec Where NL.EsBorrador =1  " +
-            '" Group by NLC.Contrato ) AS Consul )"
 
-            dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
+            Dim consultas() = {"Select E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
+ " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple,N.Sec As SecNomina," +
+ " N.NomNomina As NomNomina,C.CodContrato as CodContrato,C.IdContrato as IdContrato From Contratos C INNER JOIN Empleados E ON E.Sec = C.Empleado " +
+   " INNER Join" +
+" Nominas N ON C.Nomina = N.Sec Where N.Sec = '" + txtNominas.ValordelControl + "'",
+"SELECT Sec AS Codigo, NomNomina As Descripcion FROM Nominas"
+                }
+            Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
+            Dim dt As New DataTable
+            dt = Datos.Tables(0)
             gcNominasContratos.DataSource = dt
 
-            'If txtNominas.DescripciondelControl <> "No Se Encontraron Registros" Or txtNominas.DescripciondelControl <> "" Then
-            '    txtContratos.Enabled = True
-            '    txtContratos.Focus()
-
-            'Else
-            '    txtContratos.Enabled = False
-            '    txtContratos.ValordelControl = ""
-            'End If
-
-            sql = "SELECT SecNomina AS Codigo,NomNomina AS Descripcion FROM Nominas"
-            dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-
+            dt = Datos.Tables(1)
             If dt.Rows.Count > 0 Then
 
                 lkEdit.DataSource = dt
@@ -183,33 +161,38 @@ Public Class FrmNominasContratos
 
     Private Sub btnAgregar_Click(sender As Object, e As EventArgs) Handles btnAgregar.Click
         If txtContratos.ValordelControl <> "" And txtContratos.DescripciondelControl <> "No Se Encontraron Registros" And txtContratos.DescripciondelControl <> "" Then
-            Dim Tbla As DataTable = CType(gcNominasContratos.DataSource, DataTable)
-            If Tbla.Rows.Count > 0 Then
-                For incre As Integer = 0 To Tbla.Rows.Count - 1
-                    If CInt(Tbla.Rows(incre)("IdContrato")) = CInt(Convert.ToInt32(txtContratos.ValordelControl)) Then
-                        HDevExpre.MensagedeError("Este contrato ya se encuentra agregado..!")
-                        Exit Sub
-                    End If
-                Next
+            If txtNominas.ValordelControl <> "" And txtNominas.DescripciondelControl <> "No Se Encontraron Registros" And txtNominas.DescripciondelControl <> "" Then
+                Dim Tbla As DataTable = CType(gcNominasContratos.DataSource, DataTable)
+                If Tbla.Rows.Count > 0 Then
+                    For incre As Integer = 0 To Tbla.Rows.Count - 1
+                        If CInt(Tbla.Rows(incre)("IdContrato")) = CInt(Convert.ToInt32(txtContratos.ValordelControl)) Then
+                            HDevExpre.MensagedeError("Este contrato ya se encuentra agregado..!")
+                            Exit Sub
+                        End If
+                    Next
+                End If
+
+                Dim dt As New DataTable
+                Dim sql As String = "Select E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
+    " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple From Contratos C INNER JOIN Empleados E ON E.Sec = C.Empleado " +
+    " Where C.IdContrato = '" + txtContratos.ValordelControl + "'"
+
+                dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
+
+                Dim NuevaFila As DataRow = Tbla.NewRow()
+                NuevaFila("IdContrato") = txtContratos.ValordelControl
+                NuevaFila("IdentificacionEmple") = dt.Rows(0)("IdentificacionEmple")
+                NuevaFila("NomEmple") = dt.Rows(0)("NomEmple")
+                NuevaFila("NomNomina") = txtNominas.DescripciondelControl
+                NuevaFila("SecNomina") = txtNominas.ValordelControl
+                Tbla.Rows.Add(NuevaFila)
+                Tbla.AcceptChanges()
+                gcNominasContratos.DataSource = Tbla
+                txtContratos.ValordelControl = ""
+            Else
+                HDevExpre.MensagedeError("El campo Nomina no puede estar vacio ni contener valores invalidos..!")
             End If
 
-            Dim dt As New DataTable
-            Dim sql As String = "Select E.Identificacion As IdentificacionEmple, RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
-" RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + RTRIM(LTRIM(E.SApellido)))) As NomEmple From Contratos C INNER JOIN Empleados E ON E.IdEmpleado = C.Empleado " +
-" Where C.IdContrato = '" + txtContratos.ValordelControl + "'"
-
-            dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
-
-            Dim NuevaFila As DataRow = Tbla.NewRow()
-            NuevaFila("IdContrato") = txtContratos.ValordelControl
-            NuevaFila("IdentificacionEmple") = dt.Rows(0)("IdentificacionEmple")
-            NuevaFila("NomEmple") = dt.Rows(0)("NomEmple")
-            NuevaFila("NomNomina") = txtNominas.DescripciondelControl
-            NuevaFila("SecNomina") = txtNominas.ValordelControl
-            Tbla.Rows.Add(NuevaFila)
-            Tbla.AcceptChanges()
-            gcNominasContratos.DataSource = Tbla
-            txtContratos.ValordelControl = ""
         Else
             HDevExpre.MensagedeError("El campo Contratos no puede estar vacio ni contener valores invalidos..!")
         End If
@@ -228,68 +211,160 @@ Public Class FrmNominasContratos
     End Sub
 
     Private Sub btnEliminar_Click(sender As Object, e As EventArgs) Handles btnEliminar.Click
-        Dim Tbla As DataTable = CType(gcNominasContratos.DataSource, DataTable)
-        If Tbla.Rows.Count > 0 Then
-            If HDevExpre.MsgSamit("Seguro que desea eliminar este contrato de esta nomina?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+        Try
+            Dim Tbla As DataTable = CType(gcNominasContratos.DataSource, DataTable)
 
-                If ExisteDato("Contratos", String.Format("IdContrato='{0}' AND Nomina='{1}' ", gvNominasContratos.GetFocusedRowCellValue("IdContrato").ToString, gvNominasContratos.GetFocusedRowCellValue("SecNomina").ToString), ObjetoApiNomina) Then
-                    Dim sql As String = "UPDATE Contratos SET Nomina=@nom Where IdContrato=" + gvNominasContratos.GetFocusedRowCellValue("IdContrato").ToString
-                    'Dim cmd As SqlCommand = New SqlCommand(sql, ObjetoApiNomina)
-                    'cmd.Parameters.AddWithValue("@nom", System.DBNull.Value)
-                    'Dim cant As Integer = cmd.ExecuteNonQuery()
-                    'If cant > 0 Then
-                    '    Tbla.Rows.Remove(Tbla.Rows(gvNominasContratos.FocusedRowHandle))
-                    '    gcNominasContratos.DataSource = Tbla
-                    '    Exit Sub
-                    'End If
-
-                End If
-                Try
-                Catch ex As Exception
-                    HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
-                End Try
-
-                Tbla.Rows.Remove(Tbla.Rows(gvNominasContratos.FocusedRowHandle))
-                gcNominasContratos.DataSource = Tbla
-                AsignaScriptAcontroles()
+            If Tbla Is Nothing OrElse Tbla.Rows.Count = 0 Then
+                Exit Sub
             End If
-        End If
+
+            ' Obtener valores del registro seleccionado
+            Dim idContrato As String = gvNominasContratos.GetFocusedRowCellValue("IdContrato")?.ToString()
+            Dim secNomina As String = gvNominasContratos.GetFocusedRowCellValue("SecNomina")?.ToString()
+
+            If String.IsNullOrEmpty(idContrato) Then
+                HDevExpre.MensagedeError("No se ha seleccionado un contrato válido")
+                Exit Sub
+            End If
+
+            If HDevExpre.MsgSamit("Seguro que desea eliminar este contrato de esta nomina?",
+                             MessageBoxButtons.OKCancel,
+                             MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
+
+                ' Verificar que la relación existe
+                If ExisteDato("Contratos",
+                         String.Format("IdContrato='{0}' AND Nomina='{1}'", idContrato, secNomina),
+                         ObjetoApiNomina) Then
+
+                    ' Crear el request para desasignar (NULL)
+                    Dim request As New AsignarNominaContratoRequest(idContrato, Nothing)
+
+                    ' Ejecutar procedimiento almacenado
+                    Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_AsignarNominaContrato", request.ToJObject())
+                    Dim response = resp.ToObject(Of AsignarNominaContratoResponse)()
+
+                    ' Procesar respuesta
+                    If response.EsExitoso Then
+                        ' Remover de la grilla local
+                        Tbla.Rows.Remove(Tbla.Rows(gvNominasContratos.FocusedRowHandle))
+                        gcNominasContratos.DataSource = Tbla
+
+                        ' Mensaje opcional (el procedimiento ya incluye información en response.Mensaje)
+                        Console.WriteLine(response.Mensaje)
+
+                        ' Refrescar controles si es necesario
+                        AsignaScriptAcontroles()
+                    Else
+                        HDevExpre.MensagedeError($"Error al desasignar la nómina: {response.Mensaje}")
+                    End If
+                Else
+                    ' Si no existe la relación, solo remover de la grilla local
+                    Tbla.Rows.Remove(Tbla.Rows(gvNominasContratos.FocusedRowHandle))
+                    gcNominasContratos.DataSource = Tbla
+                    AsignaScriptAcontroles()
+                End If
+            End If
+
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
+        End Try
     End Sub
 
     Private Sub btnGuardar_Click(sender As Object, e As EventArgs) Handles btnGuardar.Click
         Try
             Dim Tbla As DataTable = CType(gcNominasContratos.DataSource, DataTable)
-            If Tbla.Rows.Count > 0 Then
-                For incre As Integer = 0 To Tbla.Rows.Count - 1
-                    If Not GuardaDatos(Tbla.Rows(incre)("IdContrato").ToString, Tbla.Rows(incre)("SecNomina").ToString) Then
-                        Exit Sub
-                    End If
-                Next
+
+            If Tbla Is Nothing OrElse Tbla.Rows.Count = 0 Then
+                HDevExpre.MensagedeError("No hay datos para guardar")
+                Exit Sub
+            End If
+
+            ' Crear el request para procesamiento masivo
+            Dim request As New AsignarNominasContratosMasivoRequest()
+
+            ' Agregar todas las asignaciones
+            For Each row As DataRow In Tbla.Rows
+                Dim idContrato As String = row("IdContrato")?.ToString()
+                Dim secNomina As Integer = 0
+
+                If Not String.IsNullOrEmpty(idContrato) AndAlso
+               Integer.TryParse(row("SecNomina")?.ToString(), secNomina) Then
+                    request.AgregarAsignacion(idContrato, secNomina)
+                End If
+            Next
+
+            ' Validar que hay asignaciones para procesar
+            If request.Asignaciones.Count = 0 Then
+                HDevExpre.MensagedeError("No hay asignaciones válidas para procesar")
+                Exit Sub
+            End If
+
+            ' Ejecutar procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina,
+                                           "SP_AsignarNominasContratosMasivo",
+                                           request.ToJObject())
+            Dim response = resp.ToObject(Of AsignarNominasContratosMasivoResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
                 LlenaGrillaNominasContratos()
-                HDevExpre.mensajeExitoso("Datos guardados exitosamente!..")
+                HDevExpre.mensajeExitoso(response.Mensaje)
                 AsignaScriptAcontroles()
                 LimpiarCampos()
+
+            ElseIf response.EsParcial Then
+                ' Mostrar detalles de errores
+                Dim mensajeDetalle As New System.Text.StringBuilder()
+                mensajeDetalle.AppendLine(response.Mensaje)
+                mensajeDetalle.AppendLine()
+                mensajeDetalle.AppendLine("Detalles de errores:")
+
+                For Each detalle In response.Detalles.Where(Function(d) d.Estado = "ERROR")
+                    mensajeDetalle.AppendLine($"- Contrato {detalle.IdContrato}: {detalle.Mensaje}")
+                Next
+
+                HDevExpre.MensagedeError(mensajeDetalle.ToString())
+
+                ' Refrescar para mostrar solo los que sí se guardaron
+                LlenaGrillaNominasContratos()
+
+            Else
+                HDevExpre.MensagedeError(response.Mensaje)
             End If
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "btnGuardar_Click")
         End Try
-
     End Sub
 
     Private Function GuardaDatos(Contrato As String, nomina As String) As Boolean
         Try
-            Dim sql As String = "UPDATE Contratos SET Nomina=@nom Where IdContrato=" + Contrato
-            'Dim cmd As SqlCommand = New SqlCommand(sql, ObjetoApiNomina)
-            'cmd.Parameters.AddWithValue("@nom", nomina)
-            'Dim cant As Integer = cmd.ExecuteNonQuery()
-            'If cant > 0 Then
+            ' Convertir nomina a Integer nullable
+            Dim secNomina As Integer? = Nothing
+            If Not String.IsNullOrEmpty(nomina) Then
+                secNomina = CInt(nomina)
+            End If
 
-            '    Return True
-            'Else
-            '    Return False
-            'End If
+            ' Crear el request
+            Dim request As New AsignarNominaContratoRequest(Contrato, secNomina)
+
+            ' Ejecutar procedimiento almacenado
+            Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_AsignarNominaContrato", request.ToJObject())
+            Dim response = resp.ToObject(Of AsignarNominaContratoResponse)()
+
+            ' Procesar respuesta
+            If response.EsExitoso Then
+                ' Log opcional
+                Console.WriteLine(response.Mensaje)
+                Return True
+            Else
+                ' Log del error
+                Console.WriteLine($"Error: {response.Mensaje}")
+                Return False
+            End If
 
         Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "GuardaDatos")
             Return False
         End Try
     End Function

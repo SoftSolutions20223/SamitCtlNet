@@ -77,19 +77,34 @@ Public Class FrmAggBanco
                 HDevExpre.MensagedeError("No ha cargado ningun banco para ser eliminado.")
                 Exit Sub
             End If
+
             If HDevExpre.MsgSamit("Seguro que desea eliminar el banco seleccionado?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
-                Banco = New Bancos
-                Banco.Sec = secReg
+                ' Crear el request usando EliminarBancoRequest (coherente con el proyecto)
+                Dim request As New EliminarBancoRequest(secReg)
 
-                Dim RegBanco As New ServiceBancos
-                Dim registro As JArray
-                registro = RegBanco.EliminarBancos(Banco)
+                ' Ejecutar el procedimiento almacenado
+                Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_EliminarBanco", request.ToJObject())
+                Dim response = resp.ToObject(Of DynamicDeleteResponse)()
 
-                LimpiarCampos()
-                LlenaGrilla()
+                ' Procesar respuesta
+                If response.EsExitoso Then
+                    ' Éxito - limpiar y recargar
+                    HDevExpre.mensajeExitoso(response.Mensaje)
+                    LimpiarCampos()
+                    LlenaGrilla()
+
+                ElseIf response.EsAdvertencia Then
+                    ' Advertencia (no existe o no seleccionado)
+                    HDevExpre.MensagedeError(response.Mensaje)
+
+                Else ' Es Error
+                    ' Error (asociado a empleados u otro problema)
+                    HDevExpre.MensagedeError(response.Mensaje)
+                End If
             End If
-        Catch ex As Exception
 
+        Catch ex As Exception
+            HDevExpre.msgError(ex, ex.Message, "btnEliminar_Click")
         End Try
     End Sub
 

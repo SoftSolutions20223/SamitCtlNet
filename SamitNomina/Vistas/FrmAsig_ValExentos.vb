@@ -4,6 +4,7 @@ Imports DevExpress.XtraGrid.Columns
 Imports DevExpress.XtraEditors.Repository
 Imports System.Data.SqlClient
 Imports DevExpress.XtraEditors.Controls
+Imports SamitNominaLogic
 
 Public Class FrmAsig_ValExentos
 
@@ -24,14 +25,15 @@ Public Class FrmAsig_ValExentos
     End Property
     Private Sub AsignaScriptAcontroles()
         Try
-
-            txtValorExento.ConsultaSQL = String.Format("SELECT Sec as Codigo, Nom as Nombre From {0}..ValoresExentos")
-            txtValorExento.RefrescarDatos()
-            Dim Empresa As Integer = Datos.Seguridad.DatosDeLaEmpresa.NumEmpresa
-            txtContratos.ConsultaSQL = String.Format("Select C.IdContrato as Codigo,CONVERT(varchar(20), E.Identificacion) +': '+RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
+            Dim consultas() As String = {"SELECT Sec as Codigo, Nom as Nombre From ValoresExentos", "Select C.IdContrato as Codigo,CONVERT(varchar(20), E.Identificacion) +': '+RTRIM(LTRIM(RTRIM(LTRIM(E.PNombre)) + ' ' + " +
 " RTRIM(LTRIM(E.SNombre)) + ' ' +  RTRIM(LTRIM(E.PApellido)) + ' ' + " +
-" RTRIM(LTRIM(E.SApellido)))) As Descripcion FROM {0}..Contratos C INNER JOIN {0}..Empleados E ON C.Empleado = E.IdEmpleado")
-            txtContratos.RefrescarDatos()
+" RTRIM(LTRIM(E.SApellido)))) As Descripcion FROM Contratos C INNER JOIN Empleados E ON C.Empleado = E.Sec"
+}
+
+            Dim Datos = SMT_GetDataset(ObjetoApiNomina, consultas)
+            txtValorExento.DatosDefecto = Datos.Tables(0)
+            txtContratos.DatosDefecto = Datos.Tables(1)
+
         Catch ex As Exception
             HDevExpre.msgError(ex, ex.Message, "AsignaScriptAcontroles")
         End Try
@@ -117,15 +119,19 @@ Public Class FrmAsig_ValExentos
 
     Private Sub LlenaGrillaValoresExentos()
         Try
+            If txtContratos.ValordelControl <> "" Then
+                Contrato = txtContratos.ValordelControl
+            Else
+                Contrato = "0"
+            End If
             Dim dt As New DataTable
             Dim sql As String = "Select AVE.Sec As Sec,AVE.Valor As Valor,AVE.ValorExento As SecValExento,VE.Nom As ValorExento,case AVE.Vigente WHEN '1' then 'Si' when '0' then 'No' end As Vigente " +
 "From Asig_ValoresExentos AVE INNER JOIN ValoresExentos VE ON AVE.ValorExento = VE.Sec " +
-"INNER JOIN Contratos C ON AVE.Contrato = C.CodContrato Where C.IdContrato =" + txtContratos.ValordelControl
+"INNER JOIN Contratos C ON AVE.Contrato = C.CodContrato Where C.IdContrato =" + Contrato
 
             dt = SMT_AbrirTabla(ObjetoApiNomina, sql)
             gcValoresExentos.DataSource = dt
-            Contrato = txtContratos.ValordelControl
-            If Contrato <> "" Then
+            If Contrato <> "" And Contrato <> "0" Then
                 CodContrato = SMT_AbrirTabla(ObjetoApiNomina, "SELECT CodContrato AS Codigo FROM Contratos Where IdContrato ='" + Contrato + "'").Rows(0)(0).ToString
             End If
 
@@ -196,7 +202,7 @@ Public Class FrmAsig_ValExentos
         Else
             Vigente = "1"
         End If
-        GuardarDatos(True, gvValoresExentos.GetFocusedRowCellValue("Valor").ToString, gvValoresExentos.GetFocusedRowCellValue("SecValExento").ToString, Vigente)
+        GuardarDatos(gvValoresExentos.GetFocusedRowCellValue("Sec").ToString, gvValoresExentos.GetFocusedRowCellValue("Valor").ToString, gvValoresExentos.GetFocusedRowCellValue("SecValExento").ToString, Vigente)
     End Sub
 
     Private Sub btnLimpiar_KeyPress(sender As Object, e As KeyPressEventArgs) Handles btnSalir.KeyPress, btnLimpiar.KeyPress
@@ -218,7 +224,7 @@ Public Class FrmAsig_ValExentos
         End If
     End Function
 
-    Private Sub btnAggCentroCosto_Click(sender As Object, e As EventArgs) Handles btnAgregar.Click
+    Private Sub btnAgg_Click(sender As Object, e As EventArgs) Handles btnAgregar.Click
         If ValidarCampos() Then
             Dim Tbla As DataTable = CType(gcValoresExentos.DataSource, DataTable)
             If Tbla.Rows.Count > 0 Then
@@ -232,7 +238,7 @@ Public Class FrmAsig_ValExentos
             End If
             Dim NuevaFila As DataRow = Tbla.NewRow()
 
-            If GuardarDatos(False, txtValor.ValordelControl, txtValorExento.ValordelControl, grbVigente.SelectedIndex.ToString) Then
+            If GuardarDatos("0", txtValor.ValordelControl, txtValorExento.ValordelControl, grbVigente.SelectedIndex.ToString) Then
                 LlenaGrillaValoresExentos()
                 txtValorExento.ValordelControl = ""
                 txtValor.ValordelControl = ""
@@ -242,30 +248,27 @@ Public Class FrmAsig_ValExentos
         End If
     End Sub
 
-    Public Function GuardarDatos(Modifica As Boolean, valor As String, valorExento As String, Vigente As String) As Boolean
-        Dim GenSql As New SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL
-        GenSql.PasoConexionTabla(ObjetoApiNomina, "Asig_ValoresExentos")
-        GenSql.PasoValores("Contrato", CodContrato, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-        GenSql.PasoValores("Valor", valor, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-        GenSql.PasoValores("ValorExento", valorExento, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-        GenSql.PasoValores("Vigente", Vigente, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-        If Modifica Then
-            If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Actualizacion, String.Format("Sec={0}", gvValoresExentos.GetFocusedRowCellValue("Sec").ToString)) Then
+    Public Function GuardarDatos(Sec As String, valor As String, valorExento As String, Vigente As String) As Boolean
+        Try
+            Dim ValExento As New Asig_ValoresExentos
+            ValExento.Contrato = CodContrato
+            ValExento.Sec = CInt(Sec)
+            ValExento.Vigente = Vigente
+            ValExento.ValorExento = valorExento
+            ValExento.Valor = valor
+            Dim RegValExento As New ServiceAsig_ValoresExentos
+            Dim registro As DynamicUpsertResponseDto
+            If RegValExento.ValidarCampos(ValExento) Then
+                registro = RegValExento.UpsertValExento(ValExento)
+            End If
+            If registro.ErrorCount < 1 Then
                 Return True
             Else
-                HDevExpre.MensagedeError("Error al guardar los datos")
                 Return False
             End If
-        Else
-            Dim Sec = SMT_AbrirTabla(ObjetoApiNomina, "SELECT ISNULL( MAX (Sec),0)+1 AS Codigo FROM  Asig_ValoresExentos").Rows(0)(0).ToString
-            GenSql.PasoValores("Sec", Sec, SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.TipoDatoActualizaSQL.Cadena)
-            If GenSql.EjecutarComandoNET(SamitCtlNet.SamitCtlNet.ClGeneraSqlDLL.SQLGenera.Insercion, "") Then
-                Return True
-            Else
-                HDevExpre.MensagedeError("Error al guardar los datos")
-                Return False
-            End If
-        End If
+        Catch ex As Exception
+            Return False
+        End Try
     End Function
 
     Private Sub grbVigente_Enter(sender As Object, e As EventArgs) Handles grbVigente.Enter
@@ -302,12 +305,24 @@ Public Class FrmAsig_ValExentos
             If Tbla.Rows.Count > 0 Then
                 If HDevExpre.MsgSamit("Seguro que desea quitar el Valor Exento seleccionado?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) = System.Windows.Forms.DialogResult.OK Then
                     Dim codigo As String = gvValoresExentos.GetFocusedRowCellValue("Sec").ToString
-                    If SMT_EjcutarComandoSqlBool(ObjetoApiNomina, String.Format("DELETE FROM Asig_ValoresExentos WHERE Sec={0}", codigo)) > 0 Then
-                        gcValoresExentos.DataSource = Tbla
+                    Dim request As New DynamicDeleteRequest With {
+                            .Tabla = "Asig_ValoresExentos",
+                            .Codigo = CInt(codigo)
+                        }
+                    ' Ejecutar el procedimiento almacenado
+                    Dim resp = SMT_EjecutaProcedimientos(ObjetoApiNomina, "SP_DynamicDelete", request.ToJObject())
+                    Dim response = resp.ToObject(Of DynamicDeleteResponse)()
+
+                    ' Procesar respuesta
+                    If response.EsExitoso Then
                         Tbla.Rows.Remove(Tbla.Rows(gvValoresExentos.FocusedRowHandle))
-                    Else
-                        HDevExpre.MensagedeError("Error al eiminar el Valor Exento!")
+                        gcValoresExentos.DataSource = Tbla
+                    ElseIf response.EsAdvertencia Then
+                        HDevExpre.MensagedeError("Error al eiminar la ValorExento!")
+                    Else ' Es Error
+                        HDevExpre.MensagedeError("Error al eiminar la ValorExento!")
                     End If
+
                 End If
             End If
         Catch ex As Exception

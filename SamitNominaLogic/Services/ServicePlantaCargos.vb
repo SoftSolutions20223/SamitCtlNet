@@ -19,7 +19,7 @@ Public Class ServicePlantaCargos
         End If
     End Function
 
-    Public Function UpsertPlantaCargos(PlantaCargo As PlantadeCargos) As JArray
+    Public Function UpsertPlantaCargos(PlantaCargo As PlantadeCargos) As DynamicUpsertResponseDto
         Dim Peticion As New ParametrosApi()
 
         Dim fila As New JObject
@@ -32,9 +32,9 @@ Public Class ServicePlantaCargos
         datos.Add(fila)
 
         ' Hacer la petición con el JArray como segundo parámetro
-        Peticion.PostParametros("PlantaCargo", datos)
+        Dim res = Peticion.PostParametros("PlantadeCargos", datos)
 
-        Return datos
+        Return res
     End Function
 
     Public Function EliminarPlantaCargos(PlantaCargo As PlantadeCargos) As JArray
